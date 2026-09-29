@@ -1,0 +1,29 @@
+<title>R03 Like Save Share</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 2px rgba(201,164,92,.6)}.it{position:absolute;top:-30px;width:230px;height:60px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:38px;font-weight:600}
+.ic{width:52px;height:52px}</style>
+<div data-slot="shape">
+  <div class="L" id="Lt">
+    <div class="it" id="i0" style="left:-345px"><svg class="ic" viewBox="0 0 24 24"><path id="p0" d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="t0">Like</span></div>
+    <div class="it" id="i1" style="left:-115px"><svg class="ic" viewBox="0 0 24 24"><path id="p1" d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="t1">Save</span></div>
+    <div class="it" id="i2" style="left:115px"><svg class="ic" viewBox="0 0 24 24"><path id="p2" d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" stroke-width="1.8" stroke-linejoin="round"/><path id="q2" d="m21.854 2.147-10.94 10.939" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><span id="t2">Share</span></div>
+  </div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+// local: "three" 0.09, Like 0.79, Save 3.19, share 6.73
+const CLK=[0.85,3.25,6.8], on=CLK.map(c=>M.track(0,[[c,1,[20,0.78]]]));
+const lerpC=(a,b,k)=>`rgb(${a.map((x,i)=>Math.round(x+(b[i]-x)*k)).join(',')})`;
+const CREAM=[243,236,223], DIM=[120,112,104], GOLD=[201,164,92];
+M.scene({
+  W:1080,H:1920,bg:null,T:8.9,intro:0.09,center:[540,1100],
+  SH:{b:{w:740,h:118,r:59,bg:'#15121B',cam:1}}, start:'b', SEQ:[],
+  layers:[{el:'Lt',tin:0.09,tout:null,update:(t)=>{
+    for(let i=0;i<3;i++){const k=M.clamp(on[i](t)), c=lerpC(DIM,GOLD,k);
+      const p=$('p'+i); p.setAttribute('stroke',c); p.setAttribute('fill',i==2?'none':`rgba(201,164,92,${k})`);
+      if(i==2) $('q2').setAttribute('stroke',c);
+      $('t'+i).style.color=lerpC(DIM,CREAM,k);
+      $('i'+i).style.transform=`scale(${1+0.12*Math.sin(Math.PI*M.clamp((t-CLK[i])/0.3))})`;}
+  }}],
+  cursor:{size:42,clicks:CLK,keys:[[0,-150,160],[0.55,-250,20],[0.9,-250,20],[2.9,-25,20],[3.3,-25,20],[6.4,205,20],[6.85,205,20],[8.9,240,120]]},
+});
+</script>

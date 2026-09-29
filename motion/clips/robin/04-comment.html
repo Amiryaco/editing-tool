@@ -1,0 +1,25 @@
+<title>R04 Comment 999</title>
+<style>.cm{position:absolute;left:-270px;top:-30px;display:flex;align-items:center;gap:20px;font-size:44px;font-weight:600;color:#15121B}
+.snd{position:absolute;left:180px;top:-36px;width:72px;height:72px;border-radius:36px;background:#C9A45C;display:flex;align-items:center;justify-content:center}
+.car{display:inline-block;width:3px;height:44px;background:#C9A45C;margin-left:4px;vertical-align:middle}
+.ok{transform:translate(-50%,-50%);gap:18px;color:#F3ECDF;font-size:44px;font-weight:600}</style>
+<div data-slot="shape">
+  <div class="L" id="Lc"><div class="cm"><span id="icM"></span><span id="txt"></span><span class="car" id="car"></span><span id="ph" style="white-space:nowrap;color:#A59C8E;font-weight:500;font-size:38px">Add a comment…</span></div><div class="snd" id="snd"></div></div>
+  <div class="L" id="Ld"><div class="row ok"><span id="icC"></span>999</div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.msg=['M7.9 20A9 9 0 1 0 4 16.1L2 22Z'];
+$('icM').innerHTML=M.icon('msg',44,'#15121B',2.6); $('snd').innerHTML=M.icon('arrow',36,'#15121B',3);
+$('icC').innerHTML=M.icon('check',40,'#C9A45C',3.4);
+// local: comment 0.14, 999 0.60-1.36; send click 1.55
+M.scene({
+  W:1080,H:1920,bg:null,T:3.4,intro:0.08,center:[540,1100],
+  SH:{c:{w:600,h:112,r:56,bg:'#F3ECDF',cam:1}, d:{w:230,h:112,r:56,bg:'#15121B',cam:1}},
+  start:'c', SEQ:[[1.62,'d']], shapePress:[1.55],
+  layers:[{el:'Lc',tin:0.08,tout:1.62,update:(t)=>{const n=Math.max(0,Math.min(3,Math.floor((t-0.62)/0.2)+1)); M.setText($('txt'),'999'.slice(0,t<0.62?0:n));
+      $('ph').style.display=t<0.62?'':'none'; $('car').style.opacity=(Math.floor(t*2.4)%2==0||(t>0.6&&t<1.3))?1:0;}},
+    {el:'Ld',tin:1.62,tout:null,update:(t)=>{document.getElementById('shape').style.boxShadow=`inset 0 0 0 2px rgba(201,164,92,${(0.6*M.clamp((t-1.62)/0.2)).toFixed(3)})`;}}],
+  cursor:{size:42,clicks:[1.55],keys:[[0,320,170],[1.2,225,15],[1.6,225,15],[3.4,260,110]]},
+});
+</script>

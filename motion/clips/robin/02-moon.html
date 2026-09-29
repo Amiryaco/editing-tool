@@ -1,0 +1,15 @@
+<title>R02 Waning moon</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 2px rgba(201,164,92,.6)}.lb{transform:translate(-50%,-50%);gap:24px;color:#F3ECDF;font-size:42px;font-weight:500;letter-spacing:.01em}</style>
+<div data-slot="shape">
+  <div class="L" id="Lm"><div class="row lb"><svg id="moon" width="72" height="72" viewBox="-36 -36 72 72"><defs><clipPath id="disk"><circle r="33"/></clipPath></defs>
+    <circle r="33" fill="#F3ECDF"/><circle id="sh" r="34" fill="#15121B" clip-path="url(#disk)"/><circle r="33" fill="none" stroke="#C9A45C" stroke-width="2"/></svg>Waning Moon</div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+// local: "waning" 0.14; the shadow creeps in from the right over the phrase
+M.scene({
+  W:1080,H:1920,bg:null,T:4.9,intro:0.08,center:[540,1100],
+  SH:{m:{w:470,h:112,r:56,bg:'#15121B',cam:1}}, start:'m', SEQ:[],
+  layers:[{el:'Lm',tin:0.08,tout:null,update:(t)=>{const k=M.eio(M.clamp((t-0.35)/2.2)); $('sh').setAttribute('cx',(70-44*k).toFixed(2));}}],
+});
+</script>

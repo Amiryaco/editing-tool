@@ -88,15 +88,17 @@ def bgr(hexrgb):
 
 STICKY = {'של', 'על', 'את', 'עם', 'אל', 'כל', 'לא', 'גם', 'רק', 'זה', 'זו', 'כי', 'אם', 'או', 'מה', 'איך', 'יותר', 'הכי', 'the', 'a', 'to', 'of'}
 
-def sticky(prev, nxt):
+def sticky(prev, nxt, english=False):
     """True when a caption break between these two words would read badly."""
     p, n = prev['w'], nxt['w']
-    if LAT.search(p) and LAT.search(n): return True           # "Claude Code"
+    if english: return p.lower() in {'a', 'an', 'the', 'to', 'of', 'i'} or bool(re.fullmatch(r'[\d.,%$]+', p))
+    if LAT.search(p) and LAT.search(n): return True           # "Claude Code" inside a Hebrew line
     if re.fullmatch(r'[\d.,%₪$]+', p): return True           # "3 כלים", "50% הנחה"
     if p in STICKY or len(p) == 1: return True                # "של הסרטון", "ו", "ה"
     return False
 
 def group(words, max_words, max_chars, gap=0.45):
+    english = sum(bool(LAT.search(w['w'])) for w in words) > len(words) / 2  # an English video: no name rule
     """Split into caption groups: break on sentence ends and pauses, respect word/char limits,
     and avoid breaks that strand a preposition, a number or half of an English name (one word of slack)."""
     groups, cur = [], []
@@ -105,15 +107,16 @@ def group(words, max_words, max_chars, gap=0.45):
             chars = sum(len(x['w']) + 1 for x in cur) + len(w['w'])
             pause = w['s'] - cur[-1]['e'] > gap
             full = len(cur) >= max_words or chars > max_chars
-            latin_pair = bool(LAT.search(cur[-1]['w']) and LAT.search(w['w']))
+            latin_pair = not english and bool(LAT.search(cur[-1]['w']) and LAT.search(w['w']))
             slack = 2 if latin_pair else 1
-            soft = len(cur) < max_words + slack and chars <= max_chars + 6 * slack and sticky(cur[-1], w)
+            soft = len(cur) < max_words + slack and chars <= max_chars + 6 * slack and sticky(cur[-1], w, english)
             if pause or (full and not soft):
                 groups.append(cur); cur = []
         cur.append(w)
-        if re.search(r'[.!?…]$', w['raw']) or (w['raw'].endswith(',') and len(cur) >= 2):
+        if re.search(r'[.!?…,]$', w['raw']):
             # a lone word ending a sentence joins the previous group ("השיווק שלי בדיוק כאן", not "כאן" alone)
             if len(cur) == 1 and groups and len(groups[-1]) <= max_words and cur[0]['s'] - groups[-1][-1]['e'] <= gap \
+                    and not re.search(r'[.!?…]$', groups[-1][-1]['raw']) \
                     and sum(len(x['w']) + 1 for x in groups[-1]) + len(cur[0]['w']) <= max_chars + 8:
                 groups[-1].extend(cur)
             else:

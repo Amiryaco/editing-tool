@@ -1,0 +1,22 @@
+<title>R05 Follow Robin</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 2px rgba(201,164,92,.6)}.av{position:absolute;left:-310px;top:-42px;width:84px;height:84px;border-radius:42px;background:#C9A45C;display:flex;align-items:center;justify-content:center;color:#15121B;font-size:34px;font-weight:700;letter-spacing:.02em}
+.nm{position:absolute;left:-206px;top:-40px;color:#F3ECDF;font-size:38px;font-weight:600;white-space:nowrap}
+.sb{position:absolute;left:-206px;top:6px;color:#A59C8E;font-size:26px;font-weight:500;white-space:nowrap;letter-spacing:.06em}
+.bt{position:absolute;left:92px;top:-34px;width:236px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:32px;font-weight:600}</style>
+<div data-slot="shape">
+  <div class="L" id="Lf"><div class="av">RC</div><div class="nm">Robin Carter</div><div class="sb">ASTROLOGY</div>
+    <div class="bt" id="bt"><span id="icK"></span><span id="bl">Follow</span></div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+// local: follow 0.46 -> click 0.55
+const on=M.track(0,[[0.55,1,[20,0.78]]]);
+M.scene({
+  W:1080,H:1920,bg:null,T:3.25,intro:0.06,center:[540,1100],
+  SH:{f:{w:680,h:124,r:62,bg:'#15121B',cam:1}}, start:'f', SEQ:[],
+  layers:[{el:'Lf',tin:0.06,tout:null,update:(t)=>{const k=M.clamp(on(t)), b=$('bt').style;
+    b.background=k>0.5?'#C9A45C':'#F3ECDF'; b.color='#15121B'; b.transform=`scale(${(1-0.06*Math.sin(Math.PI*M.clamp((t-0.5)/0.18)))*(1+0.06*Math.sin(Math.PI*M.clamp((t-0.6)/0.3)))})`;
+    M.setText($('bl'),t<0.58?'Follow':'Following'); $('icK').innerHTML=t<0.58?'':M.icon('check',28,'#15121B',3.4); $('icK').style.display=t<0.58?'none':'';}}],
+  cursor:{size:42,clicks:[0.55],keys:[[0,330,150],[0.4,210,10],[0.62,210,10],[3.25,260,90]]},
+});
+</script>

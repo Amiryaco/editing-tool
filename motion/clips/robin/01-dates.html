@@ -1,0 +1,26 @@
+<title>R01 Dates</title>
+<style>.ch{position:absolute;top:-24px;width:230px;text-align:center;font-size:40px;font-weight:600;color:#15121B;letter-spacing:.01em}
+.sep{position:absolute;top:-22px;width:4px;height:44px;border-radius:2px;background:#DCCFB6}</style>
+<div data-slot="shape">
+  <div class="L" id="Lc">
+    <div class="ch" id="c0" style="left:-360px">SEP 29</div><div class="sep" id="s1" style="left:-127px"></div>
+    <div class="ch" id="c1" style="left:-115px">SEP 30</div><div class="sep" id="s2" style="left:123px"></div>
+    <div class="ch" id="c2" style="left:135px;color:#A8823B">OCT 1</div>
+  </div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+// local word times: 29th 0.15, 30th 1.21, October 2.03
+const T=[0.15,1.21,2.03], LEFT=-375;
+M.scene({
+  W:1080,H:1920,bg:null,T:3.35,intro:0.1,center:[540,1100],
+  SH:{p1:{w:250,h:104,r:52,bg:'#F3ECDF',cam:1},p2:{w:500,h:104,r:52,bg:'#F3ECDF',cam:1},p3:{w:750,h:104,r:52,bg:'#F3ECDF',cam:1}},
+  start:'p1', SEQ:[[1.18,'p2'],[2.0,'p3']],
+  geom:(t,g)=>{g.cx=LEFT+g.w/2; g.fx=g.cx; return g;},
+  layers:[{el:'Lc',tin:0.1,tout:null,anchor:'c',update:(t,g)=>{
+    $('Lc').style.left=(g.w/2-g.cx)+'px';  // keep chips at fixed world x while the pill grows from the left edge
+    ['c0','c1','c2'].forEach((id,i)=>{const v=M.vis(t,T[i],null,{din:0.02,lin:0.2}); M.apply($(id),v);});
+    ['s1','s2'].forEach((id,i)=>{$(id).style.opacity=M.clamp((t-T[i+1])/0.2);});
+  }}],
+});
+</script>
