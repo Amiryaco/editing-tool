@@ -1,0 +1,33 @@
+<title>A03 Free guide</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 1.5px rgba(201,162,77,.55)}
+.doc{position:absolute;left:-290px;top:-50px;width:100px;height:100px;border-radius:24px;background:#C9A24D;display:flex;align-items:center;justify-content:center}
+.k{position:absolute;left:-166px;top:-44px;font-size:26px;font-weight:700;letter-spacing:.18em;color:#E2C27A;white-space:nowrap}
+.n{position:absolute;left:-166px;top:-6px;font-size:42px;font-weight:600;color:#F5F1E8;white-space:nowrap}
+.cm{position:absolute;left:-270px;top:-30px;display:flex;align-items:center;gap:20px;font-size:44px;font-weight:700;color:#0B0B0C;letter-spacing:.06em}
+.car{display:inline-block;width:3px;height:44px;background:#C9A24D;margin-left:2px}
+.snd{position:absolute;left:190px;top:-36px;width:72px;height:72px;border-radius:36px;background:#C9A24D;display:flex;align-items:center;justify-content:center}
+.ok{transform:translate(-50%,-50%);gap:18px;color:#F5F1E8;font-size:40px;font-weight:600;white-space:nowrap}</style>
+<div data-slot="shape">
+  <div class="L" id="Lg"><div class="doc" id="icDoc"></div><div class="k">FREE GUIDE</div><div class="n">by Adrian Hale</div></div>
+  <div class="L" id="Lc"><div class="cm"><span id="icM"></span><span id="txt"></span><span class="car" id="car"></span></div><div class="snd" id="snd"></div></div>
+  <div class="L" id="Ls"><div class="row ok"><span id="icOk"></span>CLEAR<span style="color:#8E8778;font-weight:500">·</span><span style="color:#E2C27A">I’ll send it to you</span></div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.msg=['M7.9 20A9 9 0 1 0 4 16.1L2 22Z'];
+$('icDoc').innerHTML=M.icon('file',52,'#0B0B0C',3); $('icM').innerHTML=M.icon('msg',44,'#0B0B0C',2.6);
+$('snd').innerHTML=M.icon('arrow',36,'#0B0B0C',3); $('icOk').innerHTML=M.icon('check',36,'#C9A24D',3.6);
+// local (clip in at 46.25): free guide 0.46, Comment 3.48, CLEAR 3.86, send click 4.5, "send it to you" 4.84
+M.scene({
+  W:1080,H:1920,bg:null,T:5.63,intro:0.4,center:[540,260],
+  SH:{g:{w:640,h:150,r:44,bg:'#0B0B0C',cam:1}, c:{w:620,h:112,r:56,bg:'#F5F1E8',cam:1}, s:{w:640,h:112,r:56,bg:'#0B0B0C',cam:1}},
+  start:'g', SEQ:[[3.45,'c'],[4.6,'s']], shapePress:[4.5],
+  layers:[
+    {el:'Lg',tin:0.4,tout:3.45},
+    {el:'Lc',tin:3.45,tout:4.6,update:(t)=>{const n=Math.max(0,Math.min(5,Math.floor((t-3.86)/0.07)+1)); M.setText($('txt'),'CLEAR'.slice(0,t<3.86?0:n)); $('car').style.opacity=(t<3.86&&Math.floor(t*3)%2)?0:1;}},
+    {el:'Ls',tin:4.6,tout:null},
+  ],
+  extra:(t)=>{const sh=document.getElementById('shape').style; sh.boxShadow=(t>3.5&&t<4.6)?'none':'';},
+  cursor:{size:42,clicks:[4.5],keys:[[0,420,190],[3.9,420,190],[4.3,226,12],[4.55,226,12],[5.63,300,110]]},
+});
+</script>

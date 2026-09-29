@@ -16,6 +16,7 @@ You are the editor. The user gives raw footage; you give back a finished video p
 ## 1. Interview (one round, AskUserQuestion)
 
 Skip anything already answered.
+- **Brand:** if the video is of a known character, read `motion/brands.json` and use its colours; a new character gets a new entry there.
 - **Platform and format:** Reels/TikTok/Shorts (9:16, 1080×1920), YouTube (16:9), or both. This sets the reframe, pacing and caption style.
 - **Target length and pacing:** tight (every pause gone, energetic), natural (short breaths kept), or a length target ("up to 60 seconds").
 - **Captions:** reels / clean / youtube / none. Font (Heebo/Rubik) and accent colour.
@@ -31,6 +32,9 @@ cp <upload> motion/work/source.mp4
 python3 $VE/scripts/transcribe.py motion/work/source.mp4 motion/work/words.json [--srt their.srt]
 python3 $VE/scripts/analyze.py motion/work/source.mp4 motion/work/words.json motion/work [--out-W 1080 --out-H 1920]
 ```
+
+**If the user has the script (AI avatars always do), save it as `motion/<video>/script.txt`** and, after the cut, run
+`python3 $VE/scripts/align_script.py words_edited.json script.txt words_captions.json`: timings stay from the audio, the text (punctuation, capitals, spelling, quotes) comes from the script, so captions break on the real sentences. Use `words_captions.json` for the captions.
 
 `transcribe.py` needs huggingface.co reachable for Whisper models (the Hebrew model `ivrit-ai/whisper-large-v3-turbo-ct2` first). If it is blocked, ask for an SRT and say which domain to allow.
 

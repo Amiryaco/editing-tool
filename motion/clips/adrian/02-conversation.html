@@ -1,0 +1,27 @@
+<title>A02 Back to the conversation</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 1.5px rgba(201,162,77,.55)}
+.rw{position:absolute;left:-270px;width:540px;height:70px;display:flex;align-items:center;gap:20px;font-size:38px;font-weight:600;white-space:nowrap}
+.mk{flex:none;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center}
+.strike{position:absolute;left:64px;top:36px;height:3px;background:#8E8778;border-radius:2px}</style>
+<div data-slot="shape">
+  <div class="L" id="Lr">
+    <div class="rw" id="r0" style="top:15px;color:#F5F1E8"><span class="mk" style="background:#C9A24D" id="m0"></span>Back to the conversation</div>
+    <div class="rw" id="r1" style="top:95px;color:#8E8778"><span class="mk" style="box-shadow:inset 0 0 0 2px #5E584F" id="m1"></span>Not just to you<span class="strike" id="sk"></span></div>
+  </div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+$('m0').innerHTML=M.icon('check',26,'#0B0B0C',3.4); $('m1').innerHTML=M.icon('x',22,'#8E8778',3);
+// local (clip in at 42.55): conversation 1.55, "not" 2.17, "just to you" 2.81
+const R=[1.5,2.15], TOP=-85;
+M.scene({
+  W:1080,H:1920,bg:null,T:3.6,intro:1.45,center:[540,215],
+  SH:{a:{w:640,h:100,r:50,bg:'#0B0B0C',cam:1}, b:{w:640,h:180,r:44,bg:'#0B0B0C',cam:1}},
+  start:'a', SEQ:[[2.12,'b']],
+  geom:(t,g)=>{g.cy=TOP+g.h/2; g.fy=0; return g;},
+  layers:[{el:'Lr',tin:1.45,tout:null,anchor:'t',update:(t)=>{
+    for(let i=0;i<2;i++){const v=M.vis(t,R[i],null,{din:0.03,lin:0.22}); const r=$('r'+i); r.style.opacity=v.o; r.style.filter=v.blur>0.05?`blur(${v.blur}px)`:'none';}
+    $('sk').style.width=(260*M.eio(M.clamp((t-2.75)/0.35)))+'px';
+  }}],
+});
+</script>

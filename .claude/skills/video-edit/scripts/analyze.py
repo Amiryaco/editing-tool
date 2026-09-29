@@ -82,6 +82,15 @@ def main():
     info = probe(a.video)
     words = load(a.words)
     sil = silences(a.video) if info['has_audio'] else []
+    # Whisper often starts a word that follows a pause too early (inside the silence). Snap such starts to the
+    # measured end of the silence, and write the corrected times back so cuts and captions use them.
+    snapped = 0
+    for w in words:
+        for s0, s1 in sil:
+            if s0 + 0.05 < w['s'] < s1 - 0.03 and w['e'] > s1:
+                w['s'] = round(s1, 3); snapped += 1; break
+    if snapped:
+        save(a.words, words)
     focus, faces = face_focus(a.video, info)
     info.update(silences=sil, focus=focus or [0.5, 0.42], faces=faces, face_found=bool(focus))
     save(out / 'video.json', info)
@@ -139,6 +148,7 @@ def main():
             'segments': draft}
     save(out / 'edit_draft.json', edit)
     kept = sum(d['out'] - d['in'] for d in draft)
+    print(f"{snapped} word starts snapped to silence ends; " if snapped else '', end='')
     print(f"{len(sents)} sentences, {len(filler_idx)} fillers, {len(rt)} possible retakes, {len(sil)} silences; "
           f"face {'at ' + str(focus) if focus else 'not found'}\n"
           f"draft: {len(draft)} segments, {fmt(kept)} of {fmt(info['duration'])} kept -> {out}/edit_draft.json")

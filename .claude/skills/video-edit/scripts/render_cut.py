@@ -107,9 +107,11 @@ def main():
     if pathlib.Path(wpath).exists():
         new = []
         for w in load(wpath):
-            m = (w['s'] + w['e']) / 2
-            seg = next((x for x in timeline if x['in'] <= m < x['out']), None)
-            if not seg: continue
+            # the segment the word overlaps most: Whisper often stretches a word across a pause that was cut,
+            # so its midpoint can fall in the gap even though the word is heard in the kept audio
+            ov = lambda x: min(w['e'], x['out']) - max(w['s'], x['in'])
+            seg = max(timeline, key=ov, default=None)
+            if not seg or ov(seg) < min(0.06, (w['e'] - w['s']) / 2): continue
             f = lambda t: seg['start'] + min(max(t, seg['in']), seg['out']) - seg['in']
             new.append({**w, 's': round(f(w['s']), 3), 'e': round(f(w['e']), 3)})
         new.sort(key=lambda w: w['s'])  # segments may be reordered (cold open)

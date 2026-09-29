@@ -18,6 +18,13 @@ When the user uploads a video and asks for editing, use `/video-edit` and follow
 - Working folders: `motion/inputs/` (brand assets, logos), `motion/clips/` (clip sources, tracked in git), `motion/work/`, `motion/dist/` and `motion/out/` (generated, not tracked).
 - Automatic transcription (`video-edit/scripts/transcribe.py`) downloads Whisper models from Hugging Face. The network policy must allow `huggingface.co` **and** its file storage: `cas-server.xethub.hf.co`, `cas-bridge.xethub.hf.co`, `transfer.xethub.hf.co`, `cdn-lfs.hf.co`, `cdn-lfs-us-1.hf.co`, `us.aws.cdn.hf.co` (the actual file download; both the Xet and the plain path redirect there) (or `*.hf.co` if wildcards are allowed). Without them, the model metadata loads but the weights fail (CAS/403 errors); ask the user for an SRT meanwhile.
 
+## Characters and brands
+
+Each AI character has a brand kit in `motion/brands.json` (colours, niche, handle, clip folder). **Read it before building clips for a character and use those colours.** When the user names a new character or new colours, add or update its entry.
+
+- Robin Carter: astrology. Ink `#15121B`, gold `#C9A45C`, cream `#F3ECDF`.
+- Adrian Hale: relationship advice for women. Black `#0B0B0C`, gold `#C9A24D`, ivory `#F5F1E8`.
+
 ## Our working rules
 
 - **The skill's rules stay in force:** one shape that never cuts, a cursor that drives every change, springs with no bouncy easing, one change per spoken beat, and **no invented numbers, quotes or results**.
