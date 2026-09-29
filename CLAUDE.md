@@ -16,7 +16,7 @@ When the user uploads a video and asks for editing, use `/video-edit` and follow
 - **Don't run the skill's `scripts/setup.sh`** here: it would try to download Chromium. Use `scripts/setup-env.sh` instead.
 - Run engine scripts from the repo root with `NODE_PATH=./motion/node_modules`, with `$SKILL=.claude/skills/motion-broll`.
 - Working folders: `motion/inputs/` (brand assets, logos), `motion/clips/` (clip sources, tracked in git), `motion/work/`, `motion/dist/` and `motion/out/` (generated, not tracked).
-- Automatic transcription (`video-edit/scripts/transcribe.py`) downloads Whisper models from Hugging Face. The network policy must allow `huggingface.co` **and** its file storage: `cas-server.xethub.hf.co`, `cas-bridge.xethub.hf.co`, `transfer.xethub.hf.co`, `cdn-lfs.hf.co`, `cdn-lfs-us-1.hf.co` (or `*.hf.co` if wildcards are allowed). Without them, the model metadata loads but the weights fail (CAS/403 errors); ask the user for an SRT meanwhile.
+- Automatic transcription (`video-edit/scripts/transcribe.py`) downloads Whisper models from Hugging Face. The network policy must allow `huggingface.co` **and** its file storage: `cas-server.xethub.hf.co`, `cas-bridge.xethub.hf.co`, `transfer.xethub.hf.co`, `cdn-lfs.hf.co`, `cdn-lfs-us-1.hf.co`, `us.aws.cdn.hf.co` (the actual file download; both the Xet and the plain path redirect there) (or `*.hf.co` if wildcards are allowed). Without them, the model metadata loads but the weights fail (CAS/403 errors); ask the user for an SRT meanwhile.
 
 ## Our working rules
 
