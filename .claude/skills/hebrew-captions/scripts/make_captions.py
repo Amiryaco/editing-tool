@@ -1,0 +1,207 @@
+"""Word timestamps -> Hebrew captions: an .ass file to burn in (RTL, active-word highlight) and a plain .srt.
+
+usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube]
+       [--font Heebo|Rubik] [--accent FFD400] [--max-words 3] [--max-chars 22] [--y 0.72] [--srt out.srt]
+       [--fix fixes.json]
+
+words.json: [{"w": "שלום", "s": 1.00, "e": 1.40}, ...]  (times in the video the captions go on)
+fixes.json: {"וויספר": "Whisper", "קלוד": "Claude"}  (spelling fixes applied word by word)
+"""
+import argparse, json, re, pathlib
+import uharfbuzz as hb
+from fontTools.ttLib import TTFont
+
+FONTS = pathlib.Path(__file__).resolve().parent.parent / 'fonts'
+HEB = re.compile('[\u0590-\u05FF\uFB1D-\uFB4F]'); LAT = re.compile('[A-Za-z]')
+
+class Measure:
+    """Shapes words with HarfBuzz and returns widths in pixels at a libass font size (VSFilter sizing: size = winAscent+winDescent)."""
+    def __init__(self, path, size):
+        data = open(path, 'rb').read(); self.font = hb.Font(hb.Face(data))
+        os2 = TTFont(path)['OS/2']; self.k = size / (os2.usWinAscent + os2.usWinDescent)
+    def __call__(self, text):
+        buf = hb.Buffer(); buf.add_str(text); buf.guess_segment_properties(); hb.shape(self.font, buf)
+        return sum(p.x_advance for p in buf.glyph_positions) * self.k
+
+def direction(w):
+    if HEB.search(w): return 'R'
+    if LAT.search(w): return 'L'
+    return 'N'
+
+def layout_line(ws, widths, space, cx):
+    """Visual x-centre for each word of an RTL line: logical order runs right to left, LTR runs (English) keep their inner order."""
+    dirs = [direction(w) for w in ws]
+    for i, d in enumerate(dirs):  # neutral words (numbers, symbols) join an LTR run only when both sides are LTR
+        if d == 'N':
+            prev = next((dirs[j] for j in range(i - 1, -1, -1) if dirs[j] != 'N'), 'R')
+            nxt = next((dirs[j] for j in range(i + 1, len(dirs)) if dirs[j] != 'N'), 'R')
+            dirs[i] = 'L' if prev == nxt == 'L' else 'R'
+    runs = []
+    for i, d in enumerate(dirs):
+        if runs and d == 'L' and runs[-1][0] == 'L': runs[-1][1].append(i)
+        else: runs.append((d, [i]))
+    total = sum(widths) + space * (len(ws) - 1)
+    xs = [0.0] * len(ws); right = cx + total / 2
+    for d, idx in runs:
+        rw = sum(widths[i] for i in idx) + space * (len(idx) - 1)
+        if d == 'L':
+            x = right - rw
+            for i in idx: xs[i] = x + widths[i] / 2; x += widths[i] + space
+        else:
+            xs[idx[0]] = right - widths[idx[0]] / 2
+        right -= rw + space
+    return xs, total
+
+def split_lines(n, widths, space, maxw):
+    """One line if it fits, else the most balanced two-line split."""
+    tot = sum(widths) + space * (n - 1)
+    if tot <= maxw or n < 2: return [list(range(n))]
+    best = min(range(1, n), key=lambda k: abs((sum(widths[:k]) + space * (k - 1)) - (sum(widths[k:]) + space * (n - k - 1))))
+    return [list(range(best)), list(range(best, n))]
+
+STYLES = {
+    # font weight, size as a fraction of frame height, outline, shadow, box, uppercase-ish pop, highlight mode
+    'reels':   dict(weight='Black', size=0.052, outline=0.0045, shadow=0.0, box=False, pop=True,  hl='color'),
+    'clean':   dict(weight='Bold',  size=0.040, outline=0.0030, shadow=0.0015, box=False, pop=False, hl='color'),
+    'youtube': dict(weight='Medium', size=0.042, outline=0.0, shadow=0.0, box=True, pop=False, hl='none'),
+}
+PUNCT_END = re.compile(r'[.,!?;:…]+$')
+BIDI = re.compile('[‎‏‪-‮⁦-⁩]')
+
+def ass_time(t):
+    t = max(0.0, t); cs = int(round(t * 100)); h, cs = divmod(cs, 360000); m, cs = divmod(cs, 6000); s, cs = divmod(cs, 100)
+    return f'{h}:{m:02d}:{s:02d}.{cs:02d}'
+
+def srt_time(t):
+    ms = int(round(max(0.0, t) * 1000)); h, ms = divmod(ms, 3600000); m, ms = divmod(ms, 60000); s, ms = divmod(ms, 1000)
+    return f'{h:02d}:{m:02d}:{s:02d},{ms:03d}'
+
+def bgr(hexrgb):
+    h = hexrgb.lstrip('#'); return f'&H00{h[4:6]}{h[2:4]}{h[0:2]}&'.upper()
+
+STICKY = {'של', 'על', 'את', 'עם', 'אל', 'כל', 'לא', 'גם', 'רק', 'זה', 'זו', 'כי', 'אם', 'או', 'מה', 'איך', 'יותר', 'הכי', 'the', 'a', 'to', 'of'}
+
+def sticky(prev, nxt):
+    """True when a caption break between these two words would read badly."""
+    p, n = prev['w'], nxt['w']
+    if LAT.search(p) and LAT.search(n): return True           # "Claude Code"
+    if re.fullmatch(r'[\d.,%₪$]+', p): return True           # "3 כלים", "50% הנחה"
+    if p in STICKY or len(p) == 1: return True                # "של הסרטון", "ו", "ה"
+    return False
+
+def group(words, max_words, max_chars, gap=0.45):
+    """Split into caption groups: break on sentence ends and pauses, respect word/char limits,
+    and avoid breaks that strand a preposition, a number or half of an English name (one word of slack)."""
+    groups, cur = [], []
+    for w in words:
+        if cur:
+            chars = sum(len(x['w']) + 1 for x in cur) + len(w['w'])
+            pause = w['s'] - cur[-1]['e'] > gap
+            full = len(cur) >= max_words or chars > max_chars
+            latin_pair = bool(LAT.search(cur[-1]['w']) and LAT.search(w['w']))
+            slack = 2 if latin_pair else 1
+            soft = len(cur) < max_words + slack and chars <= max_chars + 6 * slack and sticky(cur[-1], w)
+            if pause or (full and not soft):
+                groups.append(cur); cur = []
+        cur.append(w)
+        if re.search(r'[.!?…]$', w['raw']) or (w['raw'].endswith(',') and len(cur) >= 2):
+            groups.append(cur); cur = []
+    if cur: groups.append(cur)
+    return groups
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('words'); ap.add_argument('out')
+    ap.add_argument('--W', type=int, default=1920); ap.add_argument('--H', type=int, default=1080)
+    ap.add_argument('--style', default='reels', choices=STYLES)
+    ap.add_argument('--font', default='Heebo'); ap.add_argument('--accent', default='FFD400')
+    ap.add_argument('--color', default='FFFFFF'); ap.add_argument('--max-words', type=int)
+    ap.add_argument('--max-chars', type=int); ap.add_argument('--y', type=float, help='vertical centre of the captions, 0..1')
+    ap.add_argument('--keep-punct', action='store_true', help='keep commas and full stops (removed by default)')
+    ap.add_argument('--srt'); ap.add_argument('--fix')
+    a = ap.parse_args()
+    st = STYLES[a.style]
+    vertical = a.H > a.W
+    max_words = a.max_words or (3 if a.style == 'reels' else 7)
+    max_chars = a.max_chars or (18 if a.style == 'reels' else (32 if not vertical else 24))
+    y = a.y if a.y is not None else (0.70 if vertical else 0.84)
+    fixes = json.load(open(a.fix, encoding='utf-8')) if a.fix else {}
+
+    words = []
+    for w in json.load(open(a.words, encoding='utf-8')):
+        raw = BIDI.sub('', w['w']).strip()
+        if not raw: continue
+        core = PUNCT_END.sub('', raw)
+        core = fixes.get(core, core)
+        shown = raw if a.keep_punct else core
+        shown = re.sub(r'^[,.;:]+', '', shown)
+        if not shown: continue
+        words.append({'w': shown, 'raw': raw, 's': float(w['s']), 'e': float(w['e'])})
+    groups = group(words, max_words, max_chars)
+
+    size = round(a.H * st['size']) if vertical else round(a.H * st['size'] * 1.15)
+    outline = max(0, round(a.H * st['outline'])); shadow = round(a.H * st['shadow'])
+    bold = -1 if st['weight'] == 'Bold' else 0
+    fontname = a.font if st['weight'] == 'Bold' else f"{a.font} {st['weight']}"
+    border_style = 3 if st['box'] else 1
+    back = '&H80000000&' if st['box'] else '&H64000000&'
+    margin_v = round(a.H * (1 - y) - size / 2)
+    margin_lr = round(a.W * 0.08)
+    head = f"""[Script Info]
+ScriptType: v4.00+
+PlayResX: {a.W}
+PlayResY: {a.H}
+WrapStyle: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Cap,{fontname},{size},{bgr(a.color)},{bgr(a.accent)},&H00000000&,{back},{bold},0,0,0,100,100,0,0,{border_style},{outline if not st['box'] else round(size*0.18)},{shadow},2,{margin_lr},{margin_lr},{margin_v},177
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+"""
+    font_file = FONTS / f"{a.font}-{st['weight']}.ttf"
+    meas = Measure(str(font_file), size)
+    space = (meas(' ') or size * 0.25) * 0.6  # side bearings already leave some air between words
+    maxw = a.W - 2 * margin_lr; cx = a.W / 2; cy = a.H * y; lh = size * 1.12
+    active = 1.08 if st['pop'] else 1.0
+    ev, srt = [], []
+    for gi, g in enumerate(groups):
+        g_start = g[0]['s']
+        nxt = groups[gi + 1][0]['s'] if gi + 1 < len(groups) else g[-1]['e'] + 0.6
+        g_end = min(max(g[-1]['e'] + 0.25, g_start + 0.5), nxt)
+        text_plain = ' '.join(w['w'] for w in g)
+        srt.append(f"{len(srt) + 1}\n{srt_time(g_start)} --> {srt_time(g_end)}\n{text_plain}\n")
+        if st['hl'] == 'none':
+            # Plain text: libass orders a single Hebrew run correctly by itself.
+            ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{text_plain}")
+            continue
+        # Active-word highlight. libass reorders words wrongly when override tags split an RTL line,
+        # so every word is its own event, placed by our own bidi layout.
+        # layout widths include the outline on both sides; the active word's 8% growth fits inside the space
+        ws = [w['w'] for w in g]; widths = [meas(w) + 2 * outline for w in ws]
+        lines = split_lines(len(ws), widths, space, maxw)
+        pos = [None] * len(ws)
+        for li, idx in enumerate(lines):
+            ly = cy + (li - (len(lines) - 1) / 2) * lh
+            xs, _ = layout_line([ws[i] for i in idx], [widths[i] for i in idx], space, cx)
+            for i, x in zip(idx, xs): pos[i] = (x, ly)
+        for wi, w in enumerate(g):
+            s0 = g_start if wi == 0 else w['s']
+            e0 = g[wi + 1]['s'] if wi + 1 < len(g) else g_end
+            if e0 <= s0: continue
+            for wj, x in enumerate(g):
+                tags = f"\\an5\\pos({pos[wj][0]:.1f},{pos[wj][1]:.1f})"
+                if wj == wi:
+                    tags += f"\\1c{bgr(a.accent)}"
+                    if active != 1.0: tags += f"\\t(0,70,\\fscx{active*100:.0f}\\fscy{active*100:.0f})"
+                elif wi == 0 and st['pop']:
+                    tags += "\\fscx88\\fscy88\\t(0,90,\\fscx100\\fscy100)"
+                ev.append(f"Dialogue: {1 if wj == wi else 0},{ass_time(s0)},{ass_time(e0)},Cap,,0,0,0,,{{{tags}}}{x['w']}")
+    pathlib.Path(a.out).write_text(head + '\n'.join(ev) + '\n', encoding='utf-8')
+    if a.srt: pathlib.Path(a.srt).write_text('\n'.join(srt), encoding='utf-8')
+    print(f'{len(groups)} captions, {len(words)} words -> {a.out}' + (f' + {a.srt}' if a.srt else ''))
+
+if __name__ == '__main__':
+    main()
