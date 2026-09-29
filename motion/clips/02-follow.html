@@ -1,0 +1,20 @@
+<title>02 Follow</title>
+<style>
+.fl{transform:translate(-50%,-50%);gap:16px;color:#fff;font-size:46px;font-weight:700}
+</style>
+<div data-slot="shape">
+  <div class="L" id="Lf"><div class="row fl rtl"><span id="icPlus"></span>עקוב</div></div>
+  <div class="L" id="Ld"><div class="row fl rtl"><span id="icCheck"></span>עוקב</div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+$('icPlus').innerHTML=M.icon('plus',40,'#fff',3.4); $('icCheck').innerHTML=M.icon('check',40,'#fff',3.6);
+// clip-local: "שימו" 0.12, "עוקב" 0.72 -> click 0.75
+M.scene({
+  W:1080,H:1920,bg:null,T:2.6,intro:0.1,center:[540,400],
+  SH:{f:{w:250,h:104,r:52,bg:'#0B0B0B',cam:1.5}, d:{w:270,h:104,r:52,bg:'#FF5A1F',cam:1.5}},
+  start:'f', SEQ:[[0.78,'d']], shapePress:[0.75],
+  layers:[{el:'Lf',tin:0.1,tout:0.78,o:{din:0.04}},{el:'Ld',tin:0.78,tout:null}],
+  cursor:{size:44,clicks:[0.75],keys:[[0,190,150],[0.35,190,150],[0.62,40,22],[0.8,40,22],[1.4,120,90],[2.6,130,100]]},
+});
+</script>

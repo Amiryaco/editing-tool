@@ -1,0 +1,52 @@
+<title>01 What it edits</title>
+<style>
+.hd{position:absolute;right:-340px;top:52px;display:flex;align-items:center;gap:14px}
+.tag{background:#FF5A1F;color:#fff;font-size:30px;font-weight:700;border-radius:999px;padding:8px 22px}
+.rw{position:absolute;left:-340px;width:680px;height:96px;display:flex;align-items:center;gap:26px}
+.bx{flex:none;width:60px;height:60px;border-radius:18px;box-sizing:border-box;border:3px solid #D9D5CE;display:flex;align-items:center;justify-content:center}
+.lb{font-size:48px;font-weight:700;color:#0B0B0B;white-space:nowrap}
+.gh{transform:translate(-50%,-50%);gap:22px;color:#fff;font-size:58px;font-weight:600;letter-spacing:-.02em}
+</style>
+<div data-slot="shape">
+  <div class="L" id="Llist">
+    <div class="hd rtl"><span class="tag">פיצ'ר חדש</span></div>
+    <div class="a" style="left:-340px;top:140px;width:680px;height:2px;background:#EEEBE6"></div>
+    <div class="rw rtl" id="r0" style="top:176px"><span class="bx" id="b0"></span><span class="lb">אנימציות מטורפות</span></div>
+    <div class="rw rtl" id="r1" style="top:306px"><span class="bx" id="b1"></span><span class="lb">סרטוני בי-רולים</span></div>
+    <div class="rw rtl" id="r2" style="top:436px"><span class="bx" id="b2"></span><span class="lb">קאטים</span></div>
+  </div>
+  <div class="L" id="Lgh"><div class="row gh"><span id="icGh"></span>GitHub</div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.github=['M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4','M9 18c-4.51 2-5-2-7-2'];
+$('icGh').innerHTML=M.icon('github',64,'#fff',3);
+for(let i=0;i<3;i++) $('b'+i).innerHTML=M.icon('check',34,'#fff',3.4);
+// clip-local word times: אנימציות 0.12, סרטוני 1.52, קאטים 2.64, GitHub 4.46
+const ROW=[0.12,1.5,2.62], CLK=[0.55,1.85,2.95];
+const fill=CLK.map(c=>M.track(0,[[c,1,[20,0.75]]]));
+// check-box centres in world coords: shape top -310, row top 176+130i, box centre +48; x = 340-30
+const BX=[310,-86,310,44,310,174];
+M.scene({
+  W:1080,H:1920,bg:'#E9E7E2',T:5.25,intro:0.06,center:[540,900],
+  SH:{l1:{w:800,h:330,r:48,bg:'#FFFFFF',cam:1.22}, l2:{w:800,h:460,r:48,bg:'#FFFFFF',cam:1.22}, l3:{w:800,h:590,r:48,bg:'#FFFFFF',cam:1.2},
+      gh:{w:470,h:132,r:66,bg:'#0B0B0B',cam:1.75}},
+  start:'l1', SEQ:[[1.45,'l2'],[2.57,'l3'],[4.4,'gh']],
+  // list states grow downward from a fixed top (-310) so row and cursor coordinates stay put; the camera follows the centre
+  geom:(t,g)=>{const k=M.clamp((t-4.3)/0.5), top=-310; g.cy=(1-M.eio(k))*(top+g.h/2); g.fy=g.cy; return g;},
+  layers:[
+    {el:'Llist',tin:0.06,tout:4.4,anchor:'t',o:{din:0.04},update:(t)=>{
+      for(let i=0;i<3;i++){
+        const r=$('r'+i), v=M.vis(t,ROW[i],null,{din:0,lin:0.22});
+        r.style.opacity=v.o; r.style.filter=v.blur>0.05?`blur(${v.blur}px)`:'none'; r.style.transform=`translateY(${((1-v.a)*14).toFixed(2)}px)`;
+        const k=M.clamp(fill[i](t)), b=$('b'+i).style;
+        b.background=`rgba(255,90,31,${k})`; b.borderColor=k>0.5?'#FF5A1F':'#D9D5CE';
+        b.transform=`scale(${1+0.14*Math.sin(Math.PI*M.clamp((t-CLK[i])/0.28))})`;
+        $('b'+i).firstChild.style.opacity=k;
+      }
+    }},
+    {el:'Lgh',tin:4.4,tout:null},
+  ],
+  cursor:{size:44,clicks:[...CLK,4.85],keys:[[0,420,420],[0.3,BX[0],BX[1]+6],[0.6,BX[0],BX[1]+6],[1.55,BX[2],BX[3]+6],[1.9,BX[2],BX[3]+6],[2.65,BX[4],BX[5]+6],[3.0,BX[4],BX[5]+6],[3.6,BX[4],BX[5]+6],[4.3,140,40],[4.7,60,12],[5.25,60,12]]},
+});
+</script>

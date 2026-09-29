@@ -20,7 +20,7 @@ finish.json (all times on the rough-cut timeline):
 broll mode: cutaway (fills the frame; fit cover, or contain over a blur when the aspect differs) | overlay (placed as-is at x,y; use alpha .mov panels) |
   pip (scaled by "scale", placed at x,y). transition: cut | fade (uses "fade" seconds) | zoom (enters 8% zoomed in and settles).
 """
-import argparse, sys, pathlib
+import argparse, json, sys, pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from common import run, probe, load
 
@@ -72,7 +72,9 @@ def main():
         fc.append('[0:v]null[vn]'); v = '[vn]'
 
     # audio: voice + sfx + ducked music, then loudness
-    mix = ['[0:a]aresample=48000,asplit=2[voice][side]' if f.get('music', {}).get('duck', True) and f.get('music') else '[0:a]aresample=48000[voice]']
+    # gentle voice compression evens out phone-mic peaks, so loudness can reach the target without clipping
+    comp = ',acompressor=threshold=-20dB:ratio=3:attack=5:release=120:makeup=2' if f.get('compress', True) else ''
+    mix = [f'[0:a]aresample=48000{comp},asplit=2[voice][side]' if f.get('music', {}).get('duck', True) and f.get('music') else f'[0:a]aresample=48000{comp}[voice]']
     parts = ['[voice]']
     for k, s in enumerate(f.get('sfx', [])):
         ins += ['-i', s['file']]
@@ -90,9 +92,15 @@ def main():
         else:
             mix.append(chain + '[mus]')
         parts.append('[mus]'); n += 1
-    mix.append(f"{''.join(parts)}amix=inputs={len(parts)}:normalize=0:duration=first,"
-               f"loudnorm=I={f.get('loudness', -14)}:TP=-1.0:LRA=11,aresample=48000[aout]")
-    graph = ';'.join(fc + mix)
+    mixed = f"{''.join(parts)}amix=inputs={len(parts)}:normalize=0:duration=first"
+    target = f.get('loudness', -14)
+    # two-pass loudnorm: measure the mix, then normalise linearly to the exact target
+    r = run(['ffmpeg', '-hide_banner', '-y', *ins, '-filter_complex', ';'.join(mix + [mixed + f',loudnorm=I={target}:TP=-1.0:LRA=11:print_format=json[aout]']),
+             '-map', '[aout]', '-t', f'{T:.4f}', '-f', 'null', '-'])
+    ms = json.loads(r.stderr[r.stderr.rindex('{'):r.stderr.rindex('}') + 1])
+    ln = (f"loudnorm=I={target}:TP=-1.0:LRA=11:measured_I={ms['input_i']}:measured_TP={ms['input_tp']}:"
+          f"measured_LRA={ms['input_lra']}:measured_thresh={ms['input_thresh']}:offset={ms['target_offset']}:linear=true")
+    graph = ';'.join(fc + mix + [mixed + f',{ln},aresample=48000[aout]'])
     run(['ffmpeg', '-v', 'error', '-y', *ins, '-filter_complex', graph, '-map', v, '-map', '[aout]', '-t', f'{T:.4f}',
          '-c:v', 'libx264', '-preset', f.get('preset', 'medium'), '-crf', str(f.get('crf', 17)), '-pix_fmt', 'yuv420p',
          '-r', info['fps_str'], '-c:a', 'aac', '-b:a', '256k', '-movflags', '+faststart', f['out']])

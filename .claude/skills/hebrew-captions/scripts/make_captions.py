@@ -105,7 +105,13 @@ def group(words, max_words, max_chars, gap=0.45):
                 groups.append(cur); cur = []
         cur.append(w)
         if re.search(r'[.!?…]$', w['raw']) or (w['raw'].endswith(',') and len(cur) >= 2):
-            groups.append(cur); cur = []
+            # a lone word ending a sentence joins the previous group ("השיווק שלי בדיוק כאן", not "כאן" alone)
+            if len(cur) == 1 and groups and len(groups[-1]) <= max_words and cur[0]['s'] - groups[-1][-1]['e'] <= gap \
+                    and sum(len(x['w']) + 1 for x in groups[-1]) + len(cur[0]['w']) <= max_chars + 8:
+                groups[-1].extend(cur)
+            else:
+                groups.append(cur)
+            cur = []
     if cur: groups.append(cur)
     return groups
 
