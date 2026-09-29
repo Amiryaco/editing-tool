@@ -1,6 +1,6 @@
 """Word timestamps -> Hebrew captions: an .ass file to burn in (RTL, active-word highlight) and a plain .srt.
 
-usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube|extrude]
+usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube|extrude|white]
        [--font Heebo|Rubik|NotoSansHebrew] [--accent FFD400] [--max-words 3] [--max-chars 22] [--y 0.72] [--srt out.srt]
        [--fix fixes.json]
 
@@ -68,6 +68,9 @@ STYLES = {
     # Instagram-Edits look: heavy oblique letters with a hard grey extrusion shadow, 2 words, centred on the chest.
     'extrude': dict(weight='Black', size=0.053, outline=0.0, shadow=0.0, box=False, pop=False, hl='none', font='NotoSansHebrew',
                     max_words=2, max_chars=16, y=0.60, fax=-0.10, xshad=0.0032, yshad=0.0042, shadow_rgb='6E6E6E'),
+    # the user's preferred look: the extrude font, size and placement, plain bright white, no slant, no shadow
+    'white': dict(weight='Black', size=0.053, outline=0.0, shadow=0.0, box=False, pop=False, hl='none', font='NotoSansHebrew',
+                  max_words=2, max_chars=16, y=0.60),
 }
 PUNCT_END = re.compile(r'[.,!?;:…]+$')
 BIDI = re.compile('[‎‏‪-‮⁦-⁩]')

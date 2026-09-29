@@ -26,6 +26,7 @@ python3 $CAP/scripts/make_captions.py words_edited.json motion/work/captions.ass
   - `clean`: Bold, up to 7 words, the active word coloured, no pop. For talking-head YouTube and courses.
   - `youtube`: Medium weight on a translucent box, no highlight, sentence-length lines.
   - `extrude`: Instagram-Edits look (from a reference the user liked). Noto Sans Hebrew Black, slightly oblique (`\fax-0.1`), white with a hard grey offset shadow that reads as 3D, 2 words at a time, centred at 60% height (on the chest). No highlight.
+  - `white`: **the user's preferred style.** The extrude font, size and placement, plain bright white, no slant, no shadow. Watch readability over light backgrounds (walls, white clothes); if a span is hard to read, move it with `--y` over a darker area and tell the user.
 - `--font Heebo | Rubik | NotoSansHebrew` (all OFL, in `fonts/`). Each style has a default (extrude uses Noto Sans Hebrew Black). Heebo is neutral and modern; Rubik is rounder and friendlier.
 - `--accent` and `--color` take hex RGB. Match the brand: the motion-broll default accent is `FF5A1F`.
 - `--y 0.70`: vertical centre of the captions (0 = top). Default 0.70 for vertical video (clear of the platform UI at the bottom), 0.84 for horizontal.
