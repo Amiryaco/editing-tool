@@ -1,7 +1,7 @@
 """Word timestamps -> Hebrew captions: an .ass file to burn in (RTL, active-word highlight) and a plain .srt.
 
-usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube]
-       [--font Heebo|Rubik] [--accent FFD400] [--max-words 3] [--max-chars 22] [--y 0.72] [--srt out.srt]
+usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube|extrude]
+       [--font Heebo|Rubik|NotoSansHebrew] [--accent FFD400] [--max-words 3] [--max-chars 22] [--y 0.72] [--srt out.srt]
        [--fix fixes.json]
 
 words.json: [{"w": "שלום", "s": 1.00, "e": 1.40}, ...]  (times in the video the captions go on)
@@ -12,6 +12,7 @@ import uharfbuzz as hb
 from fontTools.ttLib import TTFont
 
 FONTS = pathlib.Path(__file__).resolve().parent.parent / 'fonts'
+FAMILY = {'NotoSansHebrew': 'Noto Sans Hebrew'}  # file prefix -> font family name, when they differ
 HEB = re.compile('[\u0590-\u05FF\uFB1D-\uFB4F]'); LAT = re.compile('[A-Za-z]')
 
 class Measure:
@@ -64,6 +65,9 @@ STYLES = {
     'reels':   dict(weight='Black', size=0.052, outline=0.0045, shadow=0.0, box=False, pop=True,  hl='color'),
     'clean':   dict(weight='Bold',  size=0.040, outline=0.0030, shadow=0.0015, box=False, pop=False, hl='color'),
     'youtube': dict(weight='Medium', size=0.042, outline=0.0, shadow=0.0, box=True, pop=False, hl='none'),
+    # Instagram-Edits look: heavy oblique letters with a hard grey extrusion shadow, 2 words, centred on the chest.
+    'extrude': dict(weight='Black', size=0.053, outline=0.0, shadow=0.0, box=False, pop=False, hl='none', font='NotoSansHebrew',
+                    max_words=2, max_chars=16, y=0.60, fax=-0.10, xshad=0.0032, yshad=0.0042, shadow_rgb='6E6E6E'),
 }
 PUNCT_END = re.compile(r'[.,!?;:…]+$')
 BIDI = re.compile('[‎‏‪-‮⁦-⁩]')
@@ -120,7 +124,7 @@ def main():
     ap.add_argument('words'); ap.add_argument('out')
     ap.add_argument('--W', type=int, default=1920); ap.add_argument('--H', type=int, default=1080)
     ap.add_argument('--style', default='reels', choices=STYLES)
-    ap.add_argument('--font', default='Heebo'); ap.add_argument('--accent', default='FFD400')
+    ap.add_argument('--font', help='Heebo | Rubik | NotoSansHebrew (default: the style\'s font, else Heebo)'); ap.add_argument('--accent', default='FFD400')
     ap.add_argument('--color', default='FFFFFF'); ap.add_argument('--max-words', type=int)
     ap.add_argument('--max-chars', type=int); ap.add_argument('--y', type=float, help='vertical centre of the captions, 0..1')
     ap.add_argument('--keep-punct', action='store_true', help='keep commas and full stops (removed by default)')
@@ -128,9 +132,10 @@ def main():
     a = ap.parse_args()
     st = STYLES[a.style]
     vertical = a.H > a.W
-    max_words = a.max_words or (3 if a.style == 'reels' else 7)
-    max_chars = a.max_chars or (18 if a.style == 'reels' else (32 if not vertical else 24))
-    y = a.y if a.y is not None else (0.70 if vertical else 0.84)
+    a.font = a.font or st.get('font', 'Heebo')
+    max_words = a.max_words or st.get('max_words') or (3 if a.style == 'reels' else 7)
+    max_chars = a.max_chars or st.get('max_chars') or (18 if a.style == 'reels' else (32 if not vertical else 24))
+    y = a.y if a.y is not None else st.get('y', 0.70 if vertical else 0.84)
     fixes = json.load(open(a.fix, encoding='utf-8')) if a.fix else {}
 
     words = []
@@ -148,9 +153,12 @@ def main():
     size = round(a.H * st['size']) if vertical else round(a.H * st['size'] * 1.15)
     outline = max(0, round(a.H * st['outline'])); shadow = round(a.H * st['shadow'])
     bold = -1 if st['weight'] == 'Bold' else 0
-    fontname = a.font if st['weight'] == 'Bold' else f"{a.font} {st['weight']}"
+    family = FAMILY.get(a.font, a.font)
+    fontname = family if st['weight'] == 'Bold' else f"{family} {st['weight']}"
     border_style = 3 if st['box'] else 1
-    back = '&H80000000&' if st['box'] else '&H64000000&'
+    back = '&H80000000&' if st['box'] else (bgr(st['shadow_rgb']) if 'shadow_rgb' in st else '&H64000000&')
+    # per-event look tags: oblique shear and a hard offset shadow (libass \\xshad/\\yshad)
+    look = (f"\\fax{st['fax']}" if 'fax' in st else '') + (f"\\xshad{a.H * st['xshad']:.1f}\\yshad{a.H * st['yshad']:.1f}" if 'xshad' in st else '')
     margin_v = round(a.H * (1 - y) - size / 2)
     margin_lr = round(a.W * 0.08)
     head = f"""[Script Info]
@@ -181,7 +189,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         srt.append(f"{len(srt) + 1}\n{srt_time(g_start)} --> {srt_time(g_end)}\n{text_plain}\n")
         if st['hl'] == 'none':
             # Plain text: libass orders a single Hebrew run correctly by itself.
-            ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{text_plain}")
+            ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{look}}}{text_plain}" if look else
+                      f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{text_plain}")
             continue
         # Active-word highlight. libass reorders words wrongly when override tags split an RTL line,
         # so every word is its own event, placed by our own bidi layout.
@@ -198,7 +207,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             e0 = g[wi + 1]['s'] if wi + 1 < len(g) else g_end
             if e0 <= s0: continue
             for wj, x in enumerate(g):
-                tags = f"\\an5\\pos({pos[wj][0]:.1f},{pos[wj][1]:.1f})"
+                tags = f"\\an5\\pos({pos[wj][0]:.1f},{pos[wj][1]:.1f})" + look
                 if wj == wi:
                     tags += f"\\1c{bgr(a.accent)}"
                     if active != 1.0: tags += f"\\t(0,70,\\fscx{active*100:.0f}\\fscy{active*100:.0f})"

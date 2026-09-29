@@ -25,7 +25,8 @@ python3 $CAP/scripts/make_captions.py words_edited.json motion/work/captions.ass
   - `reels` (default): Black weight, 2–4 words, the active word in the accent colour and 8% larger, a pop-in when each group starts. For Reels, Shorts and TikTok.
   - `clean`: Bold, up to 7 words, the active word coloured, no pop. For talking-head YouTube and courses.
   - `youtube`: Medium weight on a translucent box, no highlight, sentence-length lines.
-- `--font Heebo | Rubik` (both OFL, in `fonts/`). Heebo is neutral and modern; Rubik is rounder and friendlier.
+  - `extrude`: Instagram-Edits look (from a reference the user liked). Noto Sans Hebrew Black, slightly oblique (`\fax-0.1`), white with a hard grey offset shadow that reads as 3D, 2 words at a time, centred at 60% height (on the chest). No highlight.
+- `--font Heebo | Rubik | NotoSansHebrew` (all OFL, in `fonts/`). Each style has a default (extrude uses Noto Sans Hebrew Black). Heebo is neutral and modern; Rubik is rounder and friendlier.
 - `--accent` and `--color` take hex RGB. Match the brand: the motion-broll default accent is `FF5A1F`.
 - `--y 0.70`: vertical centre of the captions (0 = top). Default 0.70 for vertical video (clear of the platform UI at the bottom), 0.84 for horizontal.
 - `--max-words`, `--max-chars`: group size. `--keep-punct` keeps commas and full stops (removed by default, the usual style for Hebrew captions).
@@ -44,3 +45,7 @@ ffmpeg -i in.mp4 -vf "subtitles=motion/work/captions.ass:fontsdir=$CAP/fonts" -c
 - Keep captions inside the safe area: vertical videos keep the bottom ~20% and the right edge clear for the platform buttons.
 - Never place captions over on-screen text or a motion-graphic panel. Move them (`--y`) or hide them for that span (drop the words from the JSON) during a cutaway that has its own text.
 - **Check stills:** grab frames at a few word times (`video-edit/scripts/sheet.py`, or `ffmpeg -i out.mp4 -ss T -frames:v 1`; seek after `-i` so the subtitle times match) and confirm the word order, spacing and highlight.
+
+## Matching a reference
+
+When the user sends a screenshot of captions they like: crop the caption, compare candidate OFL fonts from google/fonts rendered through libass at the same size (weight, width and letter shapes, especially מ ל ש ך), check for slant (`\fax`), shadow offset and colour, and measure size as the caption's width relative to the frame. Add the result as a named style in `STYLES` so it can be reused.
