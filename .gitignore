@@ -1,0 +1,9 @@
+motion/node_modules/
+motion/package-lock.json
+motion/dist/
+motion/work/
+motion/out/
+*.mp4
+*.mov
+*.wav
+motion/package.json
