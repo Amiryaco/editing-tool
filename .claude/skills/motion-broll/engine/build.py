@@ -10,7 +10,7 @@ def build(src, dst):
     css = ''.join(re.findall(r'<style>(.*?)</style>', frag, re.S))
     slot = lambda n: (re.search(rf'<div data-slot="{n}">(.*?)</div><!--/{n}-->', frag, re.S) or [None, ''])[1]
     js = ''.join(re.findall(r'<script>(.*?)</script>', frag, re.S))
-    base = open(E/'base.css').read().replace('__GEIST__', b64(E/'fonts/Geist-Variable.woff2')).replace('__GEISTMONO__', b64(E/'fonts/GeistMono-Medium.woff2'))
+    base = open(E/'base.css').read().replace('__GEIST__', b64(E/'fonts/Geist-Variable.woff2')).replace('__GEISTMONO__', b64(E/'fonts/GeistMono-Medium.woff2')).replace('__HEEBO__', b64(E/'fonts/Heebo-Hebrew-Variable.woff2'))
     html = (f'<!doctype html><html><head><meta charset="utf-8"><title>{title}</title><style>{base}{css}</style></head><body>\n'
             f'<div id="wrap"><div id="stage"><div id="world">{slot("world")}<div id="shape">{slot("shape")}</div>{slot("over")}</div>{CURSOR}</div></div>\n'
             f'<script>{open(E/"motion.js").read()}</script><script>{js}</script></body></html>')

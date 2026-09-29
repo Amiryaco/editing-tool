@@ -104,3 +104,11 @@ Map what the speaker says onto these:
 ```
 
 Paths are relative to `plan.json`. `out` is when the clip leaves the timeline; if the clip is shorter, the composite holds its last frame.
+
+## Hebrew and RTL
+
+- `base.css` embeds Heebo (Hebrew subset, OFL) as a per-character fallback after Geist and Geist Mono, so Hebrew letters render with no extra setup while Latin text and digits stay in Geist.
+- Put `class="rtl"` on any element whose text is Hebrew (or mixes Hebrew with English/numbers). It sets `direction:rtl` so punctuation, numbers and English words land in the right order. On a `.row`, it also lays items out right to left.
+- Mirror the layout, not only the text: the leading element (number, icon, checkbox) sits on the right, text grows leftward, progress bars and sliders fill right to left, lists align right. Anchor absolute text by `right:` rather than `left:` so it grows toward the start of the line.
+- Drop negative `letter-spacing` on Hebrew text (Hebrew doesn't take tracking well); keep weight 500–700 for headings.
+- `scripts/words.py` handles Hebrew SRTs: UTF-8 with BOM, Windows line endings, invisible direction marks (RLM/LRM) and `<i>` tags.

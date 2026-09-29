@@ -135,6 +135,7 @@ The user's brand overrides these.
 
 - **Colour:** canvas `#E9E7E2`, ink `#0B0B0B`, white components, one accent `#FF5A1F`. Panel clips on dark footage use light shapes (`#F4F2EE`).
 - **Type and icons:** Geist for UI text, Geist Mono for code, file names and terminals. One icon set with one stroke weight (`M.icon`).
+- **Hebrew:** Heebo is embedded as the Hebrew fallback. Use `class="rtl"` on Hebrew text and mirror the layout (see "Hebrew and RTL" in `reference/engine-api.md`).
 - **Motion:** springs with a tiny overshoot at most. Leading and trailing edges ride different springs so indicators stretch. The camera zooms so each state fills the frame.
 - **Banned:** bouncy easing, particles, glows, gradients on UI chrome, mixed icon strokes, dead time, anything that looks like a template, made-up data.
 
