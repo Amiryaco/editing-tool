@@ -58,7 +58,10 @@ def from_audio(video, model_name, lang):
     for seg in segs:
         for w in seg.words or []:
             t = w.word.strip()
-            if t: out.append({'w': t, 's': round(w.start, 3), 'e': round(w.end, 3), 'p': round(w.probability, 3)})
+            if not t: continue
+            if out and re.match(r"^['\u05F3\u05F4\"]", t):  # Whisper splits Hebrew geresh words: פיצ + 'ר -> פיצ'ר
+                out[-1]['w'] += t; out[-1]['e'] = round(w.end, 3); continue
+            out.append({'w': t, 's': round(w.start, 3), 'e': round(w.end, 3), 'p': round(w.probability, 3)})
     return out
 
 if __name__ == '__main__':

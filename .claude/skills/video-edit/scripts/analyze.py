@@ -45,10 +45,10 @@ def face_focus(video, info, n=24):
         faces = cas.detectMultiScale(g, 1.1, 6, minSize=(int(min(w, h) * 0.08),) * 2)
         if len(faces):
             x, y, fw, fh = max(faces, key=lambda f: f[2] * f[3])
-            pts.append({'t': round(t, 2), 'cx': round((x + fw / 2) / w, 3), 'cy': round((y + fh / 2) / h, 3), 'size': round(fh / h, 3)})
+            pts.append({'t': round(t, 2), 'cx': round(float((x + fw / 2) / w), 3), 'cy': round(float((y + fh / 2) / h), 3), 'size': round(float(fh / h), 3)})
     cap.release()
     if not pts: return None, []
-    return [round(statistics.median(p['cx'] for p in pts), 3), round(statistics.median(p['cy'] for p in pts), 3)], pts
+    return [round(float(statistics.median(p['cx'] for p in pts)), 3), round(float(statistics.median(p['cy'] for p in pts)), 3)], pts
 
 def sentences(words, gap=0.6):
     out, cur = [], []
