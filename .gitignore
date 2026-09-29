@@ -7,3 +7,5 @@ motion/out/
 *.mov
 *.wav
 motion/package.json
+# per-video work folders (source video, transcripts, analysis)
+motion/v*/
