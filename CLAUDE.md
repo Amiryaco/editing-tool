@@ -22,7 +22,7 @@ When the user uploads a video and asks for editing, use `/video-edit` and follow
 
 - **The skill's rules stay in force:** one shape that never cuts, a cursor that drives every change, springs with no bouncy easing, one change per spoken beat, and **no invented numbers, quotes or results**.
 - **Hebrew:** the engine embeds Heebo (OFL) as the Hebrew fallback, so Hebrew letters render automatically. Put `class="rtl"` on Hebrew text and mirror the layout (leading element on the right, bars filling right to left). Details are under "Hebrew and RTL" in `.claude/skills/motion-broll/reference/engine-api.md`. Check the stills that the text reads in the right order.
-- **Local changes to motion-broll:** we changed `engine/base.css`, `engine/build.py`, `scripts/words.py`, `reference/engine-api.md` and `SKILL.md` for Hebrew support. Keep them when updating from upstream.
+- **Local changes to motion-broll:** we changed `engine/base.css`, `engine/build.py`, `scripts/words.py`, `reference/engine-api.md` and `SKILL.md` for Hebrew support, and `engine/beats.js` so contact sheets of vertical clips are not cropped. Keep them when updating from upstream.
 - Match the video's resolution and fps (vertical 1080×1920 for Reels/Shorts/TikTok too); keep content and the cursor inside the safe area.
 - `final.mp4` from video-edit is a finished video. The parts (`rough.mp4`, B-roll clips, `captions.srt`) are delivered too, for anyone who wants to fine-tune in their own editor. motion-broll's own `preview.mp4` (hard cuts only) is for review.
 - Clips and final outputs go back to the user via SendUserFile. Only source files (`motion/clips/*.html`, `plan.json`) are committed to git, not the video files.
