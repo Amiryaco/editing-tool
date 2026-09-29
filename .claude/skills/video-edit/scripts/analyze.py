@@ -1,12 +1,12 @@
 """Analyse raw footage + words.json and draft a rough cut.
 
 usage: python3 analyze.py <video> <words.json> <outdir> [--max-gap 0.35] [--pad-in 0.06] [--pad-out 0.12]
-                          [--punch 1.12] [--out-W 1080 --out-H 1920]
+                          [--punch 1.0] [--out-W 1080 --out-H 1920]
 
 Writes to <outdir>:
   video.json       resolution, fps, duration, face focus point, silences
   transcript.md    numbered sentences with timestamps, pauses, [filler] marks and RETAKE? flags — read this
-  edit_draft.json  a first cut in the edit.json schema: pauses and isolated fillers removed, alternating punch-ins
+  edit_draft.json  a first cut in the edit.json schema: pauses and isolated fillers removed, steady framing (--punch >1 alternates a framing change on every cut; rarely wanted)
   contact.png      12 frames of the footage
 """
 import argparse, re, sys, pathlib, statistics
@@ -75,7 +75,7 @@ def retakes(words, sents, window=30.0):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument('video'); ap.add_argument('words'); ap.add_argument('outdir')
     ap.add_argument('--max-gap', type=float, default=0.35); ap.add_argument('--pad-in', type=float, default=0.06)
-    ap.add_argument('--pad-out', type=float, default=0.12); ap.add_argument('--punch', type=float, default=1.12)
+    ap.add_argument('--pad-out', type=float, default=0.12); ap.add_argument('--punch', type=float, default=1.0)
     ap.add_argument('--out-W', type=int); ap.add_argument('--out-H', type=int)
     a = ap.parse_args()
     out = pathlib.Path(a.outdir); out.mkdir(parents=True, exist_ok=True)
@@ -140,7 +140,7 @@ def main():
         if s_out - s_in < 0.2: continue
         text = ' '.join(words[i]['w'] for i in range(c['first_i'], c['last_i'] + 1) if i not in drop)
         draft.append({'in': round(s_in, 3), 'out': round(s_out, 3), 'zoom': 1.0, 'text': text})
-    # alternate framing on every jump cut so cuts read as intentional
+    # steady framing by default; emphasis zooms are chosen by hand on the key lines (see SKILL.md, zoom rules)
     for k, d in enumerate(draft):
         d['zoom'] = 1.0 if k % 2 == 0 else a.punch
     oW = a.out_W or info['W']; oH = a.out_H or info['H']

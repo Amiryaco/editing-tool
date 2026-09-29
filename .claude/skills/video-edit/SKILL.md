@@ -72,10 +72,13 @@ When it is right, render again without `--fast`. The script writes `rough.mp4`, 
 - Never cut inside a word or leave a half-sentence. Read the text of each segment in `edit_draft.json`.
 - If two takes exist, keep the one with the better delivery, usually the last one.
 
-### Zoom rules (the framing)
-- **Every jump cut changes the framing** (1.0 ↔ 1.10–1.18), or the cut reads as a glitch. The draft alternates this; adjust it to the content.
-- **Snap zoom** (`"zoom": 1.0, "zoom_end": 1.25, "zoom_dur": 0.25, "ease": "out"`, segment starting on the word) for punchlines, numbers and "the key is…". At most once every ~15 s.
-- **Slow push-in** (`"zoom": 1.0, "zoom_end": 1.08` across the segment) for building tension or a story.
+### Zoom rules (the framing): less is more
+The user's rule: **don't overdo zooms.** Most of the video is plain, steady talking; zooms are a spice for the lines that deserve emphasis, and they are gentle.
+- **Default: no zoom change.** Long stretches of normal speech stay on one steady framing (a base framing that sits the speaker well, e.g. 1.0–1.15 on a wide shot). Don't alternate the zoom on every cut, and don't give every segment its own zoom.
+- **Zoom only on emphasis lines:** the hook, the key statement or lesson, a punchline, a number, a turn ("but…", "here's the thing"), the call to action. Read the transcript and pick them; a 60 s video usually has **2–4**, never one every few seconds.
+- **Gentle amounts:** a punch-in of **+6–10%** (e.g. 1.0 → 1.08), a slow push of **+5–8%** across the line. A snap zoom (`zoom_dur` 0.25, `ease: "out"`) at most **once or twice per video**, on the single strongest line.
+- **After an emphasis zoom, return to the base framing** at the next sentence, so the emphasis reads as emphasis.
+- **Jump cuts:** avoid cutting inside a flowing sentence; trim pauses between sentences. When a cut in the middle of a thought can't be avoided, hide it with a small framing change (±4–6%), not a big punch.
 - Keep the face in frame: `focus` comes from face detection (`video.json`). Check for a moving speaker in `faces`, and set `focus` per segment when needed. For 16:9 → 9:16, `focus` decides the crop; check the stills.
 - Max zoom ~1.3 on 1080p sources (quality); 4K sources can go further.
 
