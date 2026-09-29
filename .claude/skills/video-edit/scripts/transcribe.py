@@ -4,7 +4,9 @@ usage: python3 transcribe.py <video> <out/words.json> [--srt transcript.srt] [--
 
 With --srt, word times are estimated from the SRT cues (about ±0.2s). Without it, faster-whisper
 transcribes the audio with real word timestamps. Models are tried in order until one loads:
-  --model, ivrit-ai/whisper-large-v3-turbo-ct2 (best for Hebrew), large-v3-turbo, medium.
+  --model, then for --lang he: ivrit-ai/whisper-large-v3-turbo-ct2 (best for Hebrew), large-v3-turbo, medium;
+  for other languages: large-v3-turbo, medium (the ivrit-ai model translates non-Hebrew speech into Hebrew).
+  Mixed Hebrew/English speech: use --lang he; English terms come out in Hebrew letters, fix them with captions --fix.
 Models download from huggingface.co, which the environment's network policy must allow.
 """
 import argparse, re, subprocess, sys, tempfile, pathlib
@@ -38,7 +40,9 @@ def from_audio(video, model_name, lang):
     wav = pathlib.Path(tempfile.mkdtemp()) / 'a.wav'
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', video, '-vn', '-ac', '1', '-ar', '16000', str(wav)], check=True)
     tried = []
-    for name in [model_name, 'ivrit-ai/whisper-large-v3-turbo-ct2', 'large-v3-turbo', 'medium']:
+    # The ivrit-ai model is fine-tuned on Hebrew and translates other languages into Hebrew: use it for Hebrew only.
+    order = ['ivrit-ai/whisper-large-v3-turbo-ct2', 'large-v3-turbo', 'medium'] if lang == 'he' else ['large-v3-turbo', 'medium']
+    for name in [model_name] + order:
         if not name or name in tried: continue
         tried.append(name)
         try:
