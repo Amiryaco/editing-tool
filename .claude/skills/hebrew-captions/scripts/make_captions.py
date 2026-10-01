@@ -1,6 +1,6 @@
 """Word timestamps -> Hebrew captions: an .ass file to burn in (RTL, active-word highlight) and a plain .srt.
 
-usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube|extrude|white]
+usage: python3 make_captions.py words.json out.ass --W 1080 --H 1920 [--style reels|clean|youtube|extrude|white|soft]
        [--font Heebo|Rubik|NotoSansHebrew] [--accent FFD400] [--max-words 3] [--max-chars 22] [--y 0.72] [--srt out.srt]
        [--fix fixes.json]
 
@@ -71,6 +71,10 @@ STYLES = {
     # the user's preferred look: the extrude font, size and placement, plain bright white, no slant, no shadow
     'white': dict(weight='Black', size=0.053, outline=0.0, shadow=0.0, box=False, pop=False, hl='none', font='NotoSansHebrew',
                   max_words=2, max_chars=16, y=0.60),
+    # "soft": white Heebo Bold over a soft, blurred dark shadow (reads on light backgrounds), 2-3 words, quick fade.
+    # Matched to an Instagram reference the user sent (dana_kalderon); pairs with the keyword callouts in video-edit.
+    'soft': dict(weight='Bold', size=0.064, outline=0.0, shadow=0.0, box=False, pop=False, hl='none', font='Heebo',
+                 max_words=3, max_chars=18, y=0.58, glow=dict(alpha='70', blur=7, dy=0.0028)),
 }
 PUNCT_END = re.compile(r'[.,!?;:…]+$')
 BIDI = re.compile('[‎‏‪-‮⁦-⁩]')
@@ -195,6 +199,12 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         srt.append(f"{len(srt) + 1}\n{srt_time(g_start)} --> {srt_time(g_end)}\n{text_plain}\n")
         if st['hl'] == 'none':
             # Plain text: libass orders a single Hebrew run correctly by itself.
+            if 'glow' in st:  # soft shadow = a blurred dark copy under the crisp text; both placed at the same centre
+                gl = st['glow']; px = f"\\an5\\pos({a.W / 2:.1f},{a.H * y:.1f})"; fad = "\\fad(70,40)"
+                ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{\\an5\\pos({a.W / 2:.1f},{a.H * y + a.H * gl['dy']:.1f})"
+                          f"\\1c&H000000&\\1a&H{gl['alpha']}&\\blur{gl['blur']}{fad}}}{text_plain}")
+                ev.append(f"Dialogue: 1,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{px}{fad}}}{text_plain}")
+                continue
             ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{look}}}{text_plain}" if look else
                       f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{text_plain}")
             continue

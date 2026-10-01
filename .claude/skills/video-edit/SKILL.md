@@ -100,6 +100,12 @@ How to tie B-roll to what is said:
 - Chapters from step 3 → chapter cards (`06-chapter` example) at topic changes.
 - Other sources: screen recordings or product shots the user drops in `motion/inputs/` can be cut in as `cutaway` with `src_in`. AI-generated footage (the Higgsfield connector, if connected) costs credits, so only with the user's explicit OK.
 
+### Keyword callouts (light B-roll without covering the speaker)
+`scripts/make_callouts.py callouts.json <outdir>` renders short transparent overlays for a key word or 2–3 word phrase that was just said, and prints the `broll` entries for `finish.json`:
+- `"kind": "box"`: a dark box with heavy white text inside a cream "selected text" frame with corner handles; pops in, blurs out.
+- `"kind": "glass"`: a frosted pill with an icon (shield, check, zap, clock, lock, star, heart, …); rises in with a blur, blurs out.
+Put `at` on the word, keep them in the empty area (usually the top third above the head), clear of the captions, and use them sparingly: a few per minute, never two at once. They pair with the `soft` caption style.
+
 ## 6. Captions
 
 ```bash

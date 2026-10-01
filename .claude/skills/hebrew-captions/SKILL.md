@@ -26,6 +26,7 @@ python3 $CAP/scripts/make_captions.py words_edited.json motion/work/captions.ass
   - `clean`: Bold, up to 7 words, the active word coloured, no pop. For talking-head YouTube and courses.
   - `youtube`: Medium weight on a translucent box, no highlight, sentence-length lines.
   - `extrude`: Instagram-Edits look (from a reference the user liked). Noto Sans Hebrew Black, slightly oblique (`\fax-0.1`), white with a hard grey offset shadow that reads as 3D, 2 words at a time, centred at 60% height (on the chest). No highlight.
+  - `soft`: white Heebo Bold, 2–3 words, over a soft blurred dark shadow that keeps it readable on light backgrounds; quick fade. Matched to an Instagram reference the user sent. Pairs with keyword callouts (`video-edit/scripts/make_callouts.py`).
   - `white`: **the user's preferred style.** The extrude font, size and placement, plain bright white, no slant, no shadow. Watch readability over light backgrounds (walls, white clothes); if a span is hard to read, move it with `--y` over a darker area and tell the user.
 - `--font Heebo | Rubik | NotoSansHebrew` (all OFL, in `fonts/`). Each style has a default (extrude uses Noto Sans Hebrew Black). Heebo is neutral and modern; Rubik is rounder and friendlier.
 - `--accent` and `--color` take hex RGB. Match the brand: the motion-broll default accent is `FF5A1F`.
