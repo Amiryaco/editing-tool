@@ -1,0 +1,26 @@
+<title>R2-03 Mercury retrograde</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 1.5px rgba(201,164,92,.6)}
+.d{position:absolute;left:-300px;top:-32px;height:64px;padding:0 22px;border-radius:32px;background:#C9A45C;color:#15121B;font-size:30px;font-weight:700;letter-spacing:.08em;display:flex;align-items:center}
+.m{position:absolute;left:-118px;top:-25px;font-size:40px;font-weight:600;color:#F3ECDF;white-space:nowrap}
+.b{position:absolute;top:-24px}</style>
+<div data-slot="shape">
+  <div class="L" id="Lm"><div class="d">OCT 24</div><div class="m">Mercury Retrograde</div>
+    <span class="b" id="b0" style="left:296px"></span><span class="b" id="b1" style="left:350px"></span><span class="b" id="b2" style="left:404px"></span></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.msg=['M7.9 20A9 9 0 1 0 4 16.1L2 22Z'];
+// local (in at 35.35): October 0.14, messages 3.86, louder 4.5
+const B=[3.86,4.2,4.5];
+for(let i=0;i<3;i++) $('b'+i).innerHTML=M.icon('msg',44+6*i,'#C9A45C',2.6);
+M.scene({
+  W:1080,H:1920,bg:null,T:5.25,intro:0.12,center:[540,215],
+  SH:{a:{w:600,h:112,r:56,bg:'#15121B',cam:1}, b:{w:760,h:112,r:56,bg:'#15121B',cam:1}},
+  start:'a', SEQ:[[3.8,'b']],
+  geom:(t,g)=>{g.cx=(g.w-600)/2-(g.w-600)/2; return g;},
+  layers:[{el:'Lm',tin:0.12,tout:null,update:(t,g)=>{
+    $('Lm').style.left=(g.w/2-80*M.clamp((g.w-600)/160))+'px';
+    for(let i=0;i<3;i++){const k=M.clamp((t-B[i])/0.18), s=$('b'+i).style; s.opacity=k; s.transform=`translateY(${(-6*i).toFixed(0)}px) scale(${(0.6+0.4*M.eio(k)+0.12*Math.sin(Math.PI*M.clamp((t-B[i])/0.3))).toFixed(3)})`;}
+  }}],
+});
+</script>

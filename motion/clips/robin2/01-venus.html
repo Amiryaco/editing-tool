@@ -1,0 +1,32 @@
+<title>R2-01 Venus retrograde</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 1.5px rgba(201,164,92,.6)}
+.k{font-size:24px;font-weight:700;letter-spacing:.18em;color:#C9A45C}
+.v{font-size:40px;font-weight:600;color:#F3ECDF;white-space:nowrap}
+.sg{position:absolute;top:-30px;width:200px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:600}</style>
+<div data-slot="shape">
+  <div class="L" id="Lv"><div class="row" style="transform:translate(-50%,-50%);gap:22px">
+    <svg id="pl" width="64" height="64" viewBox="-32 -32 64 64"><circle r="15" fill="#C9A45C"/><ellipse rx="28" ry="8" fill="none" stroke="#F3ECDF" stroke-width="2.4" transform="rotate(-20)"/></svg>
+    <div style="display:flex;flex-direction:column;gap:2px"><span class="k">TOMORROW</span><span class="v">Venus Retrograde</span></div>
+    <span id="bk" style="margin-left:6px"></span></div></div>
+  <div class="L" id="Ls"><div class="sg" id="s0" style="left:-320px">Taurus</div><div class="sg" id="s1" style="left:-100px">Libra</div><div class="sg" id="s2" style="left:120px">Scorpio</div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.undo=['M9 14 4 9l5-5','M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5 5.5 5.5 0 0 1-5.5 5.5H11'];
+$('bk').innerHTML=M.icon('undo',44,'#C9A45C',3);
+// local (in at 5.2): Tomorrow 0.14, backward 3.09, Taurus 8.25, Libra 9.09, Scorpio 9.99
+const SG=[8.25,9.09,9.99], back=M.track(0,[[3.05,1,[10,0.9]]]);
+const mix=(a,b,k)=>`rgb(${a.map((x,i)=>Math.round(x+(b[i]-x)*k)).join(',')})`;
+M.scene({
+  W:1080,H:1920,bg:null,T:10.7,intro:0.12,center:[540,215],
+  SH:{v:{w:560,h:120,r:60,bg:'#15121B',cam:1}, s:{w:720,h:100,r:50,bg:'#15121B',cam:1}},
+  start:'v', SEQ:[[8.2,'s']],
+  layers:[
+    {el:'Lv',tin:0.12,tout:8.2,update:(t)=>{const k=back(t); $('pl').style.transform=`translateX(${(-10*Math.sin(Math.PI*M.clamp(k))).toFixed(2)}px) rotate(${(-40*k).toFixed(1)}deg)`;
+      $('bk').style.opacity=M.clamp((t-2.95)/0.2); $('bk').style.transform=`rotate(${(-25*(1-M.eio(M.clamp((t-2.95)/0.4)))).toFixed(1)}deg)`;}},
+    {el:'Ls',tin:8.2,tout:null,update:(t)=>{for(let i=0;i<3;i++){const k=M.eio(M.clamp((t-SG[i])/0.22)), s=$('s'+i).style;
+      s.background=`rgba(201,164,92,${k.toFixed(3)})`; s.color=k>0.5?'#15121B':mix([110,104,96],[243,236,223],M.clamp((t-8.2)/0.3));
+      s.transform=`scale(${1+0.08*Math.sin(Math.PI*M.clamp((t-SG[i])/0.3))})`;}}},
+  ],
+});
+</script>

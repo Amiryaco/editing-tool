@@ -1,0 +1,30 @@
+<title>R2-02 Three questions</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 1.5px rgba(201,164,92,.6)}
+.n{position:absolute;left:-330px;top:-36px;width:72px;height:72px;border-radius:36px;background:#C9A45C;color:#15121B;font-size:38px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.q{position:absolute;left:-236px;top:-26px;font-size:40px;font-weight:600;color:#F3ECDF;white-space:nowrap}
+.tag{position:absolute;left:-236px;top:-50px;font-size:22px;font-weight:700;letter-spacing:.16em;color:#C9A45C;white-space:nowrap}
+.hd{transform:translate(-50%,-50%);gap:16px;font-size:40px;font-weight:600;color:#F3ECDF}</style>
+<div data-slot="shape">
+  <div class="L" id="L0"><div class="row hd"><span style="color:#C9A45C;font-weight:700">3</span>questions before you reply</div></div>
+  <div class="L" id="L1"><div class="n">1</div><div class="q">Changed, or just lonely?</div></div>
+  <div class="L" id="L2"><div class="n">2</div><div class="q">Them, or who I was then?</div></div>
+  <div class="L" id="L3"><div class="n">3</div><div class="tag" id="tg">THE ONE MOST PEOPLE SKIP</div><div class="q" id="q3">Would I still choose them?</div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+// local (in at 17.95): "three questions" 0.12, One 1.47, Two 4.99, three 8.84, "the one most people skip" 9.63, would I still choose them 13.1
+M.scene({
+  W:1080,H:1920,bg:null,T:14.45,intro:0.12,center:[540,215],
+  SH:{h:{w:640,h:104,r:52,bg:'#15121B',cam:1}, q:{w:720,h:120,r:60,bg:'#15121B',cam:1}, q3:{w:720,h:140,r:56,bg:'#15121B',cam:1}},
+  start:'h', SEQ:[[1.42,'q'],[8.8,'q3']],
+  layers:[
+    {el:'L0',tin:0.12,tout:1.42},
+    {el:'L1',tin:1.42,tout:4.95},
+    {el:'L2',tin:4.95,tout:8.8},
+    {el:'L3',tin:8.8,tout:null,update:(t)=>{
+      const k=M.clamp((t-9.6)/0.25); $('tg').style.opacity=k; $('q3').style.top=(-26+18*M.eio(k))+'px';
+      const g=M.clamp((t-13.05)/0.3); $('q3').style.color=`rgb(${Math.round(243+(201-243)*g)},${Math.round(236+(164-236)*g)},${Math.round(223+(92-223)*g)})`;
+    }},
+  ],
+});
+</script>

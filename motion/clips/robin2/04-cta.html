@@ -1,0 +1,42 @@
+<title>R2-04 Save, comment, follow</title>
+<style>html.alpha #shape{box-shadow:inset 0 0 0 1.5px rgba(201,164,92,.6)}
+.it{display:flex;align-items:center;gap:14px;font-size:38px;font-weight:600}
+.cm{position:absolute;left:-270px;top:-30px;display:flex;align-items:center;gap:20px;font-size:42px;font-weight:700;color:#15121B;letter-spacing:.05em}
+.car{display:inline-block;width:3px;height:42px;background:#C9A45C;margin-left:2px}
+.snd{position:absolute;left:186px;top:-36px;width:72px;height:72px;border-radius:36px;background:#C9A45C;display:flex;align-items:center;justify-content:center}
+.av{position:absolute;left:-300px;top:-40px;width:80px;height:80px;border-radius:40px;background:#C9A45C;display:flex;align-items:center;justify-content:center;color:#15121B;font-size:32px;font-weight:700}
+.nm{position:absolute;left:-200px;top:-38px;color:#F3ECDF;font-size:36px;font-weight:600;white-space:nowrap}
+.sb{position:absolute;left:-200px;top:6px;color:#A59C8E;font-size:24px;font-weight:500;letter-spacing:.06em;white-space:nowrap}
+.bt{position:absolute;left:96px;top:-33px;width:226px;height:66px;border-radius:33px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:30px;font-weight:600}</style>
+<div data-slot="shape">
+  <div class="L" id="La"><div class="row" style="transform:translate(-50%,-50%);gap:56px">
+    <div class="it" id="i0"><svg width="46" height="46" viewBox="0 0 24 24"><path id="p0" d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" stroke-width="1.8" stroke-linejoin="round"/></svg><span id="t0">Save</span></div>
+    <div class="it" id="i1"><svg width="46" height="46" viewBox="0 0 24 24"><path id="p1" d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" stroke-width="1.8" stroke-linejoin="round" fill="none"/><path id="q1" d="m21.854 2.147-10.94 10.939" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg><span id="t1">Send to a friend</span></div>
+  </div></div>
+  <div class="L" id="Lc"><div class="cm"><span id="icM"></span><span id="txt"></span><span class="car" id="car"></span></div><div class="snd" id="snd"></div></div>
+  <div class="L" id="Lf"><div class="av">RC</div><div class="nm">Robin Carter</div><div class="sb">ASTROLOGY</div><div class="bt" id="bt"><span id="icK"></span><span id="bl">Follow</span></div></div>
+</div><!--/shape-->
+<script>
+const $=id=>document.getElementById(id);
+M.IC.msg=['M7.9 20A9 9 0 1 0 4 16.1L2 22Z'];
+$('icM').innerHTML=M.icon('msg',42,'#15121B',2.6); $('snd').innerHTML=M.icon('arrow',34,'#15121B',3);
+// local (in at 40.55): Save 0.15, send 0.99, Comment 3.39, already 3.84, send click 4.6, follow 6.72 -> click 6.85
+const SV=[0.15,0.99], on=SV.map(c=>M.track(0,[[c,1,[20,0.78]]])), fol=M.track(0,[[6.85,1,[20,0.78]]]);
+const mix=(a,b,k)=>`rgb(${a.map((x,i)=>Math.round(x+(b[i]-x)*k)).join(',')})`; const DIM=[120,112,104], CR=[243,236,223], GD=[201,164,92];
+M.scene({
+  W:1080,H:1920,bg:null,T:9.4,intro:0.1,center:[540,215],
+  SH:{a:{w:640,h:112,r:56,bg:'#15121B',cam:1}, c:{w:600,h:112,r:56,bg:'#F3ECDF',cam:1}, f:{w:680,h:124,r:62,bg:'#15121B',cam:1}},
+  start:'a', SEQ:[[3.35,'c'],[6.0,'f']], shapePress:[4.6,6.85],
+  layers:[
+    {el:'La',tin:0.1,tout:3.35,update:(t)=>{for(let i=0;i<2;i++){const k=M.clamp(on[i](t)), c=mix(DIM,GD,k);
+      $('p'+i).setAttribute('stroke',c); if(i==0) $('p0').setAttribute('fill',`rgba(201,164,92,${k})`); else $('q1').setAttribute('stroke',c);
+      $('t'+i).style.color=mix(DIM,CR,k); $('i'+i).style.transform=`scale(${1+0.1*Math.sin(Math.PI*M.clamp((t-SV[i])/0.3))})`;}}},
+    {el:'Lc',tin:3.35,tout:6.0,update:(t)=>{const n=Math.max(0,Math.min(7,Math.floor((t-3.84)/0.06)+1)); M.setText($('txt'),'ALREADY'.slice(0,t<3.84?0:n));
+      $('car').style.opacity=(t<3.84&&Math.floor(t*3)%2)?0:1;}},
+    {el:'Lf',tin:6.0,tout:null,update:(t)=>{const k=M.clamp(fol(t)), b=$('bt').style; b.background=k>0.5?'#C9A45C':'#F3ECDF'; b.color='#15121B';
+      M.setText($('bl'),t<6.88?'Follow':'Following'); $('icK').innerHTML=t<6.88?'':M.icon('check',26,'#15121B',3.4); $('icK').style.display=t<6.88?'none':'';}},
+  ],
+  extra:(t)=>{document.getElementById('shape').style.boxShadow=(t>3.4&&t<6.0)?'none':'';},
+  cursor:{size:42,clicks:[4.6,6.85],keys:[[0,380,150],[4.1,380,150],[4.45,222,12],[4.7,222,12],[6.5,215,12],[6.95,215,12],[9.4,280,110]]},
+});
+</script>
