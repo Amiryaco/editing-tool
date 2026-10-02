@@ -101,6 +101,31 @@ def sticky(prev, nxt, english=False):
     if p in STICKY or len(p) == 1: return True                # "של הסרטון", "ו", "ה"
     return False
 
+def face_below(video, times, H_out, chest=0.5, lo=0.45, hi=0.80):
+    """Caption centre (0..1) under the face at each time: face-box bottom + chest x face height (the top of the chest).
+    Uses OpenCV's Haar face detector on the frame of `video` (the video the captions go on). Missing detections are
+    filled from neighbours, then lightly smoothed so captions don't jump between groups."""
+    import cv2
+    cas = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    cap = cv2.VideoCapture(video); ys = []
+    for t in times:
+        cap.set(cv2.CAP_PROP_POS_MSEC, t * 1000); ok, fr = cap.read(); y = None
+        if ok:
+            h, w = fr.shape[:2]
+            f = cas.detectMultiScale(cv2.cvtColor(fr, cv2.COLOR_BGR2GRAY), 1.1, 6, minSize=(int(min(w, h) * 0.06),) * 2)
+            if len(f):
+                x0, y0, fw, fh = max(f, key=lambda r: r[2] * r[3])
+                y = min(hi, max(lo, (y0 + fh + chest * fh) / h))
+        ys.append(y)
+    cap.release()
+    known = [y for y in ys if y is not None]
+    if not known: return None
+    for i, y in enumerate(ys):  # fill gaps from the nearest detection
+        if y is None:
+            ys[i] = min(((abs(j - i), ys[j]) for j in range(len(ys)) if ys[j] is not None))[1]
+    sm = [sorted(ys[max(0, i - 1):i + 2])[len(ys[max(0, i - 1):i + 2]) // 2] for i in range(len(ys))]  # median of 3
+    return [round(v, 4) for v in sm]
+
 def group(words, max_words, max_chars, gap=0.45):
     english = sum(bool(LAT.search(w['w'])) for w in words) > len(words) / 2  # an English video: no name rule
     """Split into caption groups: break on sentence ends and pauses, respect word/char limits,
@@ -137,6 +162,8 @@ def main():
     ap.add_argument('--font', help='Heebo | Rubik | NotoSansHebrew (default: the style\'s font, else Heebo)'); ap.add_argument('--accent', default='FFD400')
     ap.add_argument('--color', default='FFFFFF'); ap.add_argument('--max-words', type=int)
     ap.add_argument('--max-chars', type=int); ap.add_argument('--y', type=float, help='vertical centre of the captions, 0..1')
+    ap.add_argument('--below-face', metavar='VIDEO', help='place each caption under the face in VIDEO (top of the chest), per caption')
+    ap.add_argument('--chest', type=float, default=0.5, help='with --below-face: gap below the face box, in face heights')
     ap.add_argument('--keep-punct', action='store_true', help='keep commas and full stops (removed by default)')
     ap.add_argument('--srt'); ap.add_argument('--fix')
     a = ap.parse_args()
@@ -159,6 +186,8 @@ def main():
         if not shown: continue
         words.append({'w': shown, 'raw': raw, 's': float(w['s']), 'e': float(w['e'])})
     groups = group(words, max_words, max_chars)
+    ys = face_below(a.below_face, [(g[0]['s'] + g[-1]['e']) / 2 for g in groups], a.H, a.chest) if a.below_face else None
+    if a.below_face: print('below-face placement:', 'face not found, using --y' if ys is None else f'y {min(ys):.2f}..{max(ys):.2f}')
 
     size = round(a.H * st['size']) if vertical else round(a.H * st['size'] * 1.15)
     outline = max(0, round(a.H * st['outline'])); shadow = round(a.H * st['shadow'])
@@ -192,6 +221,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     active = 1.08 if st['pop'] else 1.0
     ev, srt = [], []
     for gi, g in enumerate(groups):
+        y = ys[gi] if ys else y; cy = a.H * y
+        here = f"\\an5\\pos({a.W / 2:.1f},{cy:.1f})" if ys else ''
         g_start = g[0]['s']
         nxt = groups[gi + 1][0]['s'] if gi + 1 < len(groups) else g[-1]['e'] + 0.6
         g_end = min(max(g[-1]['e'] + 0.25, g_start + 0.5), nxt)
@@ -205,7 +236,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                           f"\\1c&H000000&\\1a&H{gl['alpha']}&\\blur{gl['blur']}{fad}}}{text_plain}")
                 ev.append(f"Dialogue: 1,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{px}{fad}}}{text_plain}")
                 continue
-            ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{look}}}{text_plain}" if look else
+            ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{here}{look}}}{text_plain}" if (look or here) else
                       f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{text_plain}")
             continue
         # Active-word highlight. libass reorders words wrongly when override tags split an RTL line,

@@ -26,10 +26,11 @@ python3 $CAP/scripts/make_captions.py words_edited.json motion/work/captions.ass
   - `clean`: Bold, up to 7 words, the active word coloured, no pop. For talking-head YouTube and courses.
   - `youtube`: Medium weight on a translucent box, no highlight, sentence-length lines.
   - `extrude`: Instagram-Edits look (from a reference the user liked). Noto Sans Hebrew Black, slightly oblique (`\fax-0.1`), white with a hard grey offset shadow that reads as 3D, 2 words at a time, centred at 60% height (on the chest). No highlight.
-  - `soft`: white Heebo Bold, 2–3 words, over a soft blurred dark shadow that keeps it readable on light backgrounds; quick fade. Matched to an Instagram reference the user sent. Pairs with keyword callouts (`video-edit/scripts/make_callouts.py`).
-  - `white`: **the user's preferred style.** The extrude font, size and placement, plain bright white, no slant, no shadow. Watch readability over light backgrounds (walls, white clothes); if a span is hard to read, move it with `--y` over a darker area and tell the user.
+  - `soft`: **the user's preferred style, with `--below-face`.** White Heebo Bold, 2–3 words, over a soft blurred dark shadow that keeps it readable on light backgrounds; quick fade. Matched to an Instagram reference the user sent. Pairs with keyword callouts (`video-edit/scripts/make_callouts.py`).
+  - `white`: the earlier default. The extrude font, size and placement, plain bright white, no slant, no shadow. Watch readability over light backgrounds (walls, white clothes); if a span is hard to read, move it with `--y` over a darker area and tell the user.
 - `--font Heebo | Rubik | NotoSansHebrew` (all OFL, in `fonts/`). Each style has a default (extrude uses Noto Sans Hebrew Black). Heebo is neutral and modern; Rubik is rounder and friendlier.
 - `--accent` and `--color` take hex RGB. Match the brand: the motion-broll default accent is `FF5A1F`.
+- `--below-face VIDEO` (**use it by default**): each caption is placed under the face in that video's frame at its time, on the top line of the chest (`--chest 0.5` = half a face height below the face box), so captions never sit on the mouth or chin and follow zooms. Pass the video the captions go on (the rough cut).
 - `--y 0.70`: vertical centre of the captions (0 = top). Default 0.70 for vertical video (clear of the platform UI at the bottom), 0.84 for horizontal.
 - `--max-words`, `--max-chars`: group size. `--keep-punct` keeps commas and full stops (removed by default, the usual style for Hebrew captions).
 - `--fix fixes.json`: spelling fixes applied word by word, e.g. `{"קלוד": "Claude", "וויספר": "Whisper"}`. Use it for brand names, English terms the transcript spelled in Hebrew, and misheard words.

@@ -110,7 +110,7 @@ Put `at` on the word, keep them in the empty area (usually the top third above t
 
 ```bash
 python3 $CAP/scripts/make_captions.py motion/out/words_edited.json motion/work/captions.ass \
-  --W 1080 --H 1920 --style reels --srt motion/out/captions.srt [--fix motion/work/fixes.json]
+  --W 1080 --H 1920 --style soft --below-face motion/out/rough.mp4 --srt motion/out/captions.srt [--fix motion/work/fixes.json]
 ```
 Fix misheard names and terms first (`--fix`). During a full-frame cutaway that has its own text, drop those words or move the captions (`--y`).
 
