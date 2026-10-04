@@ -278,6 +278,14 @@
     });
   });
 
+  // reel arrows: scroll by one card (RTL: "next" moves toward the left)
+  const reel = $('[data-reel]');
+  $$('[data-reel-dir]').forEach((b) => b.addEventListener('click', () => {
+    const card = $('.clip', reel);
+    const step = card ? card.getBoundingClientRect().width + 22 : reel.clientWidth * 0.8;
+    reel.scrollBy({ left: b.dataset.reelDir === 'next' ? -step : step, behavior: reduceMotion ? 'auto' : 'smooth' });
+  }));
+
   // ---------- tracking hook (Google Ads / GA4 if the tag is installed) ----------
   function track(name, params = {}) {
     if (typeof window.gtag === 'function') window.gtag('event', name, params);
