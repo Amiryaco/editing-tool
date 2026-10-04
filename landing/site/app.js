@@ -12,20 +12,20 @@
   // Each beat gets its own scroll distance (in viewport heights) and its own frame range.
   // from === to is a still-frame hold. Frames: 0–120 clip A (scatter → sphere), 120–240 clip B (sphere → gold bars).
   const BEATS = [
-    { id: 'open',     vh: 80,  from: 0,   to: 0   }, // hold on the first frame while the headline is read
-    { id: 'scatter',  vh: 120, from: 0,   to: 62  }, // droplets scatter: budget spread thin
-    { id: 'converge', vh: 90,  from: 62,  to: 120 }, // transition, no copy: everything pulls into one sphere
-    { id: 'focus',    vh: 130, from: 120, to: 170 }, // sphere turns slowly: strategy
-    { id: 'descend',  vh: 80,  from: 170, to: 205 }, // sphere lands, crown splash, no copy
-    { id: 'growth',   vh: 110, from: 205, to: 240 }, // gold bars rise
-    { id: 'hold',     vh: 60,  from: 240, to: 240 }, // rest on the final frame with the CTA
+    { id: 'open',      vh: 70,  from: 0,   to: 0   }, // still: headline
+    { id: 'scatter',   vh: 100, from: 0,   to: 62  }, // motion, no copy: droplets scatter
+    { id: 'scatter-h', vh: 100, from: 62,  to: 62  }, // still: "where the money gets lost"
+    { id: 'converge',  vh: 90,  from: 62,  to: 120 }, // motion, no copy: everything pulls into one sphere
+    { id: 'focus-h',   vh: 100, from: 120, to: 120 }, // still: the method
+    { id: 'growth',    vh: 150, from: 120, to: 240 }, // motion, no copy: sphere turns, lands, crown splash, bars rise
+    { id: 'growth-h',  vh: 80,  from: 240, to: 240 }, // still: the result + CTA
   ];
-  // Copy windows in story vh (absolute). A chapter is visible while the scroll position is inside its window.
+  // Copy only lives inside the stills (story vh, absolute), so every transition plays on its own.
   const COPY = [
-    { beat: 'open',    from: -1e9, to: 62 },
-    { beat: 'scatter', from: 98,   to: 192 },
-    { beat: 'focus',   from: 302,  to: 412 },
-    { beat: 'growth',  from: 522,  to: 1e9 },
+    { beat: 'open',    from: -1e9, to: 58 },
+    { beat: 'scatter', from: 182,  to: 258 },
+    { beat: 'focus',   from: 372,  to: 448 },
+    { beat: 'growth',  from: 622,  to: 1e9 },
   ];
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -124,9 +124,8 @@
 
     if (manifest) {
       wanted = clamp(frameAt(posVh), 0, manifest.count - 1);
-      const i = nearestLoaded(wanted);
-      if (i >= 0 && i !== drawn) draw(i);
       prioritize(wanted);
+      startGlide();
     }
 
     for (const c of COPY) {
@@ -145,25 +144,37 @@
     document.body.classList.toggle('after-story', pastStory);
   }
 
+  // The shown frame glides toward the scroll position instead of jumping, so fast flicks stay smooth.
+  let shown = 0;
+  let gliding = false;
+  function glide() {
+    const diff = wanted - shown;
+    shown = Math.abs(diff) < 0.5 ? wanted : shown + diff * (reduceMotion ? 1 : 0.16);
+    const i = nearestLoaded(Math.round(shown));
+    if (i >= 0 && i !== drawn) draw(i);
+    if (shown !== wanted) requestAnimationFrame(glide); else gliding = false;
+  }
+  function startGlide() { if (!gliding) { gliding = true; requestAnimationFrame(glide); } }
+
   // Phones: the copy gets a solid black band of its own, and the gold slides down below it.
-  let maskFor = '';
+  let maskVh = 0;
   function fitMask() {
     if (!narrow.matches || staticMode) return;
-    const on = $('.beat.is-on', story);
-    const key = (on ? on.dataset.beat : 'none') + vh;
-    if (key === maskFor) return;
-    maskFor = key;
-    let bottom = 0;
-    if (on) {
+    if (maskVh !== vh) {
+      maskVh = vh;
       const top = stage.getBoundingClientRect().top;
-      for (const c of on.children) {
-        if (c.classList.contains('actions')) continue;
-        bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
+      let bottom = 0;
+      for (const el of beatsEl.values()) {
+        for (const c of el.children) {
+          if (c.classList.contains('actions')) continue;
+          bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
+        }
       }
+      const maskH = bottom + 16;
+      stage.style.setProperty('--mask-h', `${Math.round(maskH)}px`);
+      stage.style.setProperty('--media-shift', `${Math.round(clamp(maskH - vh * 0.32, 0, vh * 0.24))}px`);
     }
-    const maskH = on ? bottom + 12 : vh * 0.12;
-    stage.style.setProperty('--mask-h', `${Math.round(maskH)}px`);
-    stage.style.setProperty('--media-shift', `${Math.round(clamp(maskH - vh * 0.3, 0, vh * 0.26))}px`);
+    stage.classList.toggle('has-copy', !!$('.beat.is-on', story));
   }
 
   function requestUpdate() {
@@ -225,7 +236,7 @@
       loaded[i] = true;
       if (!stage.classList.contains('has-frames') && loaded[0]) { stage.classList.add('has-frames'); drawn = -1; }
       // redraw if this frame is closer to what the visitor is looking at
-      if (Math.abs(i - wanted) < Math.abs(drawn - wanted) || drawn < 0) requestUpdate();
+      if (drawn < 0 || Math.abs(i - Math.round(shown)) < Math.abs(drawn - Math.round(shown))) { drawn = -1; startGlide(); }
       pump();
     };
     img.onerror = () => {
@@ -286,7 +297,7 @@
   }
 
   window.addEventListener('scroll', () => { requestUpdate(); chrome(); }, { passive: true });
-  window.addEventListener('resize', () => { maskFor = ''; measure(); requestUpdate(); chrome(); });
+  window.addEventListener('resize', () => { maskVh = 0; measure(); requestUpdate(); chrome(); });
   narrow.addEventListener?.('change', () => { drawn = -1; measure(); requestUpdate(); });
 
   // ---------- testimonial videos ----------
@@ -330,6 +341,22 @@
     track('results_breakdown_open', { account: b.dataset.open });
   }));
 
+  // results: show the real Ads Manager screenshot when it exists (img/results/r-*.webp), else keep the replica
+  $$('[data-shot]').forEach((img) => {
+    const reveal = () => { img.hidden = false; const r = img.parentElement.querySelector('[data-replica]'); if (r) r.hidden = true; };
+    if (img.complete && img.naturalWidth) reveal(); else img.addEventListener('load', reveal);
+  });
+
+  // scale each Ads Manager replica to its column, like an image
+  function fitReplicas() {
+    $$('.acct__panel:not([hidden]) [data-replica]').forEach((r) => {
+      const w = r.parentElement.clientWidth;
+      r.style.zoom = String(Math.min(1, w / 760));
+    });
+  }
+  window.addEventListener('resize', fitReplicas);
+  fitReplicas();
+
   // ---------- results: account tabs + numbers that count up when they come into view ----------
   const fmt = (v, dec, prefix) => (prefix || '') + v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
   function countUp(el) {
@@ -362,6 +389,7 @@
       document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
     });
     $$('[data-count]', document.getElementById(tab.getAttribute('aria-controls'))).forEach(countUp);
+    fitReplicas();
   }
   tabs.forEach((t, i) => {
     t.addEventListener('click', () => selectTab(t));

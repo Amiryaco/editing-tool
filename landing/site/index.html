@@ -106,7 +106,7 @@
     <header class="section__head">
       <p class="eyebrow">ישר ממנהל המודעות של מטא</p>
       <h2 class="h2" id="results-h">המספרים, בלי סיפורים.</h2>
-      <p class="sub">5 חשבונות פרסום של לקוחות שאנחנו מנהלים. בחרו חשבון, ותבדקו בעצמכם: כמה לידים, כמה עלה כל ליד וכמה הושקע.</p>
+      <p class="sub">5 חשבונות פרסום של לקוחות שאנחנו מנהלים, ישר ממנהל המודעות. בחרו חשבון ותבדקו בעצמכם.</p>
     </header>
     <dl class="kpis">
       <div><dt data-count="9811">9,811</dt><dd>לידים מטפסים</dd></div>
@@ -117,134 +117,225 @@
       <div class="acct__tabs" role="tablist" aria-label="חשבונות פרסום"><button class="acct__tab" type="button" role="tab" id="tab-a" aria-controls="acct-a" aria-selected="true" tabindex="0">לקוח א׳<span>3,682 לידים</span></button><button class="acct__tab" type="button" role="tab" id="tab-b" aria-controls="acct-b" aria-selected="false" tabindex="-1">לקוח ב׳<span>637 לידים</span></button><button class="acct__tab" type="button" role="tab" id="tab-c" aria-controls="acct-c" aria-selected="false" tabindex="-1">לקוח ג׳<span>1,877 לידים</span></button><button class="acct__tab" type="button" role="tab" id="tab-d" aria-controls="acct-d" aria-selected="false" tabindex="-1">לקוח ד׳<span>1,979 לידים</span></button><button class="acct__tab" type="button" role="tab" id="tab-e" aria-controls="acct-e" aria-selected="false" tabindex="-1">לקוח ה׳<span>2,134 תוצאות</span></button></div>
       <div class="acct__panels">
       <div class="acct__panel" role="tabpanel" id="acct-a" aria-labelledby="tab-a">
-        <p class="acct__period">ספטמבר 2023 עד אוקטובר 2026 · 1 קמפיין</p>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="3682">3,682</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="40.44" data-prefix="₪" data-dec="2">₪40.44</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="148914.61" data-prefix="₪" data-dec="0">₪148,915</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="265897">265,897</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">9.21</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-a">לפירוט המלא ממנהל המודעות</button>
-        <template id="ads-a">
-          <div class="ads" dir="ltr">
+        <figure class="acct__shot">
+          <img src="img/results/r-a.webp" alt="צילום מסך ממנהל המודעות של מטא, לקוח א׳" hidden data-shot>
+          <div class="ads" dir="ltr" data-replica>
             <div class="ads__bar"><span class="ads__date">📅 Maximum: Sep 4, 2023 – Oct 4, 2026</span></div>
             <div class="ads__scroll"><table>
               <thead><tr><th>Results</th><th>Reach</th><th>Frequency</th><th>Cost per result</th><th>Budget</th><th>Amount spent</th></tr></thead>
               <tbody><tr><td><b>3,682</b><small>Leads (Form)</small></td><td>265,897</td><td>9.21</td><td><b>₪40.44</b><small>Per Lead (Form)</small></td><td>₪150.00<small>Daily</small></td><td>₪148,914.61</td></tr></tbody>
             </table></div>
           </div>
-          <img class="ads__shot" src="img/results/r-a.webp" alt="צילום המסך המקורי ממנהל המודעות, לקוח א׳" loading="lazy" onerror="this.remove()">
-          <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          <figcaption>Meta Ads Manager · ספטמבר 2023 עד אוקטובר 2026</figcaption>
+        </figure>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="3682">3,682</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="148914.61" data-prefix="₪" data-dec="0">₪148,915</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="40.44" data-prefix="₪" data-dec="2">₪40.44</span><span class="metric__k">לליד</span></div>
+        </div>
+        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-a">לפירוט המלא</button>
+        <template id="ads-a">
+          <div class="full">
+            <p class="eyebrow">לקוח א׳ · ספטמבר 2023 עד אוקטובר 2026</p>
+            <h3 class="full__h">הפירוט המלא</h3>
+            <div class="full__row">
+            <h4>3,682 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪40.44</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪148,914.61</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>265,897</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>9.21</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">₪150.00 Daily</dd></div>
+            </dl>
+          </div>
+            <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          </div>
         </template>
       </div>
       <div class="acct__panel" role="tabpanel" id="acct-b" aria-labelledby="tab-b" hidden>
-        <p class="acct__period">יוני עד אוקטובר 2026 · 2 קמפיינים</p>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="289">289</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="28.38" data-prefix="₪" data-dec="2">₪28.38</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="8203.25" data-prefix="₪" data-dec="0">₪8,203</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="38696">38,696</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">3.47</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="348">348</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="35.44" data-prefix="₪" data-dec="2">₪35.44</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="12331.79" data-prefix="₪" data-dec="0">₪12,332</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="53047">53,047</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">3.45</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-b">לפירוט המלא ממנהל המודעות</button>
-        <template id="ads-b">
-          <div class="ads" dir="ltr">
+        <figure class="acct__shot">
+          <img src="img/results/r-b.webp" alt="צילום מסך ממנהל המודעות של מטא, לקוח ב׳" hidden data-shot>
+          <div class="ads" dir="ltr" data-replica>
             <div class="ads__bar"><span class="ads__date">📅 Jun 1, 2026 – Oct 4, 2026</span></div>
             <div class="ads__scroll"><table>
               <thead><tr><th>Results</th><th>Reach</th><th>Frequency</th><th>Cost per result</th><th>Budget</th><th>Amount spent</th></tr></thead>
               <tbody><tr><td><b>289</b><small>Leads (Form)</small></td><td>38,696</td><td>3.47</td><td><b>₪28.38</b><small>Per Lead (Form)</small></td><td>Using ad set bu…<small></small></td><td>₪8,203.25</td></tr><tr><td><b>348</b><small>Leads (Form)</small></td><td>53,047</td><td>3.45</td><td><b>₪35.44</b><small>Per Lead (Form)</small></td><td>Using ad set bu…<small></small></td><td>₪12,331.79</td></tr></tbody>
             </table></div>
           </div>
-          <img class="ads__shot" src="img/results/r-b.webp" alt="צילום המסך המקורי ממנהל המודעות, לקוח ב׳" loading="lazy" onerror="this.remove()">
-          <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          <figcaption>Meta Ads Manager · יוני עד אוקטובר 2026</figcaption>
+        </figure>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="289">289</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="8203.25" data-prefix="₪" data-dec="0">₪8,203</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="28.38" data-prefix="₪" data-dec="2">₪28.38</span><span class="metric__k">לליד</span></div>
+        </div>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="348">348</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="12331.79" data-prefix="₪" data-dec="0">₪12,332</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="35.44" data-prefix="₪" data-dec="2">₪35.44</span><span class="metric__k">לליד</span></div>
+        </div>
+        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-b">לפירוט המלא</button>
+        <template id="ads-b">
+          <div class="full">
+            <p class="eyebrow">לקוח ב׳ · יוני עד אוקטובר 2026</p>
+            <h3 class="full__h">הפירוט המלא</h3>
+            <div class="full__row">
+            <h4>289 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪28.38</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪8,203.25</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>38,696</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>3.47</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">Using ad set bu… </dd></div>
+            </dl>
+          </div><div class="full__row">
+            <h4>348 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪35.44</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪12,331.79</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>53,047</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>3.45</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">Using ad set bu… </dd></div>
+            </dl>
+          </div>
+            <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          </div>
         </template>
       </div>
       <div class="acct__panel" role="tabpanel" id="acct-c" aria-labelledby="tab-c" hidden>
-        <p class="acct__period">ספטמבר 2023 עד אוקטובר 2026 · 2 קמפיינים</p>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="1226">1,226</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="34.01" data-prefix="₪" data-dec="2">₪34.01</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="41700.48" data-prefix="₪" data-dec="0">₪41,700</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="119892">119,892</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">6.91</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="651">651</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="29.48" data-prefix="₪" data-dec="2">₪29.48</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="19190.79" data-prefix="₪" data-dec="0">₪19,191</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="88610">88,610</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">6.72</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-c">לפירוט המלא ממנהל המודעות</button>
-        <template id="ads-c">
-          <div class="ads" dir="ltr">
+        <figure class="acct__shot">
+          <img src="img/results/r-c.webp" alt="צילום מסך ממנהל המודעות של מטא, לקוח ג׳" hidden data-shot>
+          <div class="ads" dir="ltr" data-replica>
             <div class="ads__bar"><span class="ads__date">📅 Maximum: Sep 4, 2023 – Oct 4, 2026</span></div>
             <div class="ads__scroll"><table>
               <thead><tr><th>Results</th><th>Reach</th><th>Frequency</th><th>Cost per result</th><th>Budget</th><th>Amount spent</th></tr></thead>
               <tbody><tr><td><b>1,226</b><small>Leads (Form)</small></td><td>119,892</td><td>6.91</td><td><b>₪34.01</b><small>Per Lead (Form)</small></td><td>₪65.00<small>Daily</small></td><td>₪41,700.48</td></tr><tr><td><b>651</b><small>Leads (Form)</small></td><td>88,610</td><td>6.72</td><td><b>₪29.48</b><small>Per Lead (Form)</small></td><td>₪65.00<small>Daily</small></td><td>₪19,190.79</td></tr></tbody>
             </table></div>
           </div>
-          <img class="ads__shot" src="img/results/r-c.webp" alt="צילום המסך המקורי ממנהל המודעות, לקוח ג׳" loading="lazy" onerror="this.remove()">
-          <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          <figcaption>Meta Ads Manager · ספטמבר 2023 עד אוקטובר 2026</figcaption>
+        </figure>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="1226">1,226</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="41700.48" data-prefix="₪" data-dec="0">₪41,700</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="34.01" data-prefix="₪" data-dec="2">₪34.01</span><span class="metric__k">לליד</span></div>
+        </div>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="651">651</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="19190.79" data-prefix="₪" data-dec="0">₪19,191</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="29.48" data-prefix="₪" data-dec="2">₪29.48</span><span class="metric__k">לליד</span></div>
+        </div>
+        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-c">לפירוט המלא</button>
+        <template id="ads-c">
+          <div class="full">
+            <p class="eyebrow">לקוח ג׳ · ספטמבר 2023 עד אוקטובר 2026</p>
+            <h3 class="full__h">הפירוט המלא</h3>
+            <div class="full__row">
+            <h4>1,226 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪34.01</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪41,700.48</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>119,892</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>6.91</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">₪65.00 Daily</dd></div>
+            </dl>
+          </div><div class="full__row">
+            <h4>651 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪29.48</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪19,190.79</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>88,610</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>6.72</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">₪65.00 Daily</dd></div>
+            </dl>
+          </div>
+            <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          </div>
         </template>
       </div>
       <div class="acct__panel" role="tabpanel" id="acct-d" aria-labelledby="tab-d" hidden>
-        <p class="acct__period">ספטמבר 2023 עד אוקטובר 2026 · 1 קמפיין</p>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="1979">1,979</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="30.86" data-prefix="₪" data-dec="2">₪30.86</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="61080.41" data-prefix="₪" data-dec="0">₪61,080</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="160940">160,940</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">5.03</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-d">לפירוט המלא ממנהל המודעות</button>
-        <template id="ads-d">
-          <div class="ads" dir="ltr">
+        <figure class="acct__shot">
+          <img src="img/results/r-d.webp" alt="צילום מסך ממנהל המודעות של מטא, לקוח ד׳" hidden data-shot>
+          <div class="ads" dir="ltr" data-replica>
             <div class="ads__bar"><span class="ads__date">📅 Maximum: Sep 4, 2023 – Oct 4, 2026</span></div>
             <div class="ads__scroll"><table>
               <thead><tr><th>Results</th><th>Reach</th><th>Frequency</th><th>Cost per result</th><th>Budget</th><th>Amount spent</th></tr></thead>
               <tbody><tr><td><b>1,979</b><small>Leads (Form)</small></td><td>160,940</td><td>5.03</td><td><b>₪30.86</b><small>Per Lead (Form)</small></td><td>₪40.00<small>Daily</small></td><td>₪61,080.41</td></tr></tbody>
             </table></div>
           </div>
-          <img class="ads__shot" src="img/results/r-d.webp" alt="צילום המסך המקורי ממנהל המודעות, לקוח ד׳" loading="lazy" onerror="this.remove()">
-          <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          <figcaption>Meta Ads Manager · ספטמבר 2023 עד אוקטובר 2026</figcaption>
+        </figure>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="1979">1,979</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="61080.41" data-prefix="₪" data-dec="0">₪61,080</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="30.86" data-prefix="₪" data-dec="2">₪30.86</span><span class="metric__k">לליד</span></div>
+        </div>
+        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-d">לפירוט המלא</button>
+        <template id="ads-d">
+          <div class="full">
+            <p class="eyebrow">לקוח ד׳ · ספטמבר 2023 עד אוקטובר 2026</p>
+            <h3 class="full__h">הפירוט המלא</h3>
+            <div class="full__row">
+            <h4>1,979 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪30.86</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪61,080.41</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>160,940</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>5.03</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">₪40.00 Daily</dd></div>
+            </dl>
+          </div>
+            <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          </div>
         </template>
       </div>
       <div class="acct__panel" role="tabpanel" id="acct-e" aria-labelledby="tab-e" hidden>
-        <p class="acct__period">ספטמבר 2023 עד אוקטובר 2026 · 2 קמפיינים</p>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="498">498</span><span class="metric__k">שיחות וואטסאפ</span></div>
-          <div class="metric"><span class="metric__v" data-count="37.71" data-prefix="₪" data-dec="2">₪37.71</span><span class="metric__k">עלות לשיחה</span></div>
-          <div class="metric"><span class="metric__v" data-count="18781.60" data-prefix="₪" data-dec="0">₪18,782</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="131912">131,912</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">2.69</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <div class="camp">
-          <div class="metric metric--lead"><span class="metric__v" data-count="1636">1,636</span><span class="metric__k">לידים</span></div>
-          <div class="metric"><span class="metric__v" data-count="121.24" data-prefix="₪" data-dec="2">₪121.24</span><span class="metric__k">עלות לליד</span></div>
-          <div class="metric"><span class="metric__v" data-count="198345.73" data-prefix="₪" data-dec="0">₪198,346</span><span class="metric__k">הוצאה</span></div>
-          <div class="metric"><span class="metric__v" data-count="240225">240,225</span><span class="metric__k">אנשים שנחשפו</span></div>
-          <div class="metric"><span class="metric__v">5.49</span><span class="metric__k">תדירות</span></div>
-        </div>
-        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-e">לפירוט המלא ממנהל המודעות</button>
-        <template id="ads-e">
-          <div class="ads" dir="ltr">
+        <figure class="acct__shot">
+          <img src="img/results/r-e.webp" alt="צילום מסך ממנהל המודעות של מטא, לקוח ה׳" hidden data-shot>
+          <div class="ads" dir="ltr" data-replica>
             <div class="ads__bar"><span class="ads__date">📅 Maximum: Sep 4, 2023 – Oct 4, 2026</span></div>
             <div class="ads__scroll"><table>
               <thead><tr><th>Results</th><th>Reach</th><th>Frequency</th><th>Cost per result</th><th>Budget</th><th>Amount spent</th></tr></thead>
               <tbody><tr><td><b>498</b><small>Messaging conversations started</small></td><td>131,912</td><td>2.69</td><td><b>₪37.71</b><small>Per Messaging Conversation</small></td><td>₪100.00<small>Daily</small></td><td>₪18,781.60</td></tr><tr><td><b>1,636</b><small>Leads (Form)</small></td><td>240,225</td><td>5.49</td><td><b>₪121.24</b><small>Per Lead (Form)</small></td><td>₪240…<small>Daily</small></td><td>₪198,345.73</td></tr></tbody>
             </table></div>
           </div>
-          <img class="ads__shot" src="img/results/r-e.webp" alt="צילום המסך המקורי ממנהל המודעות, לקוח ה׳" loading="lazy" onerror="this.remove()">
-          <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          <figcaption>Meta Ads Manager · ספטמבר 2023 עד אוקטובר 2026</figcaption>
+        </figure>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="498">498</span><span class="metric__k">שיחות וואטסאפ</span></div>
+          <div class="key__m"><span class="metric__v" data-count="18781.60" data-prefix="₪" data-dec="0">₪18,782</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="37.71" data-prefix="₪" data-dec="2">₪37.71</span><span class="metric__k">לשיחה</span></div>
+        </div>
+        <div class="key">
+          <div class="key__m key__m--lead"><span class="metric__v" data-count="1636">1,636</span><span class="metric__k">לידים</span></div>
+          <div class="key__m"><span class="metric__v" data-count="198345.73" data-prefix="₪" data-dec="0">₪198,346</span><span class="metric__k">הושקעו בפרסום</span></div>
+          <div class="key__m"><span class="metric__v" data-count="121.24" data-prefix="₪" data-dec="2">₪121.24</span><span class="metric__k">לליד</span></div>
+        </div>
+        <button class="btn btn--ghost btn--sm acct__more" type="button" data-open="ads-e">לפירוט המלא</button>
+        <template id="ads-e">
+          <div class="full">
+            <p class="eyebrow">לקוח ה׳ · ספטמבר 2023 עד אוקטובר 2026</p>
+            <h3 class="full__h">הפירוט המלא</h3>
+            <div class="full__row">
+            <h4>498 שיחות וואטסאפ</h4>
+            <dl>
+              <div><dt>עלות לשיחה</dt><dd>₪37.71</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪18,781.60</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>131,912</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>2.69</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">₪100.00 Daily</dd></div>
+            </dl>
+          </div><div class="full__row">
+            <h4>1,636 לידים</h4>
+            <dl>
+              <div><dt>עלות לליד</dt><dd>₪121.24</dd></div>
+              <div><dt>סך ההשקעה בפרסום</dt><dd>₪198,345.73</dd></div>
+              <div><dt>אנשים שנחשפו</dt><dd>240,225</dd></div>
+              <div><dt>תדירות (חשיפות לאדם)</dt><dd>5.49</dd></div>
+              <div><dt>תקציב</dt><dd dir="ltr">₪240… Daily</dd></div>
+            </dl>
+          </div>
+            <p class="ads__note">הנתונים מועתקים אחד לאחד מ-Meta Ads Manager של החשבון. שם הלקוח הוסתר.</p>
+          </div>
         </template>
       </div>
       </div>
