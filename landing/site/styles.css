@@ -113,9 +113,9 @@ p { margin: 0; }
   transform: translateY(calc(-50% + 24px)); max-width: 600px;
   display: grid; gap: 22px;
   opacity: 0; visibility: hidden;
-  transition: opacity .7s ease, transform .9s cubic-bezier(.16, 1, .3, 1), visibility 0s linear .7s;
+  transition: opacity .35s ease, transform .35s ease, visibility 0s linear .35s;
 }
-.beat.is-on { opacity: 1; visibility: visible; transform: translateY(-50%); transition-delay: 0s; }
+.beat.is-on { opacity: 1; visibility: visible; transform: translateY(-50%); transition: opacity .8s ease, transform 1s cubic-bezier(.16, 1, .3, 1), visibility 0s; }
 .beat.is-past { transform: translateY(calc(-50% - 24px)); }
 
 .loop { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: var(--step-1); color: var(--muted); }
@@ -138,27 +138,31 @@ p { margin: 0; }
 .stage__progress span { display: block; width: 100%; height: 100%; transform-origin: top; transform: scaleY(var(--p, 0)); background: var(--gold-grad); }
 
 @media (max-width: 860px) {
-  .stage { display: block; }
-  .stage__media { position: absolute; inset: 0; }
-  .stage__poster, .stage__canvas { object-fit: cover; object-position: center 62%; }
-  .facts { flex-wrap: nowrap; gap: 18px; }
-  .facts dt { font-size: var(--step-2); }
-  .facts dd { max-width: 16ch; }
+  .stage { display: block; --zone: 46svh; }
+  /* the gold lives in a fixed window under the copy zone and never moves */
+  .stage__media { position: absolute; inset-inline: 0; bottom: 0; height: auto; top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + var(--zone)); }
+  .stage__poster, .stage__canvas { object-fit: cover; object-position: center 58%; }
+  .stage__media::after { background: linear-gradient(to bottom, var(--ink) 0%, rgba(7, 7, 10, 0) 16%), linear-gradient(to top, var(--ink) 0%, rgba(7, 7, 10, 0) 14%); }
   .stage__copy { position: absolute; inset: 0; }
   .beat {
     top: calc(var(--header-h) + 4px + env(safe-area-inset-top, 0px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px));
-    inset-inline: var(--gutter); transform: translateY(16px); gap: 14px; max-width: none;
+    inset-inline: var(--gutter); transform: translateY(14px); gap: 12px; max-width: none;
     display: flex; flex-direction: column; align-items: stretch;
   }
   .beat > * { flex: none; }
   .beat .actions { margin-top: auto; }
   .beat .actions .btn { flex: 1; }
+  .beat .btn--ghost { background: var(--ink); }
   .beat.is-on { transform: none; }
-  .beat.is-past { transform: translateY(-16px); }
+  .beat.is-past { transform: translateY(-10px); }
+  .beat[data-beat="scatter"] .lead { display: none; }
   .lead { font-size: var(--step-0); }
-  .display { font-size: clamp(2rem, 8.4vw, 2.6rem); }
-  .display--md { font-size: clamp(1.6rem, 6.6vw, 2.1rem); }
+  .display { font-size: clamp(1.9rem, 8vw, 2.5rem); }
+  .display--md { font-size: clamp(1.5rem, 6.2vw, 2rem); }
   .loop { font-size: var(--step-0); }
+  .facts { flex-wrap: nowrap; gap: 18px; }
+  .facts dt { font-size: var(--step-2); }
+  .facts dd { max-width: 16ch; }
   .stage__skip { bottom: calc(18px + env(safe-area-inset-bottom, 0px)); }
 }
 
@@ -412,21 +416,6 @@ p { margin: 0; }
 .box__close { position: sticky; float: left; top: 12px; margin: 12px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--line); background: var(--ink); color: var(--ivory); font-size: 16px; cursor: pointer; z-index: 2; }
 
 /* ---------- story: readable copy on phones ---------- */
-.stage__mask { display: none; }
-@media (max-width: 860px) {
-  .stage__mask {
-    display: block; position: absolute; inset-inline: 0; top: 0; pointer-events: none;
-    height: calc(var(--mask-h, 50vh) + 110px);
-    background: linear-gradient(to bottom, var(--ink) 0, var(--ink) calc(100% - 110px), rgba(7, 7, 10, 0) 100%);
-    opacity: 0; transition: opacity .7s ease;
-  }
-  .stage.has-copy .stage__mask { opacity: 1; }
-  .stage__media { transition: transform 1s cubic-bezier(.65, 0, .35, 1); }
-  .stage.has-copy .stage__media { transform: translateY(var(--media-shift, 0px)); }
-  .stage__media::after { background: linear-gradient(to top, var(--ink) 0, rgba(7, 7, 10, 0) 22%); }
-  .stage__poster { transform: translateY(10%); }
-  .beat .btn--ghost { background: var(--ink); }
-}
 .stage__skip { background: rgba(7, 7, 10, .7); border-radius: 999px; padding: 8px 14px; }
 
 /* the replica keeps Ads Manager's desktop proportions and scales down like a screenshot */

@@ -11,21 +11,24 @@
 
   // Each beat gets its own scroll distance (in viewport heights) and its own frame range.
   // from === to is a still-frame hold. Frames: 0–120 clip A (scatter → sphere), 120–240 clip B (sphere → gold bars).
+  // Stills carry the copy; motions carry no copy and are short, so each transition reads as one quick, smooth move.
+  // Motion frames follow an ease-in-out curve, so every transition settles softly into the next still.
   const BEATS = [
-    { id: 'open',      vh: 70,  from: 0,   to: 0   }, // still: headline
-    { id: 'scatter',   vh: 100, from: 0,   to: 62  }, // motion, no copy: droplets scatter
-    { id: 'scatter-h', vh: 100, from: 62,  to: 62  }, // still: "where the money gets lost"
-    { id: 'converge',  vh: 90,  from: 62,  to: 120 }, // motion, no copy: everything pulls into one sphere
-    { id: 'focus-h',   vh: 100, from: 120, to: 120 }, // still: the method
-    { id: 'growth',    vh: 150, from: 120, to: 240 }, // motion, no copy: sphere turns, lands, crown splash, bars rise
-    { id: 'growth-h',  vh: 80,  from: 240, to: 240 }, // still: the result + CTA
+    { id: 'open',      vh: 50,  from: 0,   to: 0   }, // still: headline
+    { id: 'scatter',   vh: 70,  from: 0,   to: 62,  ease: true }, // droplets scatter
+    { id: 'scatter-h', vh: 60,  from: 62,  to: 62  }, // still: where the money gets lost
+    { id: 'converge',  vh: 70,  from: 62,  to: 120, ease: true }, // everything pulls into one sphere
+    { id: 'focus-h',   vh: 60,  from: 120, to: 120 }, // still: the method
+    { id: 'growth',    vh: 110, from: 120, to: 240, ease: true }, // sphere turns, lands in a crown splash, bars rise
+    { id: 'growth-h',  vh: 60,  from: 240, to: 240 }, // still: the result + CTA
   ];
-  // Copy only lives inside the stills (story vh, absolute), so every transition plays on its own.
+  // Copy windows in story vh. Each chapter starts fading in as its motion settles (last ~8%) and leaves
+  // the moment the next motion starts.
   const COPY = [
-    { beat: 'open',    from: -1e9, to: 58 },
-    { beat: 'scatter', from: 182,  to: 258 },
-    { beat: 'focus',   from: 372,  to: 448 },
-    { beat: 'growth',  from: 622,  to: 1e9 },
+    { beat: 'open',    from: -1e9, to: 46 },
+    { beat: 'scatter', from: 114,  to: 178 },
+    { beat: 'focus',   from: 244,  to: 308 },
+    { beat: 'growth',  from: 412,  to: 1e9 },
   ];
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -72,7 +75,11 @@
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = Math.max(1, Math.round(box.width * dpr));
     const h = Math.max(1, Math.round(box.height * dpr));
-    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; drawn = -1; }
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; canvas.height = h; drawn = -1;
+      // resizing clears the bitmap: paint the current frame again right away
+      if (manifest) { const k = nearestLoaded(Math.round(shown)); if (k >= 0) draw(k); }
+    }
   }
 
   // scroll position (in story vh) → frame index, beat by beat
@@ -80,8 +87,9 @@
     let acc = 0;
     for (const b of BEATS) {
       if (posVh <= acc + b.vh) {
-        const t = clamp((posVh - acc) / b.vh, 0, 1);
-        return Math.round(b.from + (b.to - b.from) * t);
+        let t = clamp((posVh - acc) / b.vh, 0, 1);
+        if (b.ease) t = 0.5 - 0.5 * Math.cos(Math.PI * t);
+        return b.from + (b.to - b.from) * t;
       }
       acc += b.vh;
     }
@@ -103,11 +111,14 @@
     const cw = canvas.width, ch = canvas.height;
     const iw = manifest.width, ih = manifest.height;
     const cover = narrow.matches;
-    const s = cover ? Math.max(cw / iw, ch / ih) : Math.min(cw / iw, ch / ih);
+    // phones: fill the window, but never crop away more than ~30% of the height (the black edges blend in)
+    const s = cover ? Math.min(Math.max(cw / iw, ch / ih), (ch * 1.45) / ih) : Math.min(cw / iw, ch / ih);
     const dw = iw * s, dh = ih * s;
     const dx = (cw - dw) / 2;
     // on phones the copy sits on top, so the frame is nudged down to keep the gold below the text
-    const dy = cover ? (ch - dh) * 0.62 + ch * 0.1 : (ch - dh) / 2;
+    // phones: the window pans gently with the action (droplets, sphere, then the bars lower in the frame)
+    const focus = i < 150 ? 0.58 : i > 215 ? 0.74 : 0.58 + 0.16 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
+    const dy = cover ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
     ctx.fillStyle = '#030303';
     ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
@@ -124,7 +135,7 @@
 
     if (manifest) {
       wanted = clamp(frameAt(posVh), 0, manifest.count - 1);
-      prioritize(wanted);
+      prioritize(Math.round(wanted));
       startGlide();
     }
 
@@ -149,32 +160,30 @@
   let gliding = false;
   function glide() {
     const diff = wanted - shown;
-    shown = Math.abs(diff) < 0.5 ? wanted : shown + diff * (reduceMotion ? 1 : 0.16);
+    shown = Math.abs(diff) < 0.3 ? wanted : shown + diff * (reduceMotion ? 1 : 0.22);
     const i = nearestLoaded(Math.round(shown));
     if (i >= 0 && i !== drawn) draw(i);
     if (shown !== wanted) requestAnimationFrame(glide); else gliding = false;
   }
   function startGlide() { if (!gliding) { gliding = true; requestAnimationFrame(glide); } }
 
-  // Phones: the copy gets a solid black band of its own, and the gold slides down below it.
-  let maskVh = 0;
+  // Phones: the copy has a fixed zone at the top and the gold a fixed window below it. Neither moves while
+  // scrolling; the zone is sized once per viewport to the tallest chapter.
+  let zoneVh = 0;
   function fitMask() {
-    if (!narrow.matches || staticMode) return;
-    if (maskVh !== vh) {
-      maskVh = vh;
-      const top = stage.getBoundingClientRect().top;
-      let bottom = 0;
-      for (const el of beatsEl.values()) {
-        for (const c of el.children) {
-          if (c.classList.contains('actions')) continue;
-          bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
-        }
+    if (!narrow.matches || staticMode || zoneVh === vh) return;
+    zoneVh = vh;
+    stage.style.removeProperty('--zone');
+    const top = stage.getBoundingClientRect().top;
+    let bottom = 0;
+    for (const el of beatsEl.values()) {
+      for (const c of el.children) {
+        if (c.classList.contains('actions')) continue;
+        bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
       }
-      const maskH = bottom + 16;
-      stage.style.setProperty('--mask-h', `${Math.round(maskH)}px`);
-      stage.style.setProperty('--media-shift', `${Math.round(clamp(maskH - vh * 0.32, 0, vh * 0.24))}px`);
     }
-    stage.classList.toggle('has-copy', !!$('.beat.is-on', story));
+    stage.style.setProperty('--zone', `${Math.round(clamp(bottom + 20, vh * 0.36, vh * 0.58))}px`);
+    sizeCanvas();
   }
 
   function requestUpdate() {
@@ -297,7 +306,7 @@
   }
 
   window.addEventListener('scroll', () => { requestUpdate(); chrome(); }, { passive: true });
-  window.addEventListener('resize', () => { maskVh = 0; measure(); requestUpdate(); chrome(); });
+  window.addEventListener('resize', () => { zoneVh = 0; measure(); requestUpdate(); chrome(); });
   narrow.addEventListener?.('change', () => { drawn = -1; measure(); requestUpdate(); });
 
   // ---------- testimonial videos ----------
