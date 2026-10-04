@@ -8,6 +8,7 @@
   const FORM_ENDPOINT = 'https://formsubmit.co/ajax/ay.digital10@gmail.com';
   const THANKS_URL = 'thanks.html';
   const SEQ_DIR = 'media/story/';
+  const FALLBACK_MANIFEST = { count: 241, pattern: 'f-%04d.webp', width: 640, height: 1138 };
 
   // Each beat gets its own scroll distance (in viewport heights) and its own frame range.
   // from === to is a still-frame hold. Frames: 0–120 clip A (scatter → sphere), 120–240 clip B (sphere → gold bars).
@@ -54,7 +55,7 @@
   let drawn = -1;
   let wanted = 0;
   let ticking = false;
-  let staticMode = reduceMotion;
+  let staticMode = false;
 
   function setStatic(on) {
     staticMode = on;
@@ -119,7 +120,7 @@
     // phones: the window pans gently with the action (droplets, sphere, then the bars lower in the frame)
     const focus = i < 150 ? 0.58 : i > 215 ? 0.74 : 0.58 + 0.16 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
     const dy = cover ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
-    ctx.fillStyle = '#030303';
+    ctx.fillStyle = '#000'; // the footage background is pure black, so letterboxed edges disappear
     ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
     drawn = i;
@@ -260,17 +261,17 @@
   }
 
   async function initStory() {
-    if (reduceMotion) { setStatic(true); return; }
-    // Respect data saver: keep the poster and show the chapters as normal sections.
+    // The story only moves when the visitor scrolls (nothing autoplays), so it stays on with "reduce motion";
+    // there the frame snaps instead of gliding and the copy appears without easing.
+    // Data saver: keep the poster and show the chapters as normal sections.
     const conn = navigator.connection;
-    if (conn && (conn.saveData || /(^|-)2g$/.test(conn.effectiveType || ''))) { setStatic(true); return; }
+    if (conn && conn.saveData) { setStatic(true); return; }
     try {
       const res = await fetch(SEQ_DIR + 'manifest.json', { cache: 'force-cache' });
       if (!res.ok) throw new Error(res.status);
       manifest = await res.json();
     } catch (e) {
-      setStatic(true);
-      return;
+      manifest = FALLBACK_MANIFEST; // the frames are still there even if the manifest request is blocked
     }
     frames = new Array(manifest.count);
     loaded = new Array(manifest.count).fill(false);

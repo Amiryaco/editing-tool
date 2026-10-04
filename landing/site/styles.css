@@ -94,7 +94,8 @@ p { margin: 0; }
 @media (max-width: 860px) { .top__nav { display: none; } }
 
 /* ---------- scroll story ---------- */
-.story { position: relative; height: var(--story-h, 640vh); }
+.story { position: relative; height: var(--story-h, 640vh); --ink: #000; background: #000; } /* the footage is pure black: match it exactly */
+.story + * { box-shadow: 0 -80px 80px -40px #000; }
 .stage {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -142,7 +143,7 @@ p { margin: 0; }
   /* the gold lives in a fixed window under the copy zone and never moves */
   .stage__media { position: absolute; inset-inline: 0; bottom: 0; height: auto; top: calc(var(--header-h) + env(safe-area-inset-top, 0px) + var(--zone)); }
   .stage__poster, .stage__canvas { object-fit: cover; object-position: center 58%; }
-  .stage__media::after { background: linear-gradient(to bottom, var(--ink) 0%, rgba(7, 7, 10, 0) 16%), linear-gradient(to top, var(--ink) 0%, rgba(7, 7, 10, 0) 14%); }
+  .stage__media::after { background: linear-gradient(to bottom, var(--ink) 0%, rgba(7, 7, 10, 0) 16%), linear-gradient(to top, var(--ink) 0%, rgba(7, 7, 10, 0) 14%), linear-gradient(to right, var(--ink) 0%, rgba(7, 7, 10, 0) 14%), linear-gradient(to left, var(--ink) 0%, rgba(7, 7, 10, 0) 14%); }
   .stage__copy { position: absolute; inset: 0; }
   .beat {
     top: calc(var(--header-h) + 4px + env(safe-area-inset-top, 0px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px));
