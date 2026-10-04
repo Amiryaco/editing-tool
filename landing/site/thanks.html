@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>תודה | AY Digital Marketing</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#07070a">
+<link rel="icon" href="img/favicon.png">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="styles.css">
+<!-- Google Ads: paste the global site tag (gtag.js) here, then the conversion event snippet, e.g.
+<script>gtag('event', 'conversion', {'send_to': 'AW-XXXXXXXXX/XXXXXXXXXXXX'});</script> -->
+<style>
+  .thanks { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding-inline: var(--gutter); padding-block: 48px; text-align: center;
+    background: radial-gradient(60% 50% at 50% 30%, rgba(214, 180, 106, .12), transparent 70%), var(--ink); }
+  .thanks__box { display: grid; gap: 20px; justify-items: center; max-width: 560px; }
+  .thanks__box img { width: 110px; height: auto; }
+</style>
+</head>
+<body>
+<main class="thanks">
+  <div class="thanks__box">
+    <img src="img/logo.webp" alt="AY Digital Marketing" width="480" height="374">
+    <h1 class="h2" id="t-h">קיבלנו. <span class="gold">נדבר בקרוב.</span></h1>
+    <p class="sub">נחזור אליכם תוך 24 שעות כדי לקבוע את שיחת האסטרטגיה. רוצים להקדים? כתבו לנו עכשיו.</p>
+    <div class="actions" style="justify-content:center">
+      <a class="btn btn--gold" href="https://wa.me/972528989324" target="_blank" rel="noopener">לוואטסאפ</a>
+      <a class="btn btn--ghost" href="index.html">חזרה לדף</a>
+    </div>
+  </div>
+</main>
+<script>
+  try { const n = sessionStorage.getItem('ay_lead_name'); if (n) document.getElementById('t-h').firstChild.textContent = `תודה ${n.split(' ')[0]}, קיבלנו. `; } catch (_) {}
+</script>
+</body>
+</html>
