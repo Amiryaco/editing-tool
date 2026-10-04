@@ -17,7 +17,10 @@ html = (SITE / 'index.html').read_text()
 title = re.search(r'<title>.*?</title>', html, re.S).group(0)
 body = re.search(r'<body>(.*)</body>', html, re.S).group(1)
 body = body.replace('<script src="app.js" defer></script>', '<script>\n%s\n</script>' % (SITE / 'app.js').read_text())
-(OUT / 'index.html').write_text('%s\n<style>\n%s\n%s\n</style>\n%s' % (title, fonts, (SITE / 'styles.css').read_text(), body))
+title = '<title>AY Digital Marketing</title>'  # the artifact gallery shows this as the page name
+# the artifact skeleton has its own <html>, so restore the page's Hebrew right-to-left direction here
+rtl = "<script>document.documentElement.dir = 'rtl'; document.documentElement.lang = 'he';</script>"
+(OUT / 'index.html').write_text('<meta charset="utf-8">\n%s\n%s\n<style>\nhtml { direction: rtl; }\n%s\n%s\n</style>\n%s' % (title, rtl, fonts, (SITE / 'styles.css').read_text(), body))
 print('preview ->', OUT)
 
 with zipfile.ZipFile(ROOT / 'ay-landing.zip', 'w', zipfile.ZIP_DEFLATED) as z:

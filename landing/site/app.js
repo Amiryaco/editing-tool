@@ -139,8 +139,31 @@
       }
     }
 
+    fitMask();
+
     const pastStory = posPx > (totalVh / 100) * vh - vh * 0.2;
     document.body.classList.toggle('after-story', pastStory);
+  }
+
+  // Phones: the copy gets a solid black band of its own, and the gold slides down below it.
+  let maskFor = '';
+  function fitMask() {
+    if (!narrow.matches || staticMode) return;
+    const on = $('.beat.is-on', story);
+    const key = (on ? on.dataset.beat : 'none') + vh;
+    if (key === maskFor) return;
+    maskFor = key;
+    let bottom = 0;
+    if (on) {
+      const top = stage.getBoundingClientRect().top;
+      for (const c of on.children) {
+        if (c.classList.contains('actions')) continue;
+        bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
+      }
+    }
+    const maskH = on ? bottom + 12 : vh * 0.12;
+    stage.style.setProperty('--mask-h', `${Math.round(maskH)}px`);
+    stage.style.setProperty('--media-shift', `${Math.round(clamp(maskH - vh * 0.3, 0, vh * 0.26))}px`);
   }
 
   function requestUpdate() {
@@ -263,7 +286,7 @@
   }
 
   window.addEventListener('scroll', () => { requestUpdate(); chrome(); }, { passive: true });
-  window.addEventListener('resize', () => { measure(); requestUpdate(); chrome(); });
+  window.addEventListener('resize', () => { maskFor = ''; measure(); requestUpdate(); chrome(); });
   narrow.addEventListener?.('change', () => { drawn = -1; measure(); requestUpdate(); });
 
   // ---------- testimonial videos ----------
@@ -279,13 +302,77 @@
     });
   });
 
-  // reel arrows: scroll by one card (RTL: "next" moves toward the left)
-  const reel = $('[data-reel]');
-  $$('[data-reel-dir]').forEach((b) => b.addEventListener('click', () => {
-    const card = $('.clip', reel);
-    const step = card ? card.getBoundingClientRect().width + 22 : reel.clientWidth * 0.8;
-    reel.scrollBy({ left: b.dataset.reelDir === 'next' ? -step : step, behavior: reduceMotion ? 'auto' : 'smooth' });
+  // carousels (testimonials, WhatsApp): arrows scroll by one card; RTL, so "next" moves toward the left
+  $$('[data-scroll]').forEach((b) => b.addEventListener('click', () => {
+    const track = $(b.dataset.scroll);
+    const card = track.firstElementChild;
+    const step = card ? card.getBoundingClientRect().width + 18 : track.clientWidth * 0.8;
+    track.scrollBy({ left: b.dataset.dir === 'next' ? -step : step, behavior: reduceMotion ? 'auto' : 'smooth' });
   }));
+
+  // ---------- lightbox: WhatsApp screenshots and the Ads Manager breakdowns ----------
+  const box = $('#box');
+  const boxBody = $('.box__body', box);
+  function openBox(node) {
+    boxBody.replaceChildren(node);
+    if (box.showModal) box.showModal(); else box.setAttribute('open', '');
+  }
+  $('[data-close]', box).addEventListener('click', () => box.close());
+  box.addEventListener('click', (e) => { if (e.target === box) box.close(); });
+  $$('[data-zoom]').forEach((b) => b.addEventListener('click', () => {
+    const img = new Image();
+    img.src = b.dataset.zoom;
+    img.alt = $('img', b).alt;
+    openBox(img);
+  }));
+  $$('[data-open]').forEach((b) => b.addEventListener('click', () => {
+    openBox(document.getElementById(b.dataset.open).content.cloneNode(true));
+    track('results_breakdown_open', { account: b.dataset.open });
+  }));
+
+  // ---------- results: account tabs + numbers that count up when they come into view ----------
+  const fmt = (v, dec, prefix) => (prefix || '') + v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  function countUp(el) {
+    const target = parseFloat(el.dataset.count);
+    const dec = el.dataset.dec ? +el.dataset.dec : (String(el.dataset.count).split('.')[1] || '').length;
+    const prefix = el.dataset.prefix || '';
+    if (reduceMotion) { el.textContent = fmt(target, dec, prefix); return; }
+    const t0 = performance.now(), dur = 1400;
+    const step = (t) => {
+      const k = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      el.textContent = fmt(target * e, dec, prefix);
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  const countIO = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    entries.forEach((en) => { if (en.isIntersecting) { countIO.unobserve(en.target); countUp(en.target); } });
+  }, { threshold: 0.4 }) : null;
+  const watchCounts = (root) => $$('[data-count]', root).forEach((el) => (countIO ? countIO.observe(el) : null));
+  watchCounts($('.kpis'));
+  watchCounts($('.acct__panel:not([hidden])'));
+
+  const tabs = $$('.acct__tab');
+  function selectTab(tab) {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+    });
+    $$('[data-count]', document.getElementById(tab.getAttribute('aria-controls'))).forEach(countUp);
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => selectTab(t));
+    t.addEventListener('keydown', (e) => {
+      const d = e.key === 'ArrowLeft' ? 1 : e.key === 'ArrowRight' ? -1 : 0; // RTL
+      if (!d) return;
+      e.preventDefault();
+      const n = tabs[(i + d + tabs.length) % tabs.length];
+      n.focus(); selectTab(n);
+    });
+  });
 
   // ---------- tracking hook (Google Ads / GA4 if the tag is installed) ----------
   function track(name, params = {}) {
