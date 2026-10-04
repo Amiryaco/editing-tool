@@ -13,8 +13,8 @@
   --gold-lo: #9a7432;
   --gold-grad: linear-gradient(115deg, #a87d36 0%, #f3dc9f 42%, #c79a4c 62%, #8f6a2c 100%);
 
-  --f-display: "Frank Ruhl Libre", "David Libre", "Times New Roman", serif;
-  --f-body: "Heebo", "Assistant", "Arial Hebrew", Arial, sans-serif;
+  --f-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --f-body: "Rubik", "Arial Hebrew", Arial, sans-serif;
 
   --step--1: clamp(.85rem, .82rem + .15vw, .95rem);
   --step-0: clamp(1rem, .96rem + .2vw, 1.125rem);
@@ -54,10 +54,11 @@ p { margin: 0; }
 
 .gold { background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .eyebrow { font-size: var(--step--1); letter-spacing: .08em; color: var(--gold); font-weight: 500; }
-.display { font-family: var(--f-display); font-weight: 700; font-size: var(--step-4); line-height: 1.08; letter-spacing: -.01em; }
+.display { font-family: var(--f-display); font-weight: 900; font-size: var(--step-4); line-height: 1.08; letter-spacing: -.015em; }
+.display--md { font-weight: 800; }
 .display--md { font-size: var(--step-3); }
 .lead { font-size: var(--step-1); line-height: 1.6; color: var(--ivory); opacity: .9; font-weight: 300; max-width: 34ch; }
-.h2 { font-family: var(--f-display); font-weight: 700; font-size: var(--step-3); line-height: 1.12; }
+.h2 { font-family: var(--f-display); font-weight: 800; letter-spacing: -.01em; font-size: var(--step-3); line-height: 1.12; }
 .sub { color: var(--muted); font-size: var(--step-1); font-weight: 300; max-width: 46ch; }
 
 /* ---------- buttons ---------- */
@@ -140,7 +141,11 @@ p { margin: 0; }
   .stage { display: block; }
   .stage__media { position: absolute; inset: 0; }
   .stage__poster, .stage__canvas { object-fit: cover; object-position: center 62%; }
-  .stage__media::after { background: linear-gradient(to bottom, var(--ink) 0%, rgba(7, 7, 10, .55) 30%, rgba(7, 7, 10, 0) 52%); }
+  .stage__poster { transform: translateY(10%); }
+  .stage__media::after { background: linear-gradient(to bottom, var(--ink) 0%, rgba(7, 7, 10, .82) 28%, rgba(7, 7, 10, .35) 46%, rgba(7, 7, 10, 0) 60%); }
+  .facts { flex-wrap: nowrap; gap: 18px; }
+  .facts dt { font-size: var(--step-2); }
+  .facts dd { max-width: 16ch; }
   .stage__copy { position: absolute; inset: 0; }
   .beat {
     top: calc(var(--header-h) + 4px + env(safe-area-inset-top, 0px)); bottom: calc(64px + env(safe-area-inset-bottom, 0px));
@@ -184,7 +189,7 @@ p { margin: 0; }
   .chat { margin: 0; scroll-snap-align: center; }
   .chat img { max-height: 62vh; object-fit: cover; object-position: top; }
 }
-.chat figcaption { padding: 12px 16px 14px; font-family: var(--f-display); font-size: var(--step-1); color: var(--gold-hi); line-height: 1.3; }
+.chat figcaption { padding: 12px 16px 14px; font-family: var(--f-display); font-weight: 600; font-size: var(--step-1); color: var(--gold-hi); line-height: 1.3; }
 
 /* video testimonials */
 .reel { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 3 * 22px) / 4); gap: 22px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; padding-bottom: 6px; }
@@ -219,7 +224,7 @@ p { margin: 0; }
 /* campaigner vs strategist */
 .versus { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 20px; align-items: stretch; }
 .versus__col { border-radius: var(--radius); padding: clamp(24px, 3vw, 40px); display: grid; gap: 18px; align-content: start; }
-.versus__col h3 { font-family: var(--f-display); font-size: var(--step-2); }
+.versus__col h3 { font-family: var(--f-display); font-weight: 800; font-size: var(--step-2); }
 .versus__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .versus__col li { position: relative; padding-inline-start: 30px; }
 .versus__col--them { border: 1px solid rgba(255, 255, 255, .07); color: var(--muted); }
@@ -233,7 +238,7 @@ p { margin: 0; }
 .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); }
 .step { padding: 32px clamp(18px, 2.4vw, 36px) 8px; display: grid; gap: 10px; align-content: start; }
 .step + .step { border-inline-start: 1px solid var(--line); }
-.step__n { font-family: var(--f-display); font-weight: 900; font-size: var(--step-4); line-height: .9; color: transparent; -webkit-text-stroke: 1px var(--gold); }
+.step__n { font-family: var(--f-display); font-weight: 900; font-size: var(--step-4); line-height: .9; color: transparent; -webkit-text-stroke: 1.5px var(--gold); }
 .step h3 { font-size: var(--step-1); font-weight: 700; }
 .step p { color: var(--muted); }
 @media (max-width: 760px) {

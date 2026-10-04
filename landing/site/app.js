@@ -106,7 +106,8 @@
     const s = cover ? Math.max(cw / iw, ch / ih) : Math.min(cw / iw, ch / ih);
     const dw = iw * s, dh = ih * s;
     const dx = (cw - dw) / 2;
-    const dy = cover ? (ch - dh) * 0.62 : (ch - dh) / 2;
+    // on phones the copy sits on top, so the frame is nudged down to keep the gold below the text
+    const dy = cover ? (ch - dh) * 0.62 + ch * 0.1 : (ch - dh) / 2;
     ctx.fillStyle = '#030303';
     ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);

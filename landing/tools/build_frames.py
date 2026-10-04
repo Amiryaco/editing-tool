@@ -7,7 +7,7 @@ Clip B: the sphere turns, lands and rises into gold bars (job d18679fc-1fc5-4e17
 Both were generated with Seedance 2.0 Mini, 9:16, 720p, 8 s, start/end frames pinned to the same keyframes.
 
 The sphere at the end of A is about 7% larger than at the start of B, so the last 1.5 s of A are eased
-toward B's scale and centre. B's first frame is dropped (it duplicates A's last), giving 241 frames.
+toward B's scale and centre, and the last 5 are blended into B's first frame. B's first frame is dropped (it duplicates A's last), giving 241 frames.
 Writes f-0000.webp … f-0240.webp, poster.webp, poster.jpg and manifest.json into a fresh staging folder,
 then swaps it in.
 """
@@ -20,6 +20,7 @@ W, H = 640, 1138
 QUALITY = 70
 # sphere centre/scale measured on A's last frame and B's first frame (720x1280 source pixels)
 C_A, C_B, S_END, RAMP = (360.0, 740.5), (358.5, 734.5), 0.93, 23
+BLEND = 5  # frames of cross-blend at the seam
 
 
 def extract(video, folder):
@@ -55,6 +56,12 @@ def main():
         if k > 0:
             img = ease_to_b(img, k / RAMP)
         frames.append(img)
+    # the surface reflections still differ at the seam: blend A's last frames into B's first frame
+    b0 = cv2.imread(str(fb[0]))
+    for k in range(BLEND):
+        i = len(fa) - BLEND + k
+        w = (k + 1) / BLEND
+        frames[i] = cv2.addWeighted(frames[i], 1 - w, b0, w, 0)
     frames += [cv2.imread(str(p)) for p in fb[1:]]
 
     for i, img in enumerate(frames):
