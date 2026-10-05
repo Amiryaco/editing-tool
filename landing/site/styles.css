@@ -122,12 +122,12 @@ p { margin: 0; }
 .beat.is-on { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .6s ease, visibility 0s; }
 /* lines rise in one after another when a chapter appears */
 .beat .line { display: block; }
-.beat .line, .beat .lead, .beat .tags, .beat .facts { transform: translateY(18px); opacity: 0; transition: transform .9s cubic-bezier(.16, 1, .3, 1), opacity .7s ease; }
-.beat.is-on .line, .beat.is-on .lead, .beat.is-on .tags, .beat.is-on .facts { transform: none; opacity: 1; }
+.beat .line, .beat .lead, .beat .pillars, .beat .facts { transform: translateY(18px); opacity: 0; transition: transform .9s cubic-bezier(.16, 1, .3, 1), opacity .7s ease; }
+.beat.is-on .line, .beat.is-on .lead, .beat.is-on .pillars, .beat.is-on .facts { transform: none; opacity: 1; }
 .beat.is-on .line:nth-child(2) { transition-delay: .08s; }
 .beat.is-on .line:nth-child(3) { transition-delay: .16s; }
 .beat.is-on .lead { transition-delay: .18s; }
-.beat.is-on .tags, .beat.is-on .facts { transition-delay: .26s; }
+.beat.is-on .pillars, .beat.is-on .facts { transition-delay: .26s; }
 .beat .actions { margin-top: auto; justify-content: center; width: 100%; }
 .beat .btn--ghost { background: #000; }
 .beat .lead { max-width: 44ch; margin-inline: auto; }
@@ -159,7 +159,7 @@ p { margin: 0; }
 .story.is-static .stage__media { position: relative; top: auto; height: 70vh; max-height: 720px; }
 .story.is-static .stage__copy { position: static; height: auto; display: grid; gap: 72px; padding: 48px var(--gutter) 24px; }
 .story.is-static .beat { position: static; opacity: 1; visibility: visible; transform: none; max-width: 760px; }
-.story.is-static .beat .line, .story.is-static .beat .lead, .story.is-static .beat .tags, .story.is-static .beat .facts { opacity: 1; transform: none; }
+.story.is-static .beat .line, .story.is-static .beat .lead, .story.is-static .beat .pillars, .story.is-static .beat .facts { opacity: 1; transform: none; }
 .story.is-static .beat .actions { margin-top: 0; }
 .story.is-static .stage__skip, .story.is-static .stage__progress { display: none; }
 
@@ -436,3 +436,16 @@ p { margin: 0; }
 .beat[data-beat="open"] { max-width: 1180px; }
 .beat[data-beat="open"] .display { font-size: clamp(1.75rem, 1.1rem + 3vw, 3.9rem); line-height: 1.12; }
 .beat[data-beat="open"] .display .line { text-wrap: balance; }
+
+/* method pillars: an editorial line with gold diamonds instead of pill chips */
+.pillars { display: grid; gap: 10px; justify-items: center; }
+.pillars__row { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 0; }
+.pillars__row li { font-weight: 600; font-size: var(--step-0); color: var(--ivory); letter-spacing: .01em; display: flex; align-items: center; }
+.pillars__row li + li::before { content: ""; width: 6px; height: 6px; margin-inline: 14px; transform: rotate(45deg); background: var(--gold-grad); flex: none; }
+.pillars__row--ch { padding-top: 10px; border-top: 1px solid var(--line); direction: ltr; }
+.pillars__row--ch li { font-size: var(--step--1); font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-hi); }
+/* about: Amir's own story */
+.about__text p { font-size: var(--step-0); }
+.about__quote { margin: 6px 0; padding-inline-start: 18px; border-inline-start: 2px solid var(--gold); display: grid; gap: 6px; }
+.about__quote p { margin: 0; font-weight: 700; font-size: var(--step-1); opacity: 1; line-height: 1.4; }
+.about__sign strong { color: var(--gold-hi); font-weight: 700; }
