@@ -432,3 +432,7 @@ p { margin: 0; }
 .kpis__hero dt { font-size: clamp(2.6rem, 1.6rem + 3.6vw, 4.4rem); }
 .kpis div { justify-items: center; text-align: center; }
 @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; } }
+/* the opening headline is long: a touch smaller, and wide enough that each sentence keeps to one line on desktop */
+.beat[data-beat="open"] { max-width: 1180px; }
+.beat[data-beat="open"] .display { font-size: clamp(1.75rem, 1.1rem + 3vw, 3.9rem); line-height: 1.12; }
+.beat[data-beat="open"] .display .line { text-wrap: balance; }
