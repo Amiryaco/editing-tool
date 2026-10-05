@@ -12,24 +12,23 @@
 
   // Each beat gets its own scroll distance (in viewport heights) and its own frame range.
   // from === to is a still-frame hold. Frames: 0–120 clip A (scatter → sphere), 120–240 clip B (sphere → gold bars).
-  // Stills carry the copy; motions carry no copy and are short, so each transition reads as one quick, smooth move.
-  // Motion frames follow an ease-in-out curve, so every transition settles softly into the next still.
+  // The gold starts moving on the very first scroll (ease 'out': full speed at once, settling at the end).
+  // Later motions ease in and out, so each one glides into the next still, where its copy appears.
   const BEATS = [
-    { id: 'open',      vh: 50,  from: 0,   to: 0   }, // still: headline
-    { id: 'scatter',   vh: 70,  from: 0,   to: 62,  ease: true }, // droplets scatter
-    { id: 'scatter-h', vh: 60,  from: 62,  to: 62  }, // still: where the money gets lost
-    { id: 'converge',  vh: 70,  from: 62,  to: 120, ease: true }, // everything pulls into one sphere
-    { id: 'focus-h',   vh: 60,  from: 120, to: 120 }, // still: the method
-    { id: 'growth',    vh: 110, from: 120, to: 240, ease: true }, // sphere turns, lands in a crown splash, bars rise
-    { id: 'growth-h',  vh: 60,  from: 240, to: 240 }, // still: the result + CTA
+    { id: 'scatter',   vh: 90,  from: 0,   to: 62,  ease: 'out' },   // droplets scatter, from the first scroll
+    { id: 'scatter-h', vh: 60,  from: 62,  to: 62  },                // still: where the money gets lost
+    { id: 'converge',  vh: 70,  from: 62,  to: 120, ease: 'inout' }, // everything pulls into one sphere
+    { id: 'focus-h',   vh: 60,  from: 120, to: 120 },                // still: the method
+    { id: 'growth',    vh: 110, from: 120, to: 240, ease: 'inout' }, // sphere turns, lands in a crown splash, bars rise
+    { id: 'growth-h',  vh: 60,  from: 240, to: 240 },                // still: the result + CTA
   ];
-  // Copy windows in story vh. Each chapter starts fading in as its motion settles (last ~8%) and leaves
-  // the moment the next motion starts.
+  // Copy windows in story vh. The headline leaves early in the first motion; each later chapter fades in
+  // as its motion settles and leaves as the next motion starts.
   const COPY = [
-    { beat: 'open',    from: -1e9, to: 46 },
-    { beat: 'scatter', from: 114,  to: 178 },
-    { beat: 'focus',   from: 244,  to: 308 },
-    { beat: 'growth',  from: 412,  to: 1e9 },
+    { beat: 'open',    from: -1e9, to: 38 },
+    { beat: 'scatter', from: 84,   to: 148 },
+    { beat: 'focus',   from: 214,  to: 278 },
+    { beat: 'growth',  from: 382,  to: 1e9 },
   ];
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -64,8 +63,10 @@
     if (on) story.style.removeProperty('--story-h');
   }
 
+  let measuredW = 0;
   function measure() {
-    vh = window.innerHeight;
+    // phones resize the viewport whenever the address bar slides; keep the height stable unless the width changes
+    if (window.innerWidth !== measuredW || !vh) { measuredW = window.innerWidth; vh = window.innerHeight; zoneVh = 0; }
     if (!staticMode) story.style.setProperty('--story-h', `${(totalVh / 100) * vh + vh}px`);
     storyTop = story.getBoundingClientRect().top + window.scrollY;
     sizeCanvas();
@@ -89,7 +90,8 @@
     for (const b of BEATS) {
       if (posVh <= acc + b.vh) {
         let t = clamp((posVh - acc) / b.vh, 0, 1);
-        if (b.ease) t = 0.5 - 0.5 * Math.cos(Math.PI * t);
+        if (b.ease === 'out') t = Math.sin((Math.PI / 2) * t);
+        else if (b.ease) t = 0.5 - 0.5 * Math.cos(Math.PI * t);
         return b.from + (b.to - b.from) * t;
       }
       acc += b.vh;
@@ -111,15 +113,15 @@
     if (!img) return;
     const cw = canvas.width, ch = canvas.height;
     const iw = manifest.width, ih = manifest.height;
-    const cover = narrow.matches;
     // phones: fill the window, but never crop away more than ~30% of the height (the black edges blend in)
-    const s = cover ? Math.min(Math.max(cw / iw, ch / ih), (ch * 1.45) / ih) : Math.min(cw / iw, ch / ih);
+    // fill the window, but never crop away more than ~30% of the frame height (the black edges blend in)
+    const s = Math.min(Math.max(cw / iw, ch / ih), (ch * (narrow.matches ? 1.45 : 2.0)) / ih);
     const dw = iw * s, dh = ih * s;
     const dx = (cw - dw) / 2;
     // on phones the copy sits on top, so the frame is nudged down to keep the gold below the text
     // phones: the window pans gently with the action (droplets, sphere, then the bars lower in the frame)
     const focus = i < 150 ? 0.58 : i > 215 ? 0.74 : 0.58 + 0.16 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
-    const dy = cover ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
+    const dy = dh > ch ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
     ctx.fillStyle = '#000'; // the footage background is pure black, so letterboxed edges disappear
     ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
@@ -172,7 +174,7 @@
   // scrolling; the zone is sized once per viewport to the tallest chapter.
   let zoneVh = 0;
   function fitMask() {
-    if (!narrow.matches || staticMode || zoneVh === vh) return;
+    if (staticMode || zoneVh === vh) return;
     zoneVh = vh;
     stage.style.removeProperty('--zone');
     const top = stage.getBoundingClientRect().top;
@@ -203,7 +205,7 @@
     const order = [];
     const seen = new Set();
     const add = (i) => { if (i >= 0 && i < n && !seen.has(i)) { seen.add(i); order.push(i); } };
-    for (let i = 0; i < 12; i++) add(i);
+    for (let i = 0; i < 40; i++) add(i); // the first motion must be ready before the first scroll
     for (const step of [16, 8, 4, 2, 1]) for (let i = 0; i < n; i += step) add(i);
     return order;
   }
@@ -307,7 +309,7 @@
   }
 
   window.addEventListener('scroll', () => { requestUpdate(); chrome(); }, { passive: true });
-  window.addEventListener('resize', () => { zoneVh = 0; measure(); requestUpdate(); chrome(); });
+  window.addEventListener('resize', () => { measure(); requestUpdate(); chrome(); });
   narrow.addEventListener?.('change', () => { drawn = -1; measure(); requestUpdate(); });
 
   // ---------- testimonial videos ----------
@@ -477,6 +479,31 @@
       setMsg('הפרטים לא נשלחו. נסו שוב, או כתבו לנו בוואטסאפ: 052-898-9324.', 'error');
     }
   });
+
+  // ---------- sections come alive as they enter the viewport ----------
+  // Elements start visible in the HTML; JS only adds the "from" state, so nothing is lost without JS.
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const groups = [
+      ['.section__head > *', 0.08],
+      ['.kpis > div', 0.1], ['.acct', 0], ['.chat', 0.07], ['.clip', 0.07],
+      ['.versus__col', 0.12], ['.versus__col li', 0.06],
+      ['.step', 0.14], ['.call__photo', 0], ['.about__photo', 0], ['.about__text > *', 0.08],
+      ['.fit__list li', 0.08], ['.faq details', 0.05], ['.signup__pitch > *', 0.08], ['.form', 0.1],
+    ];
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.15, rootMargin: '0px 0px -8% 0px' });
+    for (const [sel, step] of groups) {
+      const byParent = new Map();
+      $$(sel).forEach((el) => {
+        const k = byParent.get(el.parentElement) || 0;
+        byParent.set(el.parentElement, k + 1);
+        el.style.setProperty('--d', `${(k * step).toFixed(2)}s`);
+        el.classList.add('rv');
+        io.observe(el);
+      });
+    }
+  }
 
   // ---------- boot ----------
   measure();
