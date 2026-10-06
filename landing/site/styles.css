@@ -115,7 +115,7 @@ p { margin: 0; }
   background: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0) 18%), linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 14%),
     linear-gradient(to right, #000 0%, rgba(0, 0, 0, 0) 12%), linear-gradient(to left, #000 0%, rgba(0, 0, 0, 0) 12%);
 }
-.stage__copy { position: absolute; inset: 0; }
+.stage__copy { position: absolute; inset: 0; z-index: 2; }
 .beat {
   position: absolute; inset-inline: var(--gutter); top: calc(var(--header-h) + clamp(8px, 3vh, 40px) + env(safe-area-inset-top, 0px));
   bottom: calc(64px + env(safe-area-inset-bottom, 0px));
@@ -459,7 +459,11 @@ p { margin: 0; }
 /* desktop: the wide footage fills the whole stage; a fixed black fade keeps the copy zone clean */
 .stage--wide .stage__media { top: 0; }
 .stage--wide .stage__poster { object-fit: cover; object-position: center bottom; }
-.stage--wide .stage__media::after {
-  background: linear-gradient(to bottom, #000 0, #000 calc(var(--header-h) + var(--zone) * .78), rgba(0, 0, 0, 0) calc(var(--header-h) + var(--zone) + 60px)),
-    linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 10%);
+.stage--wide .stage__media::after { background: linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 10%), linear-gradient(to right, #000 0, rgba(0, 0, 0, 0) max(0px, calc((100% - 177.78vh) / 2 + 8%))), linear-gradient(to left, #000 0, rgba(0, 0, 0, 0) max(0px, calc((100% - 177.78vh) / 2 + 8%))); }
+/* the black behind the copy follows the copy that is on screen, so a short chapter never hides the gold below it */
+.stage--wide .stage__media::before {
+  content: ""; position: absolute; inset-inline: 0; top: 0; z-index: 1; pointer-events: none;
+  height: calc(var(--fade, 45vh) + 90px);
+  background: linear-gradient(to bottom, #000 0, #000 calc(100% - 90px), rgba(0, 0, 0, 0) 100%);
+  transition: height .9s cubic-bezier(.65, 0, .35, 1);
 }

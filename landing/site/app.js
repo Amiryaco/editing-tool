@@ -125,11 +125,13 @@
     if (iw > ih) {
       // wide footage on desktop: fill the whole stage edge to edge, anchored to the bottom (the top of the
       // footage is empty black and sits behind the copy)
-      s = Math.max(cw / iw, ch / ih);
+      // never taller than the stage, and small enough that the gold (which starts ~36% down the footage)
+      // begins below the copy; anchored to the bottom, the black sides fade into the page
+      const dpr = canvas.width / Math.max(1, canvas.getBoundingClientRect().width);
+      const room = ch - (copyMaxPx + 24) * dpr; // fixed per viewport, so the gold never resizes mid-story
+      s = Math.min(Math.max(cw / iw, ch / ih), ch / ih, room / (ih * 0.64));
       dx = (cw - iw * s) / 2;
-      // droplets and sphere sit lower so they clear the copy; glide back as the bars rise from the floor
-      const k = i < 150 ? 1 : i > 215 ? 0 : 0.5 + 0.5 * Math.cos(Math.PI * (i - 150) / 65);
-      dy = ch - ih * s + ch * 0.14 * k;
+      dy = ch - ih * s;
     } else {
       // tall footage on phones: fill the window, never cropping more than ~30% of the frame height
       s = Math.min(Math.max(cw / iw, ch / ih), (ch * 1.45) / ih);
@@ -171,6 +173,7 @@
     }
 
     fitMask();
+    fitFade();
 
     const pastStory = posPx > (totalVh / 100) * vh - vh * 0.2;
     document.body.classList.toggle('after-story', pastStory);
@@ -191,6 +194,22 @@
   // Phones: the copy has a fixed zone at the top and the gold a fixed window below it. Neither moves while
   // scrolling; the zone is sized once per viewport to the tallest chapter.
   let zoneVh = 0;
+  let fadeFor = null;
+  let copyMaxPx = 0; // bottom of the tallest chapter's copy, in stage px
+  // wide screens: fit the black fade to the chapter on screen (kept from the last chapter during motion)
+  function fitFade() {
+    const on = $('.beat.is-on', story);
+    if (!on || on === fadeFor) return;
+    fadeFor = on;
+    const top = stage.getBoundingClientRect().top;
+    let bottom = 0;
+    for (const c of on.children) {
+      if (c.classList.contains('actions')) continue;
+      bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
+    }
+    stage.style.setProperty('--fade', `${Math.round(bottom + 8)}px`);
+  }
+
   function fitMask() {
     if (staticMode || zoneVh === vh) return;
     zoneVh = vh;
@@ -203,6 +222,7 @@
         bottom = Math.max(bottom, c.getBoundingClientRect().bottom - top);
       }
     }
+    copyMaxPx = Math.round(bottom); drawn = -1;
     stage.style.setProperty('--zone', `${Math.round(clamp(bottom + 20, vh * 0.36, vh * 0.58))}px`);
     sizeCanvas();
   }
@@ -341,7 +361,7 @@
   }
 
   window.addEventListener('scroll', () => { requestUpdate(); chrome(); }, { passive: true });
-  window.addEventListener('resize', () => { measure(); requestUpdate(); chrome(); });
+  window.addEventListener('resize', () => { fadeFor = null; measure(); requestUpdate(); chrome(); });
   narrow.addEventListener?.('change', () => { drawn = -1; measure(); requestUpdate(); });
 
   // ---------- testimonial videos ----------
