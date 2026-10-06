@@ -123,7 +123,9 @@
       // footage is empty black and sits behind the copy)
       s = Math.max(cw / iw, ch / ih);
       dx = (cw - iw * s) / 2;
-      dy = ch - ih * s;
+      // droplets and sphere sit lower so they clear the copy; glide back as the bars rise from the floor
+      const k = i < 150 ? 1 : i > 215 ? 0 : 0.5 + 0.5 * Math.cos(Math.PI * (i - 150) / 65);
+      dy = ch - ih * s + ch * 0.14 * k;
     } else {
       // tall footage on phones: fill the window, never cropping more than ~30% of the frame height
       s = Math.min(Math.max(cw / iw, ch / ih), (ch * 1.45) / ih);

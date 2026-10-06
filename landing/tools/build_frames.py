@@ -44,13 +44,10 @@ def main():
     ap.add_argument('--out', default=None)
     ap.add_argument('--wide', action='store_true', help='16:9 reframed clips (Higgsfield reframe jobs 4bd1bd28…, fb86a2ac…)')
     a = ap.parse_args()
-    global W, H, C_A, C_B
+    global W, H, C_A, C_B, S_END
     if a.wide:
-        # reframe keeps the 9:16 content at full height, centred in a 1280x720 canvas: map the seam geometry
-        k, ox = 720 / 1280, (1280 - 720 * 720 / 1280) / 2
-        C_A = (C_A[0] * k + ox, C_A[1] * k)
-        C_B = (C_B[0] * k + ox, C_B[1] * k)
-        W, H = 1280, 720
+        # measured on the reframed clips (1280x720): A's last frame vs B's first frame
+        C_A, C_B, S_END, W, H = (639.0, 372.0), (653.0, 378.0), 0.935, 1280, 720
     a.out = a.out or str(pathlib.Path(__file__).resolve().parents[1] / ('site/media/story-wide' if a.wide else 'site/media/story'))
     out = pathlib.Path(a.out)
     tmp = pathlib.Path(tempfile.mkdtemp())
