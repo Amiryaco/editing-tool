@@ -15,6 +15,7 @@
 
   --f-display: "Rubik", "Arial Hebrew", Arial, sans-serif;
   --f-body: "Rubik", "Arial Hebrew", Arial, sans-serif;
+  --f-label: "IBM Plex Sans Hebrew", "Rubik", Arial, sans-serif;
 
   --step--1: clamp(.85rem, .82rem + .15vw, .95rem);
   --step-0: clamp(1rem, .96rem + .2vw, 1.125rem);
@@ -53,7 +54,12 @@ p { margin: 0; }
 .skip:focus { top: 12px; }
 
 .gold { background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.eyebrow { font-size: var(--step--1); letter-spacing: .08em; color: var(--gold); font-weight: 500; }
+.eyebrow {
+  font-family: var(--f-label); font-weight: 500; font-size: var(--step--1); letter-spacing: .04em; color: var(--gold-hi);
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.eyebrow::before, .section__head .eyebrow::after { content: ""; width: 28px; height: 1px; flex: none; background: linear-gradient(to right, var(--gold), transparent); }
+.section__head .eyebrow::after { background: linear-gradient(to left, var(--gold), transparent); }
 .display { font-family: var(--f-display); font-weight: 900; font-size: var(--step-4); line-height: 1.08; letter-spacing: -.015em; }
 .display--md { font-weight: 800; }
 .display--md { font-size: var(--step-3); }
