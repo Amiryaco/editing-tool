@@ -37,8 +37,14 @@ def build(name, title):
     cls = re.search(r'class="([^"]+)"', body_cls)
     if cls:  # the artifact skeleton owns <body>; re-apply the page's body class
         body = "<script>document.addEventListener('DOMContentLoaded', () => { document.body.className = '%s'; });</script>\n" % cls.group(1) + body
-    (OUT / name).write_text('<meta charset="utf-8">\n<title>%s</title>\n%s\n<style>\nhtml { direction: rtl; }\n%s\n%s\n</style>\n%s'
-                            % (title, rtl, fonts, css, body))
+    if name == 'index.html':
+        (OUT / name).write_text('<meta charset="utf-8">\n<title>%s</title>\n%s\n<style>\nhtml { direction: rtl; }\n%s\n%s\n</style>\n%s'
+                                % (title, rtl, fonts, css, body))
+    else:  # extra pages are served as-is, so they need a full document of their own
+        (OUT / name).write_text('<!doctype html>\n<html lang="he" dir="rtl">\n<head>\n<meta charset="utf-8">\n'
+                                '<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>%s</title>\n'
+                                '<style>\n%s\n%s\n</style>\n</head>\n<body%s>\n%s\n</body>\n</html>\n'
+                                % (title, fonts, css, body_cls, body))
 
 
 build('index.html', 'AY Digital Marketing')
