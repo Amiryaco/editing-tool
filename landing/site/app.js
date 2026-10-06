@@ -7,12 +7,16 @@
   // ---------- config ----------
   const FORM_ENDPOINT = 'https://formsubmit.co/ajax/ay.digital10@gmail.com';
   const THANKS_URL = 'thanks.html';
-  // Desktop gets a 16:9 sequence (the same clips, reframed wider); phones keep the 9:16 one.
-  const WIDE = window.matchMedia('(min-width: 861px)').matches;
-  let SEQ_DIR = WIDE ? 'media/story-wide/' : 'media/story/';
-  const FALLBACK_MANIFEST = WIDE
-    ? { count: 241, pattern: 'f-%04d.webp', width: 1280, height: 720 }
-    : { count: 241, pattern: 'f-%04d.webp', width: 640, height: 1138 };
+  // Landscape screens get the 16:9 sequence (the same clips, reframed wider); portrait screens the 9:16 one.
+  // The choice follows the window live: widen or narrow it and the sequence switches.
+  const SEQS = {
+    wide: { dir: 'media/story-wide/', count: 241, pattern: 'f-%04d.webp', width: 1280, height: 720 },
+    tall: { dir: 'media/story/', count: 241, pattern: 'f-%04d.webp', width: 640, height: 1138 },
+  };
+  const wantsWide = () => window.innerWidth > window.innerHeight * 1.05 && window.innerWidth >= 700;
+  let seqMode = '';
+  let SEQ_DIR = '';
+  let gen = 0; // bumps on every sequence switch so late image loads from the old one are ignored
 
   // Each beat gets its own scroll distance (in viewport heights) and its own frame range.
   // from === to is a still-frame hold. Frames: 0–120 clip A (scatter → sphere), 120–240 clip B (sphere → gold bars).
@@ -257,7 +261,9 @@
     const img = new Image();
     img.decoding = 'async';
     frames[i] = img;
+    const g = gen;
     img.onload = () => {
+      if (g !== gen) return; // a frame of a sequence we already switched away from
       inflight--;
       loaded[i] = true;
       if (!stage.classList.contains('has-frames') && loaded[0]) { stage.classList.add('has-frames'); drawn = -1; }
@@ -266,6 +272,7 @@
       pump();
     };
     img.onerror = () => {
+      if (g !== gen) return;
       inflight--;
       frames[i] = undefined;
       const r = (retries.get(i) || 0) + 1;
@@ -276,37 +283,37 @@
     img.src = frameUrl(i);
   }
 
-  async function initStory() {
-    if (WIDE) {
-      // use the wide sequence only when it is actually there; otherwise fall back to the tall one
-      const ok = await fetch(SEQ_DIR + 'poster.webp', { method: 'HEAD' }).then((r) => r.ok).catch(() => false);
-      if (ok) {
-        stage.classList.add('stage--wide');
-        $('.stage__poster', stage).src = SEQ_DIR + 'poster.webp';
-      } else {
-        SEQ_DIR = 'media/story/';
-        FALLBACK_MANIFEST.width = 640; FALLBACK_MANIFEST.height = 1138;
-      }
-    }
-    // The story only moves when the visitor scrolls (nothing autoplays), so it stays on with "reduce motion";
-    // there the frame snaps instead of gliding and the copy appears without easing.
-    // Data saver: keep the poster and show the chapters as normal sections.
-    const conn = navigator.connection;
-    if (conn && conn.saveData) { setStatic(true); return; }
-    try {
-      const res = await fetch(SEQ_DIR + 'manifest.json', { cache: 'force-cache' });
-      if (!res.ok) throw new Error(res.status);
-      manifest = await res.json();
-    } catch (e) {
-      manifest = FALLBACK_MANIFEST; // the frames are still there even if the manifest request is blocked
-    }
+  function useSequence(mode) {
+    seqMode = mode;
+    gen++;
+    const seq = SEQS[mode];
+    SEQ_DIR = seq.dir;
+    manifest = seq;
+    stage.classList.toggle('stage--wide', mode === 'wide');
+    stage.classList.remove('has-frames');
+    $('.stage__poster', stage).src = SEQ_DIR + 'poster.webp';
     frames = new Array(manifest.count);
     loaded = new Array(manifest.count).fill(false);
     queue = baseOrder(manifest.count);
+    queued.clear(); retries.clear();
     queue.forEach((i) => queued.add(i));
+    inflight = 0;
+    drawn = -1;
     measure();
     pump();
     update();
+  }
+
+  async function initStory() {
+    // The story only moves when the visitor scrolls (nothing autoplays), so it stays on with "reduce motion".
+    // Data saver: keep the poster and show the chapters as normal sections.
+    const conn = navigator.connection;
+    if (conn && conn.saveData) { setStatic(true); return; }
+    useSequence(wantsWide() ? 'wide' : 'tall');
+    window.addEventListener('resize', () => {
+      const m = wantsWide() ? 'wide' : 'tall';
+      if (m !== seqMode) useSequence(m);
+    });
   }
 
   // skip the story
