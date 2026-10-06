@@ -15,7 +15,7 @@
 <link rel="preload" href="fonts/Rubik-hebrew.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="styles.css">
-<!-- Trackers (Google, Meta, TikTok) load from consent.js only after the visitor approves. IDs go in consent.js. -->
+<!-- Trackers (Google, Meta, TikTok) load from pixels.js. IDs go in pixels.js. -->
 </head>
 <body>
 
@@ -566,14 +566,9 @@
       </div>
       <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="check" for="f-ok">
-        <input id="f-ok" name="consent" type="checkbox" required aria-describedby="f-notice">
-        <span>אני מאשר/ת שתחזרו אליי בטלפון או בוואטסאפ לגבי שיחת האסטרטגיה. <span class="req">(חובה)</span></span>
+        <input id="f-ok" name="consent" type="checkbox" required>
+        <span>קראתי ואני מאשר/ת את <a href="privacy.html" target="_blank" rel="noopener">מדיניות הפרטיות</a></span>
       </label>
-      <label class="check" for="f-mkt">
-        <input id="f-mkt" name="marketing" type="checkbox">
-        <span>אני מסכים/ה לקבל מאיי וואי שיווק דיגיטלי עדכונים ותוכן שיווקי בוואטסאפ, SMS ובמייל. אפשר להסיר בכל עת. <span class="opt">(לא חובה)</span></span>
-      </label>
-      <p class="form__notice" id="f-notice">אינכם חייבים למסור את הפרטים, אבל בלעדיהם לא נוכל לחזור אליכם. הפרטים ישמשו לתיאום שיחת האסטרטגיה, ואם סימנתם, גם לדיוור. מידע על השימוש בפרטים, למי הם מועברים ועל הזכויות שלכם, ב<a href="privacy.html">מדיניות הפרטיות</a>.</p>
       <button class="btn btn--gold btn--block" type="submit">קבעו לי שיחת אסטרטגיה</button>
       <p class="form__msg" role="status" aria-live="polite"></p>
     </form>
@@ -595,7 +590,6 @@
       <a href="privacy.html">מדיניות פרטיות</a>
       <a href="terms.html">תנאי שימוש</a>
       <a href="accessibility.html">הצהרת נגישות</a>
-      <a href="#" data-cookie-settings>הגדרות עוגיות</a>
     </nav>
     <p class="foot__small">© איי וואי שיווק דיגיטלי · עוסק מורשה 316148980 · התעשייה 1, יוקנעם עילית</p>
   </div>
@@ -614,7 +608,7 @@
   </a>
 </div>
 
-<script src="consent.js" defer></script>
+<script src="pixels.js" defer></script>
 <script src="app.js" defer></script>
 </body>
 </html>

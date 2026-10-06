@@ -488,25 +488,8 @@ p { margin: 0; }
 .foot__legal a { color: var(--muted); }
 .foot__legal a:hover { color: var(--gold-hi); }
 
-/* form: consent and notice */
-.form__notice { font-size: var(--step--1); color: var(--muted); line-height: 1.6; }
-.form__notice a { color: var(--gold-hi); }
-.check .req, .check .opt { color: var(--muted); font-size: .92em; }
-
-/* ---------- cookie consent ---------- */
-.consent {
-  position: fixed; z-index: 90; inset-inline: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-  max-width: 560px; margin-inline: auto; padding: 18px 20px; border-radius: 16px;
-  background: rgba(15, 14, 18, .97); border: 1px solid var(--line); color: var(--ivory);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, .6); display: grid; gap: 10px;
-}
-.consent__h { font-size: var(--step-0); font-weight: 700; }
-.consent__p { font-size: var(--step--1); color: var(--muted); line-height: 1.6; }
-.consent__p a { color: var(--gold-hi); }
-.consent__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-/* "accept" and "decline" are deliberately equal in size and weight */
-.consent__btn { min-height: 44px; border-radius: 999px; border: 1px solid var(--gold); background: transparent; color: var(--ivory); font: 700 var(--step-0) var(--f-body); cursor: pointer; }
-.consent__btn:hover { background: rgba(214, 180, 106, .12); }
+/* form: privacy approval */
+.check a { color: var(--gold-hi); font-weight: 700; }
 
 /* ---------- legal pages ---------- */
 .legal-page { background: var(--ink); }

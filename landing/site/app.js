@@ -483,7 +483,7 @@
   const form = $('#lead-form');
   const msg = $('.form__msg', form);
   const submitBtn = $('button[type="submit"]', form);
-  const fName = $('#f-name'), fPhone = $('#f-phone'), fBiz = $('#f-biz'), fOk = $('#f-ok'), fMkt = $('#f-mkt'), fHoney = $('input[name="_honey"]', form);
+  const fName = $('#f-name'), fPhone = $('#f-phone'), fBiz = $('#f-biz'), fOk = $('#f-ok'), fHoney = $('input[name="_honey"]', form);
 
   function setMsg(text, kind) {
     msg.textContent = text;
@@ -504,7 +504,7 @@
     const phoneOk = validPhone(phone);
     fPhone.setAttribute('aria-invalid', String(!phoneOk));
     if (!phoneOk) errors.push('מספר טלפון תקין');
-    if (!fOk.checked) errors.push('אישור לחזרה אליכם');
+    if (!fOk.checked) errors.push('אישור מדיניות הפרטיות');
     if (errors.length) {
       setMsg(`חסר: ${errors.join(', ')}.`, 'error');
       (form.querySelector('[aria-invalid="true"]') || fOk).focus();
@@ -521,10 +521,9 @@
         body: JSON.stringify({
           name, phone,
           business: fBiz.value.trim(),
-          callback_consent: 'כן',
-          marketing_consent: fMkt.checked ? 'כן' : 'לא',
+          privacy_consent: 'כן',
           consent_time: new Date().toISOString(),
-          consent_text: fMkt.checked ? $('label[for="f-mkt"] span').textContent.trim() : '',
+          consent_text: $('label[for="f-ok"] span').textContent.trim(),
           _subject: `ליד חדש מדף הנחיתה: ${name}`,
           _template: 'table',
           _captcha: 'false',

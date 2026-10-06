@@ -9,7 +9,7 @@
 <link rel="icon" href="img/favicon.png">
 <link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="styles.css">
-<!-- The lead conversion fires from consent.js (ayTrackLead), and only if the visitor approved tracking. -->
+<!-- The lead conversion fires from pixels.js (ayTrackLead). -->
 <style>
   .thanks { min-height: 100vh; min-height: 100svh; display: grid; place-items: center; padding-inline: var(--gutter); padding-block: 48px; text-align: center;
     background: radial-gradient(60% 50% at 50% 30%, rgba(214, 180, 106, .12), transparent 70%), var(--ink); }
@@ -29,10 +29,9 @@
     </div>
   </div>
 </main>
-<script src="consent.js"></script>
+<script src="pixels.js"></script>
 <script>
   window.addEventListener('load', () => { if (window.ayTrackLead) window.ayTrackLead(); });
-  document.addEventListener('ay:consent', (e) => { if (e.detail === 'all' && window.ayTrackLead) window.ayTrackLead(); });
   try { const n = sessionStorage.getItem('ay_lead_name'); if (n) document.getElementById('t-h').firstChild.textContent = `תודה ${n.split(' ')[0]}, קיבלנו. `; } catch (_) {}
 </script>
 </body>
