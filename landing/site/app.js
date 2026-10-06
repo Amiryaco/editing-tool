@@ -7,8 +7,12 @@
   // ---------- config ----------
   const FORM_ENDPOINT = 'https://formsubmit.co/ajax/ay.digital10@gmail.com';
   const THANKS_URL = 'thanks.html';
-  const SEQ_DIR = 'media/story/';
-  const FALLBACK_MANIFEST = { count: 241, pattern: 'f-%04d.webp', width: 640, height: 1138 };
+  // Desktop gets a 16:9 sequence (the same clips, reframed wider); phones keep the 9:16 one.
+  const WIDE = window.matchMedia('(min-width: 861px)').matches;
+  let SEQ_DIR = WIDE ? 'media/story-wide/' : 'media/story/';
+  const FALLBACK_MANIFEST = WIDE
+    ? { count: 241, pattern: 'f-%04d.webp', width: 1280, height: 720 }
+    : { count: 241, pattern: 'f-%04d.webp', width: 640, height: 1138 };
 
   // Each beat gets its own scroll distance (in viewport heights) and its own frame range.
   // from === to is a still-frame hold. Frames: 0–120 clip A (scatter → sphere), 120–240 clip B (sphere → gold bars).
@@ -113,15 +117,23 @@
     if (!img) return;
     const cw = canvas.width, ch = canvas.height;
     const iw = manifest.width, ih = manifest.height;
-    // phones: fill the window, but never crop away more than ~30% of the height (the black edges blend in)
-    // fill the window, but never crop away more than ~30% of the frame height (the black edges blend in)
-    const s = Math.min(Math.max(cw / iw, ch / ih), (ch * (narrow.matches ? 1.45 : 2.0)) / ih);
+    let s, dx, dy;
+    if (iw > ih) {
+      // wide footage on desktop: fill the whole stage edge to edge, anchored to the bottom (the top of the
+      // footage is empty black and sits behind the copy)
+      s = Math.max(cw / iw, ch / ih);
+      dx = (cw - iw * s) / 2;
+      dy = ch - ih * s;
+    } else {
+      // tall footage on phones: fill the window, never cropping more than ~30% of the frame height
+      s = Math.min(Math.max(cw / iw, ch / ih), (ch * 1.45) / ih);
+      const dh = ih * s;
+      dx = (cw - iw * s) / 2;
+      // the window pans gently with the action (droplets, sphere, then the bars lower in the frame)
+      const focus = i < 150 ? 0.58 : i > 215 ? 0.74 : 0.58 + 0.16 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
+      dy = dh > ch ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
+    }
     const dw = iw * s, dh = ih * s;
-    const dx = (cw - dw) / 2;
-    // on phones the copy sits on top, so the frame is nudged down to keep the gold below the text
-    // phones: the window pans gently with the action (droplets, sphere, then the bars lower in the frame)
-    const focus = i < 150 ? 0.58 : i > 215 ? 0.74 : 0.58 + 0.16 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
-    const dy = dh > ch ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
     ctx.fillStyle = '#000'; // the footage background is pure black, so letterboxed edges disappear
     ctx.fillRect(0, 0, cw, ch);
     ctx.drawImage(img, dx, dy, dw, dh);
@@ -263,6 +275,17 @@
   }
 
   async function initStory() {
+    if (WIDE) {
+      // use the wide sequence only when it is actually there; otherwise fall back to the tall one
+      const ok = await fetch(SEQ_DIR + 'poster.webp', { method: 'HEAD' }).then((r) => r.ok).catch(() => false);
+      if (ok) {
+        stage.classList.add('stage--wide');
+        $('.stage__poster', stage).src = SEQ_DIR + 'poster.webp';
+      } else {
+        SEQ_DIR = 'media/story/';
+        FALLBACK_MANIFEST.width = 640; FALLBACK_MANIFEST.height = 1138;
+      }
+    }
     // The story only moves when the visitor scrolls (nothing autoplays), so it stays on with "reduce motion";
     // there the frame snaps instead of gliding and the copy appears without easing.
     // Data saver: keep the poster and show the chapters as normal sections.

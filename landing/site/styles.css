@@ -455,3 +455,11 @@ p { margin: 0; }
 .about__quote { margin: 6px 0; padding-inline-start: 18px; border-inline-start: 2px solid var(--gold); display: grid; gap: 6px; }
 .about__quote p { margin: 0; font-weight: 700; font-size: var(--step-1); opacity: 1; line-height: 1.4; }
 .about__sign strong { color: var(--gold-hi); font-weight: 700; }
+
+/* desktop: the wide footage fills the whole stage; a fixed black fade keeps the copy zone clean */
+.stage--wide .stage__media { top: 0; }
+.stage--wide .stage__poster { object-fit: cover; object-position: center bottom; }
+.stage--wide .stage__media::after {
+  background: linear-gradient(to bottom, #000 0, #000 calc(var(--header-h) + var(--zone) * .78), rgba(0, 0, 0, 0) calc(var(--header-h) + var(--zone) + 60px)),
+    linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 10%);
+}
