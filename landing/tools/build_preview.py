@@ -1,7 +1,9 @@
 """Make a claude.ai Artifact preview of the site (preview/), and a Cloudflare-ready zip (ay-landing.zip).
 
-The artifact frame only allows the page's own inline CSS/JS, so styles, fonts (as data URIs) and app.js are
-inlined into preview/index.html; images, frames and videos are published alongside it.
+The artifact frame only allows inline CSS/JS, so styles, fonts (data URIs) and scripts are inlined into each page.
+An artifact version holds at most 511 files, so the preview also packs small things: caption tracks become data
+URIs, the story posters point at frame 0, and thanks.html is left out (the form cannot submit inside the preview).
+The zip for Cloudflare is the untouched site/ folder.
 """
 import base64, pathlib, re, shutil, zipfile
 
@@ -9,19 +11,41 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 SITE, OUT = ROOT / 'site', ROOT / 'preview'
 
 shutil.rmtree(OUT, ignore_errors=True)
-shutil.copytree(SITE, OUT, ignore=shutil.ignore_patterns('index.html', 'styles.css', 'fonts.css', 'app.js', 'fonts'))
+shutil.copytree(SITE, OUT, ignore=shutil.ignore_patterns(
+    '*.html', 'styles.css', 'fonts.css', '*.js', 'fonts', '_headers', '*.vtt', 'poster.webp', 'poster.jpg', 'manifest.json'))
+# keep favicon/logo.png out too (unused by the preview pages)
+for p in ('img/favicon.png', 'img/logo.png'):
+    (OUT / p).unlink(missing_ok=True)
 
 fonts = (SITE / 'fonts.css').read_text()
 fonts = re.sub(r'url\((fonts/[^)]+\.woff2)\)', lambda m: 'url(data:font/woff2;base64,%s)' % base64.b64encode((SITE / m.group(1)).read_bytes()).decode(), fonts)
-html = (SITE / 'index.html').read_text()
-title = re.search(r'<title>.*?</title>', html, re.S).group(0)
-body = re.search(r'<body>(.*)</body>', html, re.S).group(1)
-body = body.replace('<script src="app.js" defer></script>', '<script>\n%s\n</script>' % (SITE / 'app.js').read_text())
-title = '<title>AY Digital Marketing</title>'  # the artifact gallery shows this as the page name
-# the artifact skeleton has its own <html>, so restore the page's Hebrew right-to-left direction here
+css = (SITE / 'styles.css').read_text()
+consent = (SITE / 'consent.js').read_text()
+app = (SITE / 'app.js').read_text().replace("SEQ_DIR + 'poster.webp'", "SEQ_DIR + 'f-0000.webp'")
 rtl = "<script>document.documentElement.dir = 'rtl'; document.documentElement.lang = 'he';</script>"
-(OUT / 'index.html').write_text('<meta charset="utf-8">\n%s\n%s\n<style>\nhtml { direction: rtl; }\n%s\n%s\n</style>\n%s' % (title, rtl, fonts, (SITE / 'styles.css').read_text(), body))
-print('preview ->', OUT)
+
+
+def build(name, title):
+    html = (SITE / name).read_text()
+    body = re.search(r'<body[^>]*>(.*)</body>', html, re.S).group(1)
+    body_cls = re.search(r'<body([^>]*)>', html).group(1)
+    body = body.replace('<script src="consent.js" defer></script>', '<script>\n%s\n</script>' % consent)
+    body = body.replace('<script src="app.js" defer></script>', '<script>\n%s\n</script>' % app)
+    body = body.replace('src="media/story/poster.webp"', 'src="media/story/f-0000.webp"')
+    body = re.sub(r'src="(media/testimonials/t\d\.he\.vtt)"',
+                  lambda m: 'src="data:text/vtt;base64,%s"' % base64.b64encode((SITE / m.group(1)).read_bytes()).decode(), body)
+    cls = re.search(r'class="([^"]+)"', body_cls)
+    if cls:  # the artifact skeleton owns <body>; re-apply the page's body class
+        body = "<script>document.addEventListener('DOMContentLoaded', () => { document.body.className = '%s'; });</script>\n" % cls.group(1) + body
+    (OUT / name).write_text('<meta charset="utf-8">\n<title>%s</title>\n%s\n<style>\nhtml { direction: rtl; }\n%s\n%s\n</style>\n%s'
+                            % (title, rtl, fonts, css, body))
+
+
+build('index.html', 'AY Digital Marketing')
+for n, t in (('privacy.html', 'מדיניות פרטיות'), ('terms.html', 'תנאי שימוש'), ('accessibility.html', 'הצהרת נגישות')):
+    build(n, t)
+n = sum(1 for p in OUT.rglob('*') if p.is_file())
+print('preview ->', OUT, n, 'files')
 
 with zipfile.ZipFile(ROOT / 'ay-landing.zip', 'w', zipfile.ZIP_DEFLATED) as z:
     for p in sorted(SITE.rglob('*')):

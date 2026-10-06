@@ -388,20 +388,26 @@
   // ---------- lightbox: WhatsApp screenshots and the Ads Manager breakdowns ----------
   const box = $('#box');
   const boxBody = $('.box__body', box);
-  function openBox(node) {
+  let boxOpener = null;
+  function openBox(node, title) {
+    boxOpener = document.activeElement;
+    $('#box-h').textContent = title || 'תצוגה מוגדלת';
     boxBody.replaceChildren(node);
     if (box.showModal) box.showModal(); else box.setAttribute('open', '');
+    $('[data-close]', box).focus();
   }
+  // keyboard users land back on the button that opened the dialog
+  box.addEventListener('close', () => { if (boxOpener && boxOpener.focus) boxOpener.focus(); });
   $('[data-close]', box).addEventListener('click', () => box.close());
   box.addEventListener('click', (e) => { if (e.target === box) box.close(); });
   $$('[data-zoom]').forEach((b) => b.addEventListener('click', () => {
     const img = new Image();
     img.src = b.dataset.zoom;
     img.alt = $('img', b).alt;
-    openBox(img);
+    openBox(img, 'הודעת וואטסאפ מלקוח');
   }));
   $$('[data-open]').forEach((b) => b.addEventListener('click', () => {
-    openBox(document.getElementById(b.dataset.open).content.cloneNode(true));
+    openBox(document.getElementById(b.dataset.open).content.cloneNode(true), 'הפירוט המלא ממנהל המודעות');
     track('results_breakdown_open', { account: b.dataset.open });
   }));
 
@@ -477,7 +483,7 @@
   const form = $('#lead-form');
   const msg = $('.form__msg', form);
   const submitBtn = $('button[type="submit"]', form);
-  const fName = $('#f-name'), fPhone = $('#f-phone'), fBiz = $('#f-biz'), fOk = $('#f-ok'), fHoney = $('input[name="_honey"]', form);
+  const fName = $('#f-name'), fPhone = $('#f-phone'), fBiz = $('#f-biz'), fOk = $('#f-ok'), fMkt = $('#f-mkt'), fHoney = $('input[name="_honey"]', form);
 
   function setMsg(text, kind) {
     msg.textContent = text;
@@ -515,6 +521,10 @@
         body: JSON.stringify({
           name, phone,
           business: fBiz.value.trim(),
+          callback_consent: 'כן',
+          marketing_consent: fMkt.checked ? 'כן' : 'לא',
+          consent_time: new Date().toISOString(),
+          consent_text: fMkt.checked ? $('label[for="f-mkt"] span').textContent.trim() : '',
           _subject: `ליד חדש מדף הנחיתה: ${name}`,
           _template: 'table',
           _captcha: 'false',
@@ -556,6 +566,33 @@
       });
     }
   }
+
+  // ---------- screen readers: the whole story as plain text (only the current chapter is on screen) ----------
+  (() => {
+    const sr = document.createElement('div');
+    sr.className = 'sr-only';
+    for (const id of ['scatter', 'focus', 'growth']) {
+      const el = beatsEl.get(id);
+      if (!el) continue;
+      const h = document.createElement('h2');
+      h.textContent = $('h2', el).textContent.replace(/\s+/g, ' ').trim();
+      sr.appendChild(h);
+      $$('.lead, .facts, .pillars', el).forEach((p) => {
+        const t = document.createElement('p');
+        t.textContent = p.innerText.replace(/\s+/g, ' ').trim();
+        sr.appendChild(t);
+      });
+    }
+    story.after(sr);
+    // the visual copy of those chapters duplicates the text above, so hide it from assistive tech
+    ['scatter', 'focus', 'growth'].forEach((id) => { const el = beatsEl.get(id); if (el) $$('h2, .lead, .facts, .pillars', el).forEach((n) => n.setAttribute('aria-hidden', 'true')); });
+  })();
+
+  // carousels: announce position ("3 מתוך 7")
+  ['[data-reel] > .clip', '[data-wall] > .chat'].forEach((sel) => {
+    const items = $$(sel);
+    items.forEach((it, i) => { it.setAttribute('role', 'group'); it.setAttribute('aria-roledescription', 'פריט'); it.setAttribute('aria-label', `${i + 1} מתוך ${items.length}`); });
+  });
 
   // ---------- boot ----------
   measure();
