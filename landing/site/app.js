@@ -45,7 +45,10 @@
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // the accessibility toolbar (a11y.js) can also stop the motion; it marks <html> and sends "ay:a11y"
+  const stillOn = () => document.documentElement.classList.contains('a11y-still');
+  let reduceMotion = prefersReduce || stillOn();
   const narrow = window.matchMedia('(max-width: 860px)');
 
   // ---------- scroll story ----------
@@ -540,8 +543,18 @@
     // Data saver: keep the poster and show the chapters as normal sections.
     if (STORY_MODE === 'scene' && scene) {
       stage.classList.add('stage--scene');
-      measure();
-      update();
+      // "stop animations" in the toolbar: the story becomes ordinary sections over a still emblem
+      const still = () => {
+        setStatic(stillOn());
+        if (staticMode) scene.set(0);
+        measure();
+        update();
+      };
+      document.addEventListener('ay:a11y', () => {
+        reduceMotion = prefersReduce || stillOn();
+        if (stillOn() !== staticMode) still();
+      });
+      still();
       return;
     }
     const conn = navigator.connection;
@@ -1074,6 +1087,7 @@
     $$('.acct__panel, .quiz__box, .chat, .clip, .step, .versus__col, .form').forEach((card) => {
       card.classList.add('tilt');
       card.addEventListener('pointermove', (e) => {
+        if (reduceMotion) return;
         const r = card.getBoundingClientRect();
         const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
         const k = r.width > 600 ? 3 : 7; // big panels lean less

@@ -21,6 +21,7 @@ fonts = (SITE / 'fonts.css').read_text()
 fonts = re.sub(r'url\((fonts/[^)]+\.woff2)\)', lambda m: 'url(data:font/woff2;base64,%s)' % base64.b64encode((SITE / m.group(1)).read_bytes()).decode(), fonts)
 css = (SITE / 'styles.css').read_text()
 pixels = (SITE / 'pixels.js').read_text()
+a11y = (SITE / 'a11y.js').read_text()
 app = (SITE / 'app.js').read_text().replace("SEQ_DIR + 'poster.webp'", "SEQ_DIR + 'f-0000.webp'")
 rtl = "<script>document.documentElement.dir = 'rtl'; document.documentElement.lang = 'he';</script>"
 
@@ -30,6 +31,7 @@ def build(name, title):
     body = re.search(r'<body[^>]*>(.*)</body>', html, re.S).group(1)
     body_cls = re.search(r'<body([^>]*)>', html).group(1)
     body = body.replace('<script src="pixels.js" defer></script>', '<script>\n%s\n</script>' % pixels)
+    body = body.replace('<script src="a11y.js"></script>', '<script>\n%s\n</script>' % a11y)
     body = body.replace('<script src="app.js" defer></script>', '<script>\n%s\n</script>' % app)
     body = body.replace('src="media/story/poster.webp"', 'src="media/story/f-0000.webp"')
     body = re.sub(r'src="(media/testimonials/t\d\.he\.vtt)"',
