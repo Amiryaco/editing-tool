@@ -156,107 +156,139 @@
   }
 
   // ---------- scene mode: a vector story driven by the scroll position (in story vh) ----------
-  // 0–60 a jumpy gold graph with the three platforms · 62–150 it becomes a phone where ads keep being swapped,
-  // the budget burns and leads barely move · 152–186 the phone shrinks into the first step of the path ·
-  // 184–232 ad → landing page → lead → call → deal light up one by one · 296–400 a laptop with the real totals
-  // of the five sample accounts, and real client messages arriving.
+  // 0–60 every platform at once on a jumpy line, things going wrong · 60–150 the apps fly into one phone:
+  // Instagram, TikTok, Google; the budget burns, the leads barely move · 152–188 the phone becomes the first
+  // step of the path · 184–236 ad → landing page → lead → call → deal · 296–400 Ads Manager with the real
+  // totals of the five sample accounts, and real client messages arriving.
   const scene = (() => {
     const root = $('.scene', story);
     if (!root) return null;
     const q = (k) => $(`[data-s="${k}"]`, root);
     const qa = (k) => $$(`[data-s="${k}"]`, root);
     const S = {
-      chaos: q('chaos'), chaosLine: q('chaosLine'), chips: qa('chip'),
-      phone: q('phone'), phoneBody: q('phoneBody'), phoneIn: q('phoneIn'), feed: q('feed'), burn: q('burn'), leads: q('leads'),
-      funnel: q('funnel'), flow: q('flow'), spark: q('spark'), nodes: qa('node'),
+      chaos: q('chaos'), chaosLine: q('chaosLine'), apps: qa('app'), toasts: qa('toast'),
+      phone: q('phone'), phoneBody: q('phoneBody'), phoneIn: q('phoneIn'), scr: qa('scr'),
+      burnCard: q('burnCard'), leadCard: q('leadCard'), burn: q('burn'), leads: q('leads'),
+      funnel: q('funnel'), flow: q('flow'), spark: q('spark'), steps: qa('step'),
       result: q('result'), lapScreen: q('lapScreen'), lapBase: q('lapBase'), lapIn: q('lapIn'),
-      vLeads: q('vLeads'), vCpl: q('vCpl'), area: q('area'), chart: q('chart'), msgs: qa('msg'),
+      vLeads: q('vLeads'), vCpl: q('vCpl'), bars: q('bars'), msgs: qa('msg'),
     };
-    // the phone's feed: six ad cards (three platforms, twice) that scroll past
     const NS = 'http://www.w3.org/2000/svg';
     const mk = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text) n.textContent = text; return n; };
-    const tints = ['#3b2f1a', '#1c2b38', '#38202b'];
-    const names = ['Meta', 'Google', 'TikTok'];
-    for (let i = 0; i < 6; i++) {
-      const g = mk('g', { transform: `translate(0 ${62 + i * 92})` });
-      g.append(mk('rect', { class: 'sc-card', x: 150, y: 0, width: 100, height: 84, rx: 8 }));
-      g.append(mk('rect', { x: 156, y: 6, width: 88, height: 44, rx: 5, fill: tints[i % 3] }));
-      g.append(mk('path', { d: 'M193 20 L207 28 L193 36 Z', fill: 'rgba(243,220,159,.55)' }));
-      g.append(mk('text', { class: 'sc-ui', x: 156, y: 64 }, names[i % 3]));
-      g.append(mk('text', { class: 'sc-lbl', x: 244, y: 64, 'text-anchor': 'end' }, 'ממומן'));
-      g.append(mk('rect', { x: 156, y: 71, width: 64, height: 4, rx: 2, fill: '#2a272e' }));
-      S.feed.append(g);
-    }
-    [S.chaosLine, S.phoneBody, S.flow, S.lapScreen, S.chart].forEach((p) => p.setAttribute('stroke-dasharray', '1 1'));
+    // leads per sample account (the five accounts in the results section)
+    const ACC = [['א׳', 3682], ['ב׳', 637], ['ג׳', 1877], ['ד׳', 1979], ['ה׳', 2134]];
+    const maxV = Math.max(...ACC.map((a) => a[1]));
+    const barEls = ACC.map(([name, v], i) => {
+      const x = 246 - i * 46; // right to left, like the tabs
+      const g = mk('g', {});
+      const r = mk('rect', { x: x - 15, y: 248, width: 30, height: 0, rx: 3, fill: '#1877f2' });
+      const val = mk('text', { class: 'sc-amb', x, y: 244, 'text-anchor': 'middle' }, '0');
+      const lab = mk('text', { class: 'sc-amk', x, y: 251, 'text-anchor': 'middle' }, name);
+      g.append(r, val, lab); S.bars.append(g);
+      return { r, val, v, h: 66 * (v / maxV) };
+    });
+    const pos = (el) => [parseFloat(el.dataset.x), parseFloat(el.dataset.y)];
+    [S.chaosLine, S.phoneBody, S.lapScreen].forEach((p) => p.setAttribute('stroke-dasharray', '1 1'));
+    const flowLen = S.flow.getTotalLength();
+    S.flow.setAttribute('stroke-dasharray', `${flowLen} ${flowLen}`);
 
     const seg = (x, a, b) => clamp((x - a) / (b - a), 0, 1);
     const io = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const out = (t) => 1 - Math.pow(1 - t, 3);
+    const pop = (t) => { const c = 1.7; return t <= 0 ? 0 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); }; // a soft overshoot
     const show = (el, on) => { el.style.display = on ? '' : 'none'; };
     const fmt = new Intl.NumberFormat('en-US');
 
     function render(x) {
-      // 1. chaos
-      const draw = 0.3 + 0.7 * out(seg(x, 0, 58));
-      const chaosOut = io(seg(x, 60, 90));
-      show(S.chaos, chaosOut < 1);
+      // 1. chaos, then the apps fly into the phone
+      const draw = 0.42 + 0.58 * out(seg(x, 0, 58));
+      const gather = io(seg(x, 60, 92));
+      show(S.chaos, gather < 1);
       S.chaosLine.style.strokeDashoffset = 1 - draw;
-      S.chaos.style.opacity = 1 - chaosOut;
-      S.chips.forEach((c, i) => {
-        const at = parseFloat(c.dataset.at);
-        const o = clamp((draw - at) * 7, 0, 1);
-        c.style.opacity = o;
-        const base = c.transform.baseVal.consolidate();
-        if (!c._xy) c._xy = [base.matrix.e, base.matrix.f];
-        const j = Math.sin(x * 0.18 + i * 2.1) * 4;
-        c.setAttribute('transform', `translate(${c._xy[0]} ${c._xy[1] + j + (1 - o) * 10}) scale(${0.7 + 0.3 * o})`);
+      S.chaosLine.style.opacity = 1 - gather;
+      S.apps.forEach((a, i) => {
+        const [ax, ay] = pos(a);
+        const o = clamp((draw - parseFloat(a.dataset.at)) * 6, 0, 1);
+        const j = Math.sin(x * 0.17 + i * 1.9) * 5 * (1 - gather);
+        const tx = ax + (200 - ax) * gather, ty = ay + j + (150 - ay) * gather;
+        a.style.opacity = o * (1 - seg(x, 82, 92));
+        a.setAttribute('transform', `translate(${tx} ${ty}) scale(${(0.5 + 0.5 * pop(o)) * (1 - 0.55 * gather)}) rotate(${Math.sin(x * 0.11 + i) * 6 * (1 - gather)})`);
+      });
+      S.toasts.forEach((t) => {
+        const [tx, ty] = pos(t);
+        const o = clamp((draw - parseFloat(t.dataset.at)) * 6, 0, 1) * (1 - io(seg(x, 56, 74)));
+        t.style.opacity = o;
+        t.setAttribute('transform', `translate(${tx} ${ty + (1 - o) * 8}) scale(${0.8 + 0.2 * o})`);
       });
 
       // 2. phone
-      const pd = io(seg(x, 60, 96));
-      const ex = io(seg(x, 152, 184));
-      show(S.phone, x > 56 && x < 190);
+      const pd = io(seg(x, 62, 96));
+      const ex = io(seg(x, 152, 186));
+      show(S.phone, x > 58 && x < 192);
       S.phoneBody.style.strokeDashoffset = 1 - pd;
-      S.phoneBody.style.fillOpacity = seg(x, 84, 100);
-      S.phoneIn.style.opacity = seg(x, 88, 104);
-      const f = seg(x, 88, 150);
-      S.feed.setAttribute('transform', `translate(0 ${-((f * 3.3 * 92) % (3 * 92))})`);
-      S.burn.setAttribute('width', (110 * io(seg(x, 96, 150))).toFixed(1));
-      S.leads.setAttribute('width', (110 * (0.04 + 0.05 * seg(x, 96, 150))).toFixed(1));
-      const cx = 200 + (352 - 200) * ex, cy = 160 + (190 - 160) * ex, sc = 1 - 0.8 * ex;
+      S.phoneBody.style.fillOpacity = seg(x, 84, 98);
+      S.phoneIn.style.opacity = seg(x, 88, 102);
+      const f = seg(x, 94, 150);
+      S.scr.forEach((s, i) => {
+        const d = f - (0.15 + i * 0.35);
+        s.style.opacity = clamp(1.8 - Math.abs(d) * 7, 0, 1);
+        s.setAttribute('transform', `translate(${clamp(-d * 40, -10, 10).toFixed(1)} 0)`);
+      });
+      const cardsOn = seg(x, 98, 110) * (1 - seg(x, 150, 164));
+      show(S.burnCard, cardsOn > 0); show(S.leadCard, cardsOn > 0);
+      S.burnCard.style.opacity = cardsOn; S.leadCard.style.opacity = cardsOn;
+      S.burn.setAttribute('width', (112 * io(seg(x, 100, 150))).toFixed(1));
+      S.leads.setAttribute('width', (112 * (0.03 + 0.05 * seg(x, 100, 150))).toFixed(1));
+      const cx = 200 + (340 - 200) * ex, cy = 160 + (110 - 160) * ex, sc = 1 - 0.72 * ex;
       S.phone.setAttribute('transform', `translate(${cx} ${cy}) scale(${sc}) translate(-200 -160)`);
-      S.phone.style.opacity = 1 - seg(x, 176, 188);
+      S.phone.style.opacity = 1 - seg(x, 178, 190);
 
-      // 3. funnel
-      const fa = io(seg(x, 168, 190));
-      const l = io(seg(x, 184, 232));
+      // 3. the path to a deal
+      const fa = io(seg(x, 170, 190));
+      const l = io(seg(x, 184, 236));
       const fx = io(seg(x, 280, 304));
-      show(S.funnel, x > 164 && fx < 1);
+      show(S.funnel, x > 166 && fx < 1);
       S.funnel.style.opacity = fa * (1 - fx);
-      S.funnel.setAttribute('transform', `translate(200 190) scale(${(0.85 + 0.15 * fa) * (1 - 0.25 * fx)}) translate(-200 -190)`);
-      S.flow.style.strokeDashoffset = 1 - l;
-      S.nodes.forEach((n, i) => n.classList.toggle('is-lit', l >= i / 4 - 0.002 && l > 0.001));
-      const run = l < 1 ? l : ((x - 232) / 26) % 1;
-      S.spark.setAttribute('cx', (352 - 304 * run).toFixed(1));
+      S.funnel.setAttribute('transform', `translate(200 166) scale(${(0.9 + 0.1 * fa) * (1 - 0.2 * fx)}) translate(-200 -166)`);
+      S.flow.style.strokeDashoffset = flowLen * (1 - l);
+      S.steps.forEach((st, i) => {
+        const at = parseFloat(st.dataset.at);
+        const lit = l >= at - 0.002 && (l > 0.002 || i === 0) && x > 186;
+        st.classList.toggle('is-lit', lit);
+        const o = clamp((fa - i * 0.12) * 3, 0, 1);
+        st.style.opacity = o;
+        if (!st._xy) { const b = st.transform.baseVal.consolidate(); st._xy = [b.matrix.e, b.matrix.f]; }
+        const bump = lit ? 1 + 0.06 * Math.max(0, 1 - Math.abs(l - at) * 12) : 1;
+        st.setAttribute('transform', `translate(${st._xy[0]} ${st._xy[1] + (1 - o) * 10}) scale(${bump})`);
+      });
+      const run = l < 1 ? l : ((x - 236) / 30) % 1;
+      const pt = S.flow.getPointAtLength(flowLen * run);
+      S.spark.setAttribute('cx', pt.x.toFixed(1)); S.spark.setAttribute('cy', pt.y.toFixed(1));
       S.spark.style.opacity = l > 0.01 ? 1 : 0;
 
-      // 4. result
-      const rs = io(seg(x, 296, 330));
+      // 4. results
+      const rs = io(seg(x, 296, 328));
       show(S.result, x > 290);
       S.lapScreen.style.strokeDashoffset = 1 - rs;
-      S.lapScreen.style.fillOpacity = seg(x, 314, 330);
-      S.lapBase.style.opacity = seg(x, 318, 332);
-      S.lapIn.style.opacity = seg(x, 322, 338);
+      S.lapScreen.style.fillOpacity = seg(x, 312, 328);
+      S.lapBase.style.opacity = seg(x, 316, 330);
+      S.lapIn.style.opacity = seg(x, 320, 336);
       const c = out(seg(x, 326, 372));
       S.vLeads.textContent = fmt.format(Math.round(9811 * c));
       S.vCpl.textContent = `₪${(28.38 * c).toFixed(2)}`;
-      S.chart.style.strokeDashoffset = 1 - io(seg(x, 328, 372));
-      S.area.style.opacity = seg(x, 352, 376);
+      barEls.forEach((b, i) => {
+        const g = out(seg(x, 330 + i * 6, 360 + i * 6));
+        const h = b.h * g;
+        b.r.setAttribute('y', (240 - h + 0).toFixed(1)); b.r.setAttribute('height', h.toFixed(1));
+        b.val.setAttribute('y', (236 - h).toFixed(1));
+        b.val.textContent = fmt.format(Math.round(b.v * g));
+        b.val.style.opacity = g;
+      });
       S.msgs.forEach((m, i) => {
-        const p = out(seg(x, 342 + i * 14, 352 + i * 14));
-        if (!m._xy) { const b = m.transform.baseVal.consolidate(); m._xy = [b.matrix.e, b.matrix.f]; }
-        m.style.opacity = p;
-        m.setAttribute('transform', `translate(${m._xy[0]} ${m._xy[1] + (1 - p) * 14}) scale(${0.85 + 0.15 * p})`);
+        const [mx, my] = pos(m);
+        const p = seg(x, 342 + i * 14, 354 + i * 14);
+        m.style.opacity = clamp(p * 2, 0, 1);
+        m.setAttribute('transform', `translate(${mx + (1 - out(p)) * 30} ${my}) scale(${0.85 + 0.15 * pop(p)})`);
       });
     }
 

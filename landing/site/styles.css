@@ -544,21 +544,29 @@ p { margin: 0; }
 }
 .scene__svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; direction: ltr; }
 .scene text { font-family: var(--f-body); letter-spacing: 0; word-spacing: 0; }
-.scene [data-s="chip"] rect { fill: #121015; stroke: rgba(214, 180, 106, .6); stroke-width: 1; }
-.scene [data-s="chip"] text { fill: #f0d79a; font-size: 12px; font-weight: 600; text-anchor: middle; }
-.scene .sc-lbl { fill: #a7a095; font-size: 10px; }
-.scene .sc-ui { fill: #a7a095; font-size: 9.5px; }
-.scene .sc-card { fill: #141217; stroke: rgba(214, 180, 106, .22); stroke-width: 1; }
-.scene .sc-k { fill: #a7a095; font-size: 11px; }
-.scene .sc-v { fill: #f0d79a; font-size: 26px; font-weight: 800; }
-.scene [data-s="node"] circle { fill: #0f0e12; stroke: rgba(214, 180, 106, .6); stroke-width: 1.5; transition: fill .35s ease, stroke .35s ease; }
-.scene [data-s="node"] .sc-ic * { fill: none; stroke: #f0d79a; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: stroke .35s ease; }
-.scene [data-s="node"] .sc-ic circle { fill: none; }
-.scene [data-s="node"] text { fill: #f3eee5; font-size: 13px; font-weight: 600; text-anchor: middle; }
-.scene [data-s="node"].is-lit circle { fill: url(#sg-fill); stroke: #f3dc9f; }
-.scene [data-s="node"].is-lit .sc-ic * { stroke: #1a1206; }
-.scene [data-s="msg"] rect { fill: #d9fdd3; }
-.scene [data-s="msg"] text { fill: #0b1f14; font-size: 13px; font-weight: 600; text-anchor: middle; }
+.scene [data-s="toast"] rect { fill: rgba(22, 19, 24, .94); stroke: rgba(224, 65, 47, .45); stroke-width: 1; }
+.scene [data-s="toast"] text { fill: #f3eee5; font-size: 10.5px; font-weight: 600; }
+.scene .sc-ig { fill: #111; font: italic 700 14px "Snell Roundhand", "Brush Script MT", "Segoe Script", cursive; }
+.scene .sc-dk { fill: #111; font-size: 8px; font-weight: 600; }
+.scene .sc-gr { fill: #737373; font-size: 7px; }
+.scene .sc-wh { fill: #fff; font-size: 8px; }
+.scene .sc-b { font-weight: 700; }
+.scene .sc-glogo { font: 700 20px "Product Sans", Arial, sans-serif; }
+.scene .sc-gl { fill: #1a0dab; font-size: 8.5px; font-weight: 600; }
+.scene .sc-st { fill: #8a8a8a; font-size: 7.5px; font-weight: 700; font-family: Arial, sans-serif; }
+.scene .sc-glass { fill: rgba(18, 16, 22, .9); stroke: rgba(214, 180, 106, .35); stroke-width: 1; }
+.scene .sc-k { fill: #c9c2b6; font-size: 10.5px; font-weight: 600; }
+.scene .sc-card { fill: #141217; stroke: rgba(214, 180, 106, .28); stroke-width: 1.2; transition: stroke .35s ease; }
+.scene [data-s="step"] > text { fill: #f3eee5; font-size: 12px; font-weight: 600; text-anchor: middle; }
+.scene [data-s="step"] .sc-v2 { fill: #f0d79a; font-size: 9px; font-weight: 700; }
+.scene [data-s="step"].is-lit .sc-card { stroke: #f3dc9f; filter: url(#sg-glow); }
+.scene .sc-am { fill: #1c1e21; font: 600 8px Arial, sans-serif; }
+.scene .sc-amk { fill: #65676b; font-size: 7.5px; font-family: var(--f-body); }
+.scene .sc-amv { fill: #1c1e21; font: 800 17px Arial, sans-serif; }
+.scene .sc-amb { fill: #1c1e21; font: 700 7.5px Arial, sans-serif; }
+.scene .sc-note { fill: rgba(28, 28, 30, .94); stroke: rgba(255, 255, 255, .08); stroke-width: 1; filter: url(#sg-shadow); }
+.scene .sc-nt { fill: #a1a1a6; font-size: 7.5px; }
+.scene .sc-nm { fill: #fff; font-size: 11px; font-weight: 700; }
 .story.is-static .scene { position: relative; height: 60vh; }
 
 /* story CTAs sit on top of the gold: dark glass with a gold rim instead of gold-on-gold */
