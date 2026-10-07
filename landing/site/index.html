@@ -28,6 +28,7 @@
   <nav class="top__nav" aria-label="ניווט ראשי">
     <a href="#results">תוצאות</a>
     <a href="#method">השיטה</a>
+    <a href="#quiz">איפה לפרסם?</a>
     <a href="#call">שיחת אסטרטגיה</a>
     <a href="#faq">שאלות</a>
   </nav>
@@ -460,6 +461,19 @@
 </section>
 
 <!-- ============ THE CALL: real 3-step sequence ============ -->
+<section class="section quiz" id="quiz" aria-labelledby="quiz-h">
+  <div class="wrap wrap--narrow">
+    <header class="section__head">
+      <p class="eyebrow">בדיקה של דקה</p>
+      <h2 class="h2" id="quiz-h"><span class="line">גוגל, מטא או טיקטוק?</span><span class="line gold">איפה הכסף שלכם צריך להיות.</span></h2>
+      <p class="sub">7 שאלות קצרות על העסק, התקציב והנוכחות שלכם ברשתות. בסוף תקבלו המלצה: באיזו פלטפורמה להתחיל, איך לחלק את התקציב ולמה.</p>
+    </header>
+    <div class="quiz__box" data-quiz>
+      <noscript><p class="quiz__note">הבדיקה דורשת JavaScript. אפשר פשוט <a href="#lead">להשאיר פרטים</a> ונבדוק את זה איתכם בשיחה.</p></noscript>
+    </div>
+  </div>
+</section>
+
 <section class="section call" id="call" aria-labelledby="call-h">
   <div class="wrap">
     <header class="section__head">
@@ -584,6 +598,7 @@
         <label for="f-biz">תחום העסק</label>
         <input id="f-biz" name="business" type="text" placeholder="לדוגמה: קליניקה, נדל״ן, מסעדה">
       </div>
+      <input type="hidden" name="platform_check" id="f-quiz">
       <input type="text" name="_honey" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
       <label class="check" for="f-ok">
         <input id="f-ok" name="consent" type="checkbox" required>

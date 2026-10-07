@@ -510,6 +510,184 @@
   }
   $$('[data-track]').forEach((a) => a.addEventListener('click', () => track('contact_click', { method: a.dataset.track })));
 
+  // ---------- platform check: which platform to start with, by niche, budget and social presence ----------
+  // A rule-based recommendation (our working rules, not market statistics). Each answer adds points to
+  // Google (G), Meta (M) and TikTok (T) and may add a reason that is shown with the result.
+  const QUIZ = [
+    { id: 'niche', q: 'מה התחום של העסק?', a: [
+      { t: 'שירות שאנשים מחפשים כשצריך (עו״ד, שיפוצים, מנעולן, הובלות)', s: { G: 5, M: 2 }, r: { G: 'אנשים מחפשים את השירות שלכם בגוגל ברגע שהם צריכים אותו' } },
+      { t: 'קליניקה, טיפולים, אסתטיקה', s: { G: 3, M: 4, T: 2 }, r: { M: 'התחום שלכם נמכר דרך תמונות, לפני ואחרי ואמון, וזה המגרש של מטא' } },
+      { t: 'נדל״ן', s: { G: 2, M: 4, T: 2 }, r: { M: 'במטא אפשר להגיע לקונים לפני שהם מתחילים לחפש' } },
+      { t: 'מסעדה, אוכל, פנאי ואירועים', s: { G: 1, M: 4, T: 4 }, r: { T: 'תחום חוויתי וויזואלי, שמתאים לסרטונים קצרים' } },
+      { t: 'חנות אונליין או מוצר', s: { G: 3, M: 4, T: 3 }, r: { M: 'מטא חזקה במכירת מוצרים ובפרסום חוזר למי שכבר ביקר בחנות' } },
+      { t: 'שירות לעסקים (B2B)', s: { G: 4, M: 2 }, r: { G: 'מקבלי החלטות מחפשים ספקים בגוגל' } },
+      { t: 'קורסים, אימון, מוצר דיגיטלי', s: { G: 1, M: 4, T: 3 }, r: { M: 'קורסים ואימון נמכרים דרך תוכן ואמון, ומטא מאפשרת לבנות את זה בהדרגה' } },
+      { t: 'משהו אחר', s: { G: 2, M: 3, T: 2 } },
+    ] },
+    { id: 'search', q: 'הלקוחות שלכם מחפשים את מה שאתם מוכרים?', a: [
+      { t: 'כן, הם מחפשים באופן פעיל', s: { G: 4 }, r: { G: 'יש ביקוש קיים בחיפוש, ושם הליד הכי חם' } },
+      { t: 'לא, הם מבינים שהם צריכים רק כשהם רואים את זה', s: { G: -2, M: 2, T: 2 }, r: { M: 'צריך ליצור את הביקוש ולא רק לתפוס אותו, ובשביל זה צריך פלטפורמת תוכן' } },
+      { t: 'גם וגם', s: { G: 2, M: 1 } },
+    ] },
+    { id: 'age', q: 'מה הגיל של רוב הלקוחות?', a: [
+      { t: '18–34', s: { M: 1, T: 3 }, r: { T: 'הקהל הצעיר שלכם מבלה הרבה בטיקטוק' } },
+      { t: '35–54', s: { G: 1, M: 2 }, r: { M: 'בגילאים האלה פייסבוק ואינסטגרם חזקות במיוחד' } },
+      { t: '55 ומעלה', s: { G: 2, M: 1, T: -3 }, r: { G: 'קהל מבוגר יותר נוטה לחפש בגוגל, ופחות נמצא בטיקטוק' } },
+      { t: 'מגוון', s: { M: 1 } },
+    ] },
+    { id: 'budget', q: 'כמה אתם מוכנים להשקיע בפרסום בחודש?', a: [
+      { t: 'עד ₪3,000', v: 1 },
+      { t: '₪3,000–7,000', v: 2 },
+      { t: '₪7,000–15,000', v: 3 },
+      { t: 'מעל ₪15,000', v: 4 },
+    ] },
+    { id: 'social', q: 'איך נראית הנוכחות שלכם ברשתות היום?', a: [
+      { t: 'כמעט אין', s: { T: -1 }, r: { G: 'בלי נוכחות ברשתות, גוגל לא דורש תוכן כדי להתחיל להביא פניות' } },
+      { t: 'יש עמוד, מעלים מדי פעם', s: { M: 1 } },
+      { t: 'מעלים תוכן באופן קבוע', s: { M: 2, T: 1 }, r: { M: 'יש לכם תוכן קיים, אפשר להפוך אותו למודעות ולפרסם מחדש למי שכבר מכיר' } },
+      { t: 'יש לנו קהל גדול ופעיל', s: { M: 2, T: 2 }, r: { M: 'קהל קיים הוא דלק לפרסום חוזר ולקהלים דומים' } },
+    ] },
+    { id: 'video', q: 'אתם יכולים לצלם סרטונים קצרים (אתם או מישהו בצוות)?', a: [
+      { t: 'כן, בקלות', s: { M: 1, T: 3 }, r: { T: 'אתם מוכנים לצלם, וזה התנאי הראשון להצליח בטיקטוק' } },
+      { t: 'קצת, לא באופן קבוע', s: { T: 1 } },
+      { t: 'לא', s: { T: -4 } },
+    ] },
+    { id: 'goal', q: 'מה הכי חשוב לכם עכשיו?', a: [
+      { t: 'לידים ופניות, כמה שיותר מהר', s: { G: 2, M: 1 }, r: { G: 'המטרה היא פניות מהירות, וגוגל מביא את מי שכבר מוכן לקנות' } },
+      { t: 'מכירות אונליין', s: { G: 1, M: 2, T: 1 } },
+      { t: 'להכיר אותנו, לבנות קהל ומותג', s: { G: -1, M: 2, T: 2 }, r: { T: 'בניית קהל ומותג עובדת הכי טוב בפלטפורמות תוכן' } },
+    ] },
+  ];
+  const PLAT = {
+    G: { name: 'גוגל', full: 'Google Ads', first: 'קמפיין חיפוש על מילים שמראות כוונת קנייה, עם מעקב המרות מהיום הראשון.' },
+    M: { name: 'מטא', full: 'פייסבוק ואינסטגרם', first: 'קמפיין לידים עם 3 מודעות שונות (סרטון, תמונה והמלצה), ופרסום חוזר למי שכבר ראה אתכם.' },
+    T: { name: 'טיקטוק', full: 'TikTok', first: '3–5 סרטונים קצרים ואותנטיים, ורק אחרי שאחד מהם תופס, מגדילים תקציב.' },
+  };
+
+  const quizBox = $('[data-quiz]');
+  if (quizBox) {
+    const answers = [];
+    let step = 0;
+    const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+
+    function renderStep() {
+      const Q = QUIZ[step];
+      const wrap = el('div', 'quiz__step');
+      const bar = el('div', 'quiz__bar'); bar.setAttribute('aria-hidden', 'true');
+      const fill = el('span'); fill.style.width = `${(step / QUIZ.length) * 100}%`; bar.append(fill);
+      const meta = el('p', 'quiz__meta', `שאלה ${step + 1} מתוך ${QUIZ.length}`);
+      const fs = el('fieldset', 'quiz__q');
+      const lg = el('legend', 'quiz__legend', Q.q);
+      fs.append(lg);
+      const opts = el('div', 'quiz__opts');
+      Q.a.forEach((A, k) => {
+        const b = el('button', 'quiz__opt', A.t);
+        b.type = 'button';
+        if (answers[step] === k) b.classList.add('is-picked');
+        b.addEventListener('click', () => {
+          answers[step] = k;
+          if (step < QUIZ.length - 1) { step++; renderStep(); } else renderResult();
+        });
+        opts.append(b);
+      });
+      fs.append(opts);
+      wrap.append(bar, meta, fs);
+      if (step > 0) {
+        const back = el('button', 'quiz__back', 'חזרה לשאלה הקודמת');
+        back.type = 'button';
+        back.addEventListener('click', () => { step--; renderStep(); });
+        wrap.append(back);
+      }
+      quizBox.replaceChildren(wrap);
+      if (quizBox.dataset.started) lg.setAttribute('tabindex', '-1'), lg.focus({ preventScroll: true });
+      quizBox.dataset.started = '1';
+      if (step === 0 && answers.length === 0) return;
+      track('platform_check_step', { step: step + 1 });
+    }
+
+    function compute() {
+      const sc = { G: 0, M: 0, T: 0 };
+      const reasons = { G: [], M: [], T: [] };
+      let budget = 1;
+      QUIZ.forEach((Q, i) => {
+        const A = Q.a[answers[i]];
+        if (Q.id === 'budget') { budget = A.v; return; }
+        for (const k in A.s || {}) sc[k] += A.s[k];
+        for (const k in A.r || {}) reasons[k].push(A.r[k]);
+      });
+      const order = Object.keys(sc).sort((a, b) => sc[b] - sc[a]);
+      const top = sc[order[0]];
+      // how many platforms the budget can carry: a small budget spread thin learns nothing
+      const maxN = budget === 1 ? 1 : budget === 2 ? 2 : 3;
+      const keep = order.filter((k, i) => i === 0 || (i < maxN && sc[k] >= Math.max(3, top * (budget === 2 ? 0.75 : 0.55))));
+      let split;
+      if (keep.length === 1) split = { [keep[0]]: 100 };
+      else if (budget === 2) split = { [keep[0]]: 70, [keep[1]]: 30 };
+      else {
+        const sum = keep.reduce((s, k) => s + Math.max(1, sc[k]), 0);
+        split = {};
+        keep.forEach((k) => { split[k] = Math.max(15, Math.round((Math.max(1, sc[k]) / sum) * 20) * 5); });
+        const diff = 100 - keep.reduce((s, k) => s + split[k], 0);
+        split[keep[0]] += diff;
+      }
+      return { keep, split, reasons, budget };
+    }
+
+    function renderResult() {
+      const { keep, split, reasons, budget } = compute();
+      const P = PLAT[keep[0]];
+      const wrap = el('div', 'quiz__result');
+      wrap.append(el('p', 'quiz__meta', 'ההמלצה שלנו'));
+      const h = el('h3', 'quiz__title');
+      h.append(document.createTextNode('להתחיל ב'), el('span', 'gold', P.name));
+      h.setAttribute('tabindex', '-1');
+      wrap.append(h);
+      wrap.append(el('p', 'quiz__lead', keep.length === 1
+        ? (budget === 1 ? `בתקציב הזה עדיף להתרכז בפלטפורמה אחת ולעשות אותה טוב: ${P.full}.` : `כל התקציב ${/^[A-Za-z]/.test(P.full) ? 'ל-' : 'ל'}${P.full}, עד שהיא עובדת ומביאה תוצאות.`)
+        : `ככה הייתי מחלק את התקציב בהתחלה:`));
+      if (keep.length > 1) {
+        const bars = el('div', 'quiz__split');
+        keep.forEach((k) => {
+          const row = el('div', 'quiz__row');
+          row.append(el('span', 'quiz__pname', PLAT[k].name));
+          const track_ = el('span', 'quiz__track'); const f = el('span'); f.style.width = `${split[k]}%`; track_.append(f);
+          row.append(track_, el('span', 'quiz__pct', `${split[k]}%`));
+          bars.append(row);
+        });
+        wrap.append(bars);
+      }
+      const why = [...new Set(keep.flatMap((k) => reasons[k]))].slice(0, 4);
+      if (why.length) {
+        wrap.append(el('p', 'quiz__h4', 'למה'));
+        const ul = el('ul', 'quiz__why');
+        why.forEach((r) => ul.append(el('li', '', r)));
+        wrap.append(ul);
+      }
+      wrap.append(el('p', 'quiz__h4', 'הצעד הראשון'));
+      wrap.append(el('p', 'quiz__first', P.first));
+      wrap.append(el('p', 'quiz__note', 'זו המלצה ראשונית לפי כללי העבודה שלנו. בשיחת האסטרטגיה נבדוק לעומק את המספרים, המתחרים והקהל שלכם.'));
+      const actions = el('div', 'quiz__actions');
+      const go = el('a', 'btn btn--gold', 'בואו נבנה לי תוכנית');
+      go.href = '#lead';
+      const again = el('button', 'quiz__back', 'לעשות את הבדיקה מחדש');
+      again.type = 'button';
+      again.addEventListener('click', () => { answers.length = 0; step = 0; renderStep(); });
+      actions.append(go, again);
+      wrap.append(actions);
+      quizBox.replaceChildren(wrap);
+      h.focus({ preventScroll: true });
+      quizBox.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+
+      // the lead form carries the answers and the recommendation
+      const summary = QUIZ.map((Q, i) => `${Q.q} ${Q.a[answers[i]].t}`).join(' | ') +
+        ` || המלצה: ${keep.map((k) => `${PLAT[k].name} ${split[k]}%`).join(', ')}`;
+      const hid = $('#f-quiz'); if (hid) hid.value = summary;
+      track('platform_check_done', { platform: keep[0], split: keep.map((k) => `${k}${split[k]}`).join('-') });
+    }
+
+    renderStep();
+  }
+
   // ---------- lead form ----------
   const form = $('#lead-form');
   const msg = $('.form__msg', form);
@@ -552,6 +730,7 @@
         body: JSON.stringify({
           name, phone,
           business: fBiz.value.trim(),
+          platform_check: ($('#f-quiz') || {}).value || '',
           privacy_consent: 'כן',
           consent_time: new Date().toISOString(),
           consent_text: $('label[for="f-ok"] span').textContent.trim(),
