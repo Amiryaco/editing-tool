@@ -31,12 +31,12 @@
     { id: 'growth-h',  vh: 60,  from: 240, to: 240 },                // still: the result + CTA
   ];
   // Copy windows in story vh. The headline leaves early in the first motion; each later chapter fades in
-  // as its motion settles and leaves as the next motion starts.
+  // as its motion slows down (not after it stops, which felt late) and leaves as the next motion starts.
   const COPY = [
     { beat: 'open',    from: -1e9, to: 38 },
-    { beat: 'scatter', from: 84,   to: 148 },
-    { beat: 'focus',   from: 214,  to: 278 },
-    { beat: 'growth',  from: 382,  to: 1e9 },
+    { beat: 'scatter', from: 72,   to: 148 },  // the motions are ~80% done here and barely moving
+    { beat: 'focus',   from: 200,  to: 278 },
+    { beat: 'growth',  from: 362,  to: 1e9 },
   ];
 
   const $ = (s, r = document) => r.querySelector(s);
@@ -133,13 +133,17 @@
       dx = (cw - iw * s) / 2;
       dy = ch - ih * s;
     } else {
-      // tall footage on phones: fill the window, never cropping more than ~30% of the frame height
-      s = Math.min(Math.max(cw / iw, ch / ih), (ch * 1.45) / ih);
+      // tall footage on phones: the canvas fills the screen under the header and the footage is drawn a bit
+      // wider than the screen, so the gold is big; its action is centred in the space under the copy, and the
+      // empty black top of the footage slides behind the copy (a black fade keeps the text clean)
+      const dpr = cw / Math.max(1, canvas.getBoundingClientRect().width);
+      const zoneTop = clamp((copyMaxPx + 12 - mediaTopPx) * dpr, 0, ch * 0.62);
+      s = Math.max((cw * 1.18) / iw, ch / ih);
       const dh = ih * s;
       dx = (cw - iw * s) / 2;
       // the window pans gently with the action (droplets, sphere, then the bars lower in the frame)
-      const focus = i < 150 ? 0.58 : i > 215 ? 0.74 : 0.58 + 0.16 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
-      dy = dh > ch ? clamp(ch / 2 - dh * focus, ch - dh, 0) : (ch - dh) / 2;
+      const focus = i < 150 ? 0.56 : i > 215 ? 0.7 : 0.56 + 0.14 * (0.5 - 0.5 * Math.cos(Math.PI * (i - 150) / 65));
+      dy = clamp(zoneTop + (ch - zoneTop) * 0.5 - dh * focus, ch - dh, zoneTop * 0.6);
     }
     const dw = iw * s, dh = ih * s;
     ctx.fillStyle = '#000'; // the footage background is pure black, so letterboxed edges disappear
@@ -196,6 +200,7 @@
   let zoneVh = 0;
   let fadeFor = null;
   let copyMaxPx = 0; // bottom of the tallest chapter's copy, in stage px
+  let mediaTopPx = 0; // top of the canvas, in stage px
   // wide screens: fit the black fade to the chapter on screen (kept from the last chapter during motion)
   function fitFade() {
     const on = $('.beat.is-on', story);
@@ -223,6 +228,7 @@
       }
     }
     copyMaxPx = Math.round(bottom); drawn = -1;
+    mediaTopPx = Math.round(canvas.getBoundingClientRect().top - top);
     stage.style.setProperty('--zone', `${Math.round(clamp(bottom + 20, vh * 0.36, vh * 0.58))}px`);
     sizeCanvas();
   }
@@ -571,7 +577,7 @@
   if ('IntersectionObserver' in window && !reduceMotion) {
     const groups = [
       ['.section__head > *', 0.08],
-      ['.kpis > div', 0.1], ['.acct', 0], ['.chat', 0.07], ['.clip', 0.07],
+      ['.kpis > div', 0.1], ['.acct', 0], ['.wall', 0], ['.reel', 0], // side-scrolling rows reveal as one, so swiped-in cards are never blank
       ['.versus__col', 0.12], ['.versus__col li', 0.06],
       ['.step', 0.14], ['.call__photo', 0], ['.about__photo', 0], ['.about__text > *', 0.08],
       ['.fit__list li', 0.08], ['.faq details', 0.05], ['.signup__pitch > *', 0.08], ['.form', 0.1],
