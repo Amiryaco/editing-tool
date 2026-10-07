@@ -121,7 +121,8 @@ p { margin: 0; }
   background: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, 0) 18%), linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0) 14%),
     linear-gradient(to right, #000 0%, rgba(0, 0, 0, 0) 12%), linear-gradient(to left, #000 0%, rgba(0, 0, 0, 0) 12%);
 }
-.stage__copy { position: absolute; inset: 0; z-index: 2; }
+.stage__copy { position: absolute; inset: 0; z-index: 2; pointer-events: none; } /* only the chapter on screen takes taps */
+.stage__skip { z-index: 3; }
 .beat {
   position: absolute; inset-inline: var(--gutter); top: calc(var(--header-h) + clamp(8px, 3vh, 40px) + env(safe-area-inset-top, 0px));
   bottom: calc(64px + env(safe-area-inset-bottom, 0px));

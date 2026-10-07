@@ -245,7 +245,7 @@
 
       // 3. the path to a deal
       const fa = io(seg(x, 170, 190));
-      const l = io(seg(x, 184, 236));
+      const l = io(seg(x, 184, 262)); // the line draws slowly; the ball rides its tip once
       const fx = io(seg(x, 280, 304));
       show(S.funnel, x > 166 && fx < 1);
       S.funnel.style.opacity = fa * (1 - fx);
@@ -261,10 +261,9 @@
         const bump = lit ? 1 + 0.06 * Math.max(0, 1 - Math.abs(l - at) * 12) : 1;
         st.setAttribute('transform', `translate(${st._xy[0]} ${st._xy[1] + (1 - o) * 10}) scale(${bump})`);
       });
-      const run = l < 1 ? l : ((x - 236) / 30) % 1;
-      const pt = S.flow.getPointAtLength(flowLen * run);
+      const pt = S.flow.getPointAtLength(flowLen * l);
       S.spark.setAttribute('cx', pt.x.toFixed(1)); S.spark.setAttribute('cy', pt.y.toFixed(1));
-      S.spark.style.opacity = l > 0.01 ? 1 : 0;
+      S.spark.style.opacity = l > 0.01 ? 1 - seg(x, 262, 272) : 0;
 
       // 4. results
       const rs = io(seg(x, 296, 328));
