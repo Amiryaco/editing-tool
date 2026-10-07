@@ -181,9 +181,14 @@
           </div>
           <div class="p3d__face p3d__back"><span class="p3d__cam"></span><img src="img/logo.webp" alt="" width="96" height="75"></div>
         </div>
-        <!-- 3D laptop: the lid (screen in front, AY on the back) opens over a keyboard base -->
+        <!-- 3D laptop: a deck with thickness and a lid hinged at its back edge; app.js spins it on a turntable
+             and opens the lid. Built from flat faces in CSS 3D. -->
         <div class="l3d" data-s="laptop">
-          <div class="l3d__base"><span class="l3d__keys"></span><span class="l3d__pad"></span></div>
+          <div class="l3d__shadow"></div>
+          <div class="l3d__deck"><span class="l3d__keys"></span><span class="l3d__pad"></span></div>
+          <div class="l3d__lip"></div>
+          <div class="l3d__side l3d__side--a"></div>
+          <div class="l3d__side l3d__side--b"></div>
           <div class="l3d__lid" data-s="lid">
             <div class="l3d__face l3d__front">
               <svg class="l3d__svg" viewBox="18 96 264 168"><rect x="18" y="96" width="264" height="168" rx="10" fill="#0b0a0d"/>
@@ -201,6 +206,7 @@
               </svg>
             </div>
             <div class="l3d__face l3d__back"><img src="img/logo.webp" alt="" width="96" height="75"></div>
+            <div class="l3d__rim"></div>
           </div>
         </div>
         </div>

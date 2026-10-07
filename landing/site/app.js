@@ -211,10 +211,10 @@
     const show = (el, on) => { el.style.display = on ? '' : 'none'; };
     const fmt = new Intl.NumberFormat('en-US');
     // 3D camera for the drawing: [story vh, rotateX°, rotateY°, translateZ px, rotateZ°], eased between keys.
-    // The opening lies like a floor turned sideways and rises up; the path to a deal lies flat like a table,
+    // The opening stays flat (the 3D arrives as a surprise with the phone); the path to a deal lies flat like a table,
     // turns and stands up while the ball runs. The phone and the laptop are real 3D objects with their own moves.
     const CAM = [
-      [0, 62, 0, -60, -24], [58, 0, 0, 0, 0], [166, 0, 0, 0, 0], [180, 72, 0, -40, 32], [254, 6, 0, 0, 0], [272, 0, 0, 0, 0], [400, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0], [166, 0, 0, 0, 0], [180, 72, 0, -40, 32], [254, 6, 0, 0, 0], [272, 0, 0, 0, 0], [400, 0, 0, 0, 0],
     ];
     const svgEl = $('.scene__svg', root);
     function camera(x) {
@@ -295,15 +295,17 @@
       S.spark.style.opacity = l > 0.01 ? 1 - seg(x, 262, 272) : 0;
 
       // 4. results
-      // the laptop tumbles in from almost upside down (~130°), swings around, and the lid opens from closed
-      const L = io(seg(x, 292, 336));
-      const lidT = io(seg(x, 314, 350));
+      // the laptop: a product reveal. Seen from above, it spins on a turntable (~130°) while it comes forward,
+      // and the lid opens from closed to slightly past upright.
+      const L = io(seg(x, 292, 338));
+      const lidT = io(seg(x, 308, 350));
       show(S.result, x > 290); show(S.laptop, x > 288);
-      const lrx = 128 * (1 - L) + 4, lry = -48 * (1 - L) - 6 + Math.sin(x * 0.05) * 3 * L, lz = -320 * (1 - L) * U;
-      S.laptop.style.transform = `translateZ(${lz.toFixed(1)}px) rotateX(${lrx.toFixed(2)}deg) rotateY(${lry.toFixed(2)}deg)`;
-      S.laptop.style.opacity = seg(x, 288, 298);
-      S.lid.style.transform = `rotateX(${(-94 * (1 - lidT)).toFixed(2)}deg)`;
-      S.lapIn.style.opacity = seg(x, 300, 318); // the screen is already lit while the laptop turns
+      const spin = -138 * (1 - L) - 10 + Math.sin(x * 0.05) * 2 * L;
+      const lz = -260 * (1 - L) * U, ly = 30 * (1 - L) * U;
+      S.laptop.style.transform = `translate3d(0, ${ly.toFixed(1)}px, ${lz.toFixed(1)}px) rotateX(-22deg) rotateY(${spin.toFixed(2)}deg) scale(.86)`;
+      S.laptop.style.opacity = seg(x, 288, 300);
+      S.lid.style.transform = `rotateX(${(-90 + 102 * lidT).toFixed(2)}deg)`;
+      S.lapIn.style.opacity = seg(x, 314, 330); // the screen lights up as the lid rises
       const c = out(seg(x, 326, 372));
       S.vLeads.textContent = fmt.format(Math.round(9811 * c));
       S.vCpl.textContent = `₪${(28.38 * c).toFixed(2)}`;
