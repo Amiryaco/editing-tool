@@ -325,7 +325,7 @@ p { margin: 0; }
 @media (max-width: 760px) { .call .wrap { grid-template-columns: none; } .call__photo, .call .steps { grid-column: 1; grid-row: auto; } .call__photo { max-height: 70vh; } }
 .about__photo > img:first-child { filter: saturate(.85) contrast(1.05); }
 .signup__me { display: flex; align-items: center; gap: 14px; }
-.signup__me img { width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
+.signup__me img { width: 68px; height: 68px; border-radius: 50%; border: 1px solid var(--gold); object-fit: cover; }
 .signup__me p { color: var(--ivory); font-weight: 500; }
 
 /* ---------- results: account explorer ---------- */
