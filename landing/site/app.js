@@ -406,6 +406,31 @@
     img.alt = $('img', b).alt;
     openBox(img, 'הודעת וואטסאפ מלקוח');
   }));
+  // legal pages open in the dialog, so the visitor (and a half-filled form) stays on the page.
+  // The preview build embeds them as <template id="legal-privacy"> etc.; the live site fetches the page.
+  const LEGAL = { 'privacy.html': 'מדיניות פרטיות', 'terms.html': 'תנאי שימוש', 'accessibility.html': 'הצהרת נגישות' };
+  document.addEventListener('click', async (e) => {
+    const a = e.target.closest('a[href]');
+    const page = a && a.getAttribute('href').split('#')[0];
+    if (!LEGAL[page] || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    let main;
+    const tpl = document.getElementById('legal-' + page.replace('.html', ''));
+    if (tpl) main = tpl.content.querySelector('main').cloneNode(true);
+    else {
+      try {
+        const res = await fetch(page);
+        main = new DOMParser().parseFromString(await res.text(), 'text/html').querySelector('main');
+      } catch (_) { location.href = a.href; return; }
+    }
+    if (!main) { location.href = a.href; return; }
+    const doc = document.createElement('div'); // the page already has a <main>
+    doc.className = 'legal legal--box';
+    doc.append(...main.childNodes);
+    doc.querySelectorAll('.legal__back').forEach((n) => n.remove());
+    openBox(doc, LEGAL[page]);
+    box.scrollTop = 0;
+  });
   $$('[data-open]').forEach((b) => b.addEventListener('click', () => {
     openBox(document.getElementById(b.dataset.open).content.cloneNode(true), 'הפירוט המלא ממנהל המודעות');
     track('results_breakdown_open', { account: b.dataset.open });

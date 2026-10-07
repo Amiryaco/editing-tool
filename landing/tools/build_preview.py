@@ -34,6 +34,10 @@ def build(name, title):
     body = body.replace('src="media/story/poster.webp"', 'src="media/story/f-0000.webp"')
     body = re.sub(r'src="(media/testimonials/t\d\.he\.vtt)"',
                   lambda m: 'src="data:text/vtt;base64,%s"' % base64.b64encode((SITE / m.group(1)).read_bytes()).decode(), body)
+    if name == 'index.html':  # the artifact frame cannot navigate to the legal pages, so the dialog reads them from here
+        for n in ('privacy', 'terms', 'accessibility'):
+            m = re.search(r'<main[^>]*>.*?</main>', (SITE / (n + '.html')).read_text(), re.S).group(0)
+            body += '\n<template id="legal-%s">%s</template>' % (n, m)
     cls = re.search(r'class="([^"]+)"', body_cls)
     if cls:  # the artifact skeleton owns <body>; re-apply the page's body class
         body = "<script>document.addEventListener('DOMContentLoaded', () => { document.body.className = '%s'; });</script>\n" % cls.group(1) + body
