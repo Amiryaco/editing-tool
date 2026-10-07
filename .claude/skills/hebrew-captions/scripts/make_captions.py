@@ -146,7 +146,7 @@ def group(words, max_words, max_chars, gap=0.45):
             # a lone word ending a sentence joins the previous group ("השיווק שלי בדיוק כאן", not "כאן" alone)
             if len(cur) == 1 and groups and len(groups[-1]) <= max_words + 1 and cur[0]['s'] - groups[-1][-1]['e'] <= gap \
                     and not re.search(r'[.!?…]$', groups[-1][-1]['raw']) \
-                    and sum(len(x['w']) + 1 for x in groups[-1]) + len(cur[0]['w']) <= max_chars + 8:
+                    and sum(len(x['w']) + 1 for x in groups[-1]) + len(cur[0]['w']) <= max_chars + 12:
                 groups[-1].extend(cur)
             else:
                 groups.append(cur)
