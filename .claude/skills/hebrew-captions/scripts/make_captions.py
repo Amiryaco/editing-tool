@@ -164,6 +164,7 @@ def main():
     ap.add_argument('--max-chars', type=int); ap.add_argument('--y', type=float, help='vertical centre of the captions, 0..1')
     ap.add_argument('--below-face', metavar='VIDEO', help='place each caption under the face in VIDEO (top of the chest), per caption')
     ap.add_argument('--chest', type=float, default=0.5, help='with --below-face: gap below the face box, in face heights')
+    ap.add_argument('--strong-shadow', action='store_true', help='soft style: a wider, darker halo for light backgrounds (white shirt, bright wall)')
     ap.add_argument('--keep-punct', action='store_true', help='keep commas and full stops (removed by default)')
     ap.add_argument('--srt'); ap.add_argument('--fix')
     a = ap.parse_args()
@@ -231,9 +232,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         if st['hl'] == 'none':
             # Plain text: libass orders a single Hebrew run correctly by itself.
             if 'glow' in st:  # soft shadow = a blurred dark copy under the crisp text; both placed at the same centre
-                gl = st['glow']; px = f"\\an5\\pos({a.W / 2:.1f},{a.H * y:.1f})"; fad = "\\fad(70,40)"
+                gl = dict(st['glow'], **({'alpha': '30', 'blur': 12, 'bord': 7} if a.strong_shadow else {})); px = f"\\an5\\pos({a.W / 2:.1f},{a.H * y:.1f})"; fad = "\\fad(70,40)"
                 ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{\\an5\\pos({a.W / 2:.1f},{a.H * y + a.H * gl['dy']:.1f})"
-                          f"\\1c&H000000&\\1a&H{gl['alpha']}&\\blur{gl['blur']}{fad}}}{text_plain}")
+                          f"\\1c&H000000&\\1a&H{gl['alpha']}&" + (f"\\bord{gl['bord']}\\3c&H000000&\\3a&H{gl['alpha']}&" if gl.get('bord') else '') + f"\\blur{gl['blur']}{fad}}}{text_plain}")
                 ev.append(f"Dialogue: 1,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{px}{fad}}}{text_plain}")
                 continue
             ev.append(f"Dialogue: 0,{ass_time(g_start)},{ass_time(g_end)},Cap,,0,0,0,,{{{here}{look}}}{text_plain}" if (look or here) else
