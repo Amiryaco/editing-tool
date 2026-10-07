@@ -46,6 +46,81 @@
     <div class="stage__media">
       <img class="stage__poster" src="media/story/poster.webp" alt="" width="640" height="1138" fetchpriority="high">
       <canvas class="stage__canvas" aria-hidden="true"></canvas>
+      <!-- Scene mode (app.js STORY_MODE = 'scene'): one gold line that becomes a phone, then the path to a deal, then the results. -->
+      <div class="scene" aria-hidden="true">
+        <svg class="scene__svg" viewBox="0 24 400 276" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="sg-gold" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#a87d36"/><stop offset=".45" stop-color="#f3dc9f"/><stop offset=".7" stop-color="#c79a4c"/><stop offset="1" stop-color="#8f6a2c"/>
+            </linearGradient>
+            <linearGradient id="sg-fill" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#c79a4c"/><stop offset=".5" stop-color="#f3dc9f"/><stop offset="1" stop-color="#a87d36"/>
+            </linearGradient>
+            <linearGradient id="sg-burn" x1="1" y1="0" x2="0" y2="0">
+              <stop offset="0" stop-color="#c79a4c"/><stop offset="1" stop-color="#c0503a"/>
+            </linearGradient>
+            <linearGradient id="sg-area" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#f3dc9f" stop-opacity=".45"/><stop offset="1" stop-color="#f3dc9f" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="sg-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <clipPath id="sg-screen"><rect x="143" y="58" width="114" height="146" rx="8"/></clipPath>
+          </defs>
+
+          <!-- 1. chaos: a jumpy graph line with the three platforms -->
+          <g data-s="chaos">
+            <path data-s="chaosLine" pathLength="1" d="M392 168 L360 250 L328 186 L296 292 L262 124 L228 236 L196 172 L162 288 L128 148 L96 262 L62 196 L30 276 L8 214" fill="none" stroke="url(#sg-gold)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" filter="url(#sg-glow)"/>
+            <g data-s="chip" data-at=".33" transform="translate(262 96)"><rect x="-34" y="-13" width="68" height="26" rx="13"/><text y="4.5">Meta</text></g>
+            <g data-s="chip" data-at=".64" transform="translate(128 120)"><rect x="-36" y="-13" width="72" height="26" rx="13"/><text y="4.5">Google</text></g>
+            <g data-s="chip" data-at=".88" transform="translate(62 168)"><rect x="-36" y="-13" width="72" height="26" rx="13"/><text y="4.5">TikTok</text></g>
+          </g>
+
+          <!-- 2. the phone: ads keep being swapped, the budget burns, the leads barely move -->
+          <g data-s="phone">
+            <rect data-s="phoneBody" pathLength="1" x="135" y="30" width="130" height="260" rx="24" fill="#0b0a0d" stroke="url(#sg-gold)" stroke-width="2.5" filter="url(#sg-glow)"/>
+            <g data-s="phoneIn">
+              <rect x="181" y="41" width="38" height="8" rx="4" fill="#1d1b20"/>
+              <g clip-path="url(#sg-screen)"><g data-s="feed"></g></g>
+              <text class="sc-lbl" x="255" y="222" text-anchor="end">תקציב</text>
+              <rect x="145" y="228" width="110" height="7" rx="3.5" fill="#1d1b20"/>
+              <rect data-s="burn" x="145" y="228" width="0" height="7" rx="3.5" fill="url(#sg-burn)"/>
+              <text class="sc-lbl" x="255" y="254" text-anchor="end">לידים</text>
+              <rect x="145" y="260" width="110" height="7" rx="3.5" fill="#1d1b20"/>
+              <rect data-s="leads" x="145" y="260" width="0" height="7" rx="3.5" fill="url(#sg-fill)"/>
+            </g>
+          </g>
+
+          <!-- 3. one system: ad → landing page → lead → call → deal -->
+          <g data-s="funnel">
+            <path data-s="flow" pathLength="1" d="M352 190 L48 190" fill="none" stroke="url(#sg-gold)" stroke-width="2.5" filter="url(#sg-glow)"/>
+            <circle data-s="spark" r="4.5" cy="190" cx="352" fill="#f3dc9f" filter="url(#sg-glow)"/>
+            <g data-s="node" transform="translate(352 190)"><circle r="25"/><g class="sc-ic"><rect x="-10" y="-7" width="20" height="14" rx="3"/><path d="M-2.5 -3.5 L4 0 L-2.5 3.5 Z"/></g><text y="47">מודעה</text></g>
+            <g data-s="node" transform="translate(276 190)"><circle r="25"/><g class="sc-ic"><rect x="-8" y="-10" width="16" height="20" rx="2.5"/><path d="M-4 -4 H4 M-4 0 H4 M-4 4 H1"/></g><text y="47">דף נחיתה</text></g>
+            <g data-s="node" transform="translate(200 190)"><circle r="25"/><g class="sc-ic"><circle cx="0" cy="-4" r="4.5"/><path d="M-8.5 9 C-8.5 2 8.5 2 8.5 9"/></g><text y="47">ליד</text></g>
+            <g data-s="node" transform="translate(124 190)"><circle r="25"/><g class="sc-ic"><rect x="-6" y="-10" width="12" height="20" rx="3"/><path d="M-2 6.5 H2"/></g><text y="47">שיחה</text></g>
+            <g data-s="node" transform="translate(48 190)"><circle r="25"/><g class="sc-ic"><path d="M-8 0 L-2.5 6 L8.5 -6"/></g><text y="47">עסקה</text></g>
+          </g>
+
+          <!-- 4. the result: real numbers from the five sample accounts, and real client messages -->
+          <g data-s="result" transform="translate(0 -18)">
+            <rect data-s="lapScreen" pathLength="1" x="20" y="112" width="240" height="160" rx="10" fill="#0b0a0d" stroke="url(#sg-gold)" stroke-width="2.5" filter="url(#sg-glow)"/>
+            <path data-s="lapBase" d="M8 276 H272 L284 290 H-4 Z" fill="#18161b" stroke="url(#sg-gold)" stroke-width="1.5"/>
+            <g data-s="lapIn">
+              <text class="sc-ui" x="34" y="134">Meta Ads Manager · 5 accounts</text>
+              <text class="sc-k" x="34" y="160">Leads</text>
+              <text class="sc-v" data-s="vLeads" x="34" y="186">0</text>
+              <text class="sc-k" x="146" y="160">Lowest cost / lead</text>
+              <text class="sc-v" data-s="vCpl" x="146" y="186">₪0.00</text>
+              <path data-s="area" d="M34 262 L66 252 L98 255 L130 236 L162 240 L194 214 L224 206 L248 186 L248 262 Z" fill="url(#sg-area)"/>
+              <path data-s="chart" pathLength="1" d="M34 262 L66 252 L98 255 L130 236 L162 240 L194 214 L224 206 L248 186" fill="none" stroke="url(#sg-gold)" stroke-width="2.5" stroke-linejoin="round" filter="url(#sg-glow)"/>
+            </g>
+            <g data-s="msg" transform="translate(334 74)"><rect x="-62" y="-17" width="124" height="34" rx="12"/><text y="5">סגרתי עסקה!</text></g>
+            <g data-s="msg" transform="translate(334 118)"><rect x="-62" y="-17" width="124" height="34" rx="12"/><text y="5">הטלפון שלי מתפוצץ</text></g>
+            <g data-s="msg" transform="translate(334 162)"><rect x="-62" y="-17" width="124" height="34" rx="12"/><text y="5">עוד תיק סגרתי היום</text></g>
+          </g>
+        </svg>
+      </div>
     </div>
 
     <div class="stage__copy">

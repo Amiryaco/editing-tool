@@ -1,5 +1,5 @@
 /* AY Digital Marketing landing page.
-   1. Scroll story: a pinned canvas scrubs an image sequence (media/story/) through piecewise beats.
+   1. Scroll story: a pinned stage; in 'scene' mode a vector story (gold line → phone → path to a deal → results), in 'frames' mode an image sequence (media/story/).
    2. Testimonial videos, header/dock state, lead form. */
 (() => {
   'use strict';
@@ -13,6 +13,9 @@
     wide: { dir: 'media/story-wide/', count: 241, pattern: 'f-%04d.webp', width: 1280, height: 720 },
     tall: { dir: 'media/story/', count: 241, pattern: 'f-%04d.webp', width: 640, height: 1138 },
   };
+  // 'scene': the vector story (gold line → phone → path to a deal → results), drawn in the page.
+  // 'frames': the earlier liquid-gold image sequence (media/story*). Switch back here at any time.
+  const STORY_MODE = 'scene';
   const wantsWide = () => window.innerWidth > window.innerHeight * 1.05 && window.innerWidth >= 700;
   let seqMode = '';
   let SEQ_DIR = '';
@@ -152,6 +155,123 @@
     drawn = i;
   }
 
+  // ---------- scene mode: a vector story driven by the scroll position (in story vh) ----------
+  // 0–60 a jumpy gold graph with the three platforms · 62–150 it becomes a phone where ads keep being swapped,
+  // the budget burns and leads barely move · 152–186 the phone shrinks into the first step of the path ·
+  // 184–232 ad → landing page → lead → call → deal light up one by one · 296–400 a laptop with the real totals
+  // of the five sample accounts, and real client messages arriving.
+  const scene = (() => {
+    const root = $('.scene', story);
+    if (!root) return null;
+    const q = (k) => $(`[data-s="${k}"]`, root);
+    const qa = (k) => $$(`[data-s="${k}"]`, root);
+    const S = {
+      chaos: q('chaos'), chaosLine: q('chaosLine'), chips: qa('chip'),
+      phone: q('phone'), phoneBody: q('phoneBody'), phoneIn: q('phoneIn'), feed: q('feed'), burn: q('burn'), leads: q('leads'),
+      funnel: q('funnel'), flow: q('flow'), spark: q('spark'), nodes: qa('node'),
+      result: q('result'), lapScreen: q('lapScreen'), lapBase: q('lapBase'), lapIn: q('lapIn'),
+      vLeads: q('vLeads'), vCpl: q('vCpl'), area: q('area'), chart: q('chart'), msgs: qa('msg'),
+    };
+    // the phone's feed: six ad cards (three platforms, twice) that scroll past
+    const NS = 'http://www.w3.org/2000/svg';
+    const mk = (tag, attrs, text) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text) n.textContent = text; return n; };
+    const tints = ['#3b2f1a', '#1c2b38', '#38202b'];
+    const names = ['Meta', 'Google', 'TikTok'];
+    for (let i = 0; i < 6; i++) {
+      const g = mk('g', { transform: `translate(0 ${62 + i * 92})` });
+      g.append(mk('rect', { class: 'sc-card', x: 150, y: 0, width: 100, height: 84, rx: 8 }));
+      g.append(mk('rect', { x: 156, y: 6, width: 88, height: 44, rx: 5, fill: tints[i % 3] }));
+      g.append(mk('path', { d: 'M193 20 L207 28 L193 36 Z', fill: 'rgba(243,220,159,.55)' }));
+      g.append(mk('text', { class: 'sc-ui', x: 156, y: 64 }, names[i % 3]));
+      g.append(mk('text', { class: 'sc-lbl', x: 244, y: 64, 'text-anchor': 'end' }, 'ממומן'));
+      g.append(mk('rect', { x: 156, y: 71, width: 64, height: 4, rx: 2, fill: '#2a272e' }));
+      S.feed.append(g);
+    }
+    [S.chaosLine, S.phoneBody, S.flow, S.lapScreen, S.chart].forEach((p) => p.setAttribute('stroke-dasharray', '1 1'));
+
+    const seg = (x, a, b) => clamp((x - a) / (b - a), 0, 1);
+    const io = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+    const out = (t) => 1 - Math.pow(1 - t, 3);
+    const show = (el, on) => { el.style.display = on ? '' : 'none'; };
+    const fmt = new Intl.NumberFormat('en-US');
+
+    function render(x) {
+      // 1. chaos
+      const draw = 0.3 + 0.7 * out(seg(x, 0, 58));
+      const chaosOut = io(seg(x, 60, 90));
+      show(S.chaos, chaosOut < 1);
+      S.chaosLine.style.strokeDashoffset = 1 - draw;
+      S.chaos.style.opacity = 1 - chaosOut;
+      S.chips.forEach((c, i) => {
+        const at = parseFloat(c.dataset.at);
+        const o = clamp((draw - at) * 7, 0, 1);
+        c.style.opacity = o;
+        const base = c.transform.baseVal.consolidate();
+        if (!c._xy) c._xy = [base.matrix.e, base.matrix.f];
+        const j = Math.sin(x * 0.18 + i * 2.1) * 4;
+        c.setAttribute('transform', `translate(${c._xy[0]} ${c._xy[1] + j + (1 - o) * 10}) scale(${0.7 + 0.3 * o})`);
+      });
+
+      // 2. phone
+      const pd = io(seg(x, 60, 96));
+      const ex = io(seg(x, 152, 184));
+      show(S.phone, x > 56 && x < 190);
+      S.phoneBody.style.strokeDashoffset = 1 - pd;
+      S.phoneBody.style.fillOpacity = seg(x, 84, 100);
+      S.phoneIn.style.opacity = seg(x, 88, 104);
+      const f = seg(x, 88, 150);
+      S.feed.setAttribute('transform', `translate(0 ${-((f * 3.3 * 92) % (3 * 92))})`);
+      S.burn.setAttribute('width', (110 * io(seg(x, 96, 150))).toFixed(1));
+      S.leads.setAttribute('width', (110 * (0.04 + 0.05 * seg(x, 96, 150))).toFixed(1));
+      const cx = 200 + (352 - 200) * ex, cy = 160 + (190 - 160) * ex, sc = 1 - 0.8 * ex;
+      S.phone.setAttribute('transform', `translate(${cx} ${cy}) scale(${sc}) translate(-200 -160)`);
+      S.phone.style.opacity = 1 - seg(x, 176, 188);
+
+      // 3. funnel
+      const fa = io(seg(x, 168, 190));
+      const l = io(seg(x, 184, 232));
+      const fx = io(seg(x, 280, 304));
+      show(S.funnel, x > 164 && fx < 1);
+      S.funnel.style.opacity = fa * (1 - fx);
+      S.funnel.setAttribute('transform', `translate(200 190) scale(${(0.85 + 0.15 * fa) * (1 - 0.25 * fx)}) translate(-200 -190)`);
+      S.flow.style.strokeDashoffset = 1 - l;
+      S.nodes.forEach((n, i) => n.classList.toggle('is-lit', l >= i / 4 - 0.002 && l > 0.001));
+      const run = l < 1 ? l : ((x - 232) / 26) % 1;
+      S.spark.setAttribute('cx', (352 - 304 * run).toFixed(1));
+      S.spark.style.opacity = l > 0.01 ? 1 : 0;
+
+      // 4. result
+      const rs = io(seg(x, 296, 330));
+      show(S.result, x > 290);
+      S.lapScreen.style.strokeDashoffset = 1 - rs;
+      S.lapScreen.style.fillOpacity = seg(x, 314, 330);
+      S.lapBase.style.opacity = seg(x, 318, 332);
+      S.lapIn.style.opacity = seg(x, 322, 338);
+      const c = out(seg(x, 326, 372));
+      S.vLeads.textContent = fmt.format(Math.round(9811 * c));
+      S.vCpl.textContent = `₪${(28.38 * c).toFixed(2)}`;
+      S.chart.style.strokeDashoffset = 1 - io(seg(x, 328, 372));
+      S.area.style.opacity = seg(x, 352, 376);
+      S.msgs.forEach((m, i) => {
+        const p = out(seg(x, 342 + i * 14, 352 + i * 14));
+        if (!m._xy) { const b = m.transform.baseVal.consolidate(); m._xy = [b.matrix.e, b.matrix.f]; }
+        m.style.opacity = p;
+        m.setAttribute('transform', `translate(${m._xy[0]} ${m._xy[1] + (1 - p) * 14}) scale(${0.85 + 0.15 * p})`);
+      });
+    }
+
+    let x = -1, target = 0, running = false;
+    function loop() {
+      const d = target - x;
+      x = x < 0 || Math.abs(d) < 0.05 || reduceMotion ? target : x + d * 0.16;
+      render(x);
+      if (x !== target) requestAnimationFrame(loop); else running = false;
+    }
+    return {
+      set(v) { target = v; if (!running) { running = true; requestAnimationFrame(loop); } },
+    };
+  })();
+
   function update() {
     ticking = false;
     if (staticMode) return;
@@ -160,6 +280,7 @@
     const p = clamp(posVh / totalVh, 0, 1);
     progressBar.style.setProperty('--p', p.toFixed(4));
 
+    if (STORY_MODE === 'scene' && scene) scene.set(clamp(posVh, 0, totalVh));
     if (manifest) {
       wanted = clamp(frameAt(posVh), 0, manifest.count - 1);
       prioritize(Math.round(wanted));
@@ -333,6 +454,12 @@
   async function initStory() {
     // The story only moves when the visitor scrolls (nothing autoplays), so it stays on with "reduce motion".
     // Data saver: keep the poster and show the chapters as normal sections.
+    if (STORY_MODE === 'scene' && scene) {
+      stage.classList.add('stage--scene');
+      measure();
+      update();
+      return;
+    }
     const conn = navigator.connection;
     if (conn && conn.saveData) { setStatic(true); return; }
     useSequence(wantsWide() ? 'wide' : 'tall');
