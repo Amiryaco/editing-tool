@@ -149,6 +149,9 @@ p { margin: 0; }
 .beat:not([data-beat="open"]).is-on .line:nth-child(2) { transition-delay: .12s; }
 .beat:not([data-beat="open"]).is-on .line:nth-child(3) { transition-delay: .24s; }
 @media (prefers-reduced-motion: reduce) { .beat .line { filter: none !important; } }
+/* "שיווק שעובד / לא מתחיל בכפתור / ״פרסם״": three short lines, a touch bigger, the last word biggest */
+.beat[data-beat="focus"] .display--publish { font-size: clamp(2.4rem, 1.4rem + 4.6vw, 5rem); line-height: 1.04; text-wrap: nowrap; }
+.beat[data-beat="focus"] .display--publish .publish { font-size: 1.32em; line-height: 1.05; margin-top: .06em; }
 .beat.is-on .lead { transition-delay: .1s; }
 .beat.is-on .pillars, .beat.is-on .facts { transition-delay: .15s; }
 .beat .actions { margin-top: auto; justify-content: center; width: 100%; }
