@@ -139,6 +139,16 @@ p { margin: 0; }
 .beat.is-on .line, .beat.is-on .lead, .beat.is-on .pillars, .beat.is-on .facts { transform: none; opacity: 1; }
 .beat.is-on .line:nth-child(2) { transition-delay: .05s; }
 .beat.is-on .line:nth-child(3) { transition-delay: .1s; }
+/* chapters 2–4: headlines only, bigger; each line rises out of a soft blur, one after another, and drifts up as
+   the chapter leaves, so the words move with the scene instead of just switching */
+.beat:not([data-beat="open"]) { max-width: 1120px; }
+.beat:not([data-beat="open"]) .display--md { font-size: clamp(2.05rem, 1.25rem + 3.9vw, 4.3rem); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
+.beat:not([data-beat="open"]) .line { transform: translateY(.55em) scale(.98); filter: blur(10px); transition: transform .8s cubic-bezier(.16, 1, .3, 1), opacity .5s ease, filter .7s ease; }
+.beat:not([data-beat="open"]).is-on .line { transform: none; filter: none; }
+.beat:not([data-beat="open"]).is-past .line { transform: translateY(-.45em); filter: blur(8px); transition-duration: .45s; }
+.beat:not([data-beat="open"]).is-on .line:nth-child(2) { transition-delay: .12s; }
+.beat:not([data-beat="open"]).is-on .line:nth-child(3) { transition-delay: .24s; }
+@media (prefers-reduced-motion: reduce) { .beat .line { filter: none !important; } }
 .beat.is-on .lead { transition-delay: .1s; }
 .beat.is-on .pillars, .beat.is-on .facts { transition-delay: .15s; }
 .beat .actions { margin-top: auto; justify-content: center; width: 100%; }
