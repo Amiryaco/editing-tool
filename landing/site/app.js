@@ -513,20 +513,38 @@
   // ---------- platform check: which platform to start with, by niche, budget and social presence ----------
   // A rule-based recommendation (our working rules, not market statistics). Each answer adds points to
   // Google (G), Meta (M) and TikTok (T) and may add a reason that is shown with the result.
+  // The first question is free text; keywords sort it into one of the niches below.
+  const NICHES = {
+    service: { k: ['עו״ד', 'עו"ד', 'עורך דין', 'עורכת דין', 'משרד עורכי', 'שיפוץ', 'שיפוצים', 'אינסטלט', 'חשמלאי', 'מנעולן', 'הובל', 'מוסך', 'גנן', 'גינון', 'הדברה', 'ניקיון', 'מיזוג', 'טכנאי', 'רואה חשבון', 'הנהלת חשבונות', 'ביטוח', 'משכנתא', 'גרר', 'אלומיניום', 'נגר', 'צבעי', 'איטום', 'דלתות', 'חלונות', 'שמאי', 'מתקין'],
+      s: { G: 5, M: 2 }, r: { G: 'אנשים מחפשים את השירות שלכם בגוגל ברגע שהם צריכים אותו' } },
+    clinic: { k: ['קליניק', 'טיפול', 'טיפולי', 'אסתטיק', 'רופא', 'רפואה', 'שיניים', 'פסיכולוג', 'פסיכותרפ', 'דיאטנ', 'תזונ', 'פיזיותרפ', 'הסרת שיער', 'ציפורנ', 'קוסמטיקאי', 'מספרה', 'ספר', 'בוטוקס', 'מילוי', 'כירורג', 'וטרינר', 'יוגה', 'פילאטיס', 'כושר', 'עיסוי', 'רפלקס', 'נטורופת', 'איפור', 'גבות', 'ריסים', 'מכון'],
+      s: { G: 3, M: 4, T: 2 }, r: { M: 'התחום שלכם נמכר דרך תמונות, לפני ואחרי ואמון, וזה המגרש של מטא' } },
+    realestate: { k: ['נדל', 'דירה', 'דירות', 'יזם', 'יזמות', 'תיווך', 'מתווך', 'נכס', 'קבלן', 'פרויקט מגורים'],
+      s: { G: 2, M: 4, T: 2 }, r: { M: 'במטא אפשר להגיע לקונים לפני שהם מתחילים לחפש' } },
+    food: { k: ['מסעד', 'אוכל', 'קייטרינג', 'בר ', 'בית קפה', 'קפה', 'אירוע', 'חתונ', 'צימר', 'מלון', 'פנאי', 'אטרקצי', 'הפק', 'מאפי', 'פיצ', 'המבורגר', 'סושי', 'שף', 'גלידה', 'בירה', 'יין'],
+      s: { G: 1, M: 4, T: 4 }, r: { T: 'תחום חוויתי וויזואלי, שמתאים לסרטונים קצרים' } },
+    ecom: { k: ['חנות', 'אונליין', 'מוצר', 'איקומרס', 'שופיפיי', 'בגד', 'אופנה', 'תכשיט', 'קוסמטיקה', 'טיפוח', 'משלוח', 'אתר מכירות', 'צעצוע', 'ריהוט', 'רהיט'],
+      s: { G: 3, M: 4, T: 3 }, r: { M: 'מטא חזקה במכירת מוצרים ובפרסום חוזר למי שכבר ביקר בחנות' } },
+    b2b: { k: ['b2b', 'לעסקים', 'תוכנה', 'saas', 'מערכת', 'ייעוץ עסקי', 'יועץ עסקי', 'הייטק', 'it', 'סייבר', 'יבוא', 'סיטונ', 'תעשי', 'מפעל', 'לוגיסטי', 'מיתוג', 'סוכנות'],
+      s: { G: 4, M: 2 }, r: { G: 'מקבלי החלטות מחפשים ספקים בגוגל' } },
+    courses: { k: ['קורס', 'אימון', 'קואצ', 'מאמן', 'מאמנת', 'הרצא', 'סדנ', 'מנטור', 'ליווי', 'לימוד', 'דיגיטלי', 'תוכנית', 'מורה', 'שיעור'],
+      s: { G: 1, M: 4, T: 3 }, r: { M: 'קורסים ואימון נמכרים דרך תוכן ואמון, ומטא מאפשרת לבנות את זה בהדרגה' } },
+    other: { k: [], s: { G: 2, M: 3, T: 2 } },
+  };
+  function nicheOf(text) {
+    const t = ` ${text.toLowerCase()} `;
+    let best = 'other', hits = 0;
+    for (const [id, N] of Object.entries(NICHES)) {
+      const h = N.k.filter((w) => t.includes(w.toLowerCase())).length;
+      if (h > hits) { hits = h; best = id; }
+    }
+    return best;
+  }
   const QUIZ = [
-    { id: 'niche', q: 'מה התחום של העסק?', a: [
-      { t: 'שירות שאנשים מחפשים כשצריך (עו״ד, שיפוצים, מנעולן, הובלות)', s: { G: 5, M: 2 }, r: { G: 'אנשים מחפשים את השירות שלכם בגוגל ברגע שהם צריכים אותו' } },
-      { t: 'קליניקה, טיפולים, אסתטיקה', s: { G: 3, M: 4, T: 2 }, r: { M: 'התחום שלכם נמכר דרך תמונות, לפני ואחרי ואמון, וזה המגרש של מטא' } },
-      { t: 'נדל״ן', s: { G: 2, M: 4, T: 2 }, r: { M: 'במטא אפשר להגיע לקונים לפני שהם מתחילים לחפש' } },
-      { t: 'מסעדה, אוכל, פנאי ואירועים', s: { G: 1, M: 4, T: 4 }, r: { T: 'תחום חוויתי וויזואלי, שמתאים לסרטונים קצרים' } },
-      { t: 'חנות אונליין או מוצר', s: { G: 3, M: 4, T: 3 }, r: { M: 'מטא חזקה במכירת מוצרים ובפרסום חוזר למי שכבר ביקר בחנות' } },
-      { t: 'שירות לעסקים (B2B)', s: { G: 4, M: 2 }, r: { G: 'מקבלי החלטות מחפשים ספקים בגוגל' } },
-      { t: 'קורסים, אימון, מוצר דיגיטלי', s: { G: 1, M: 4, T: 3 }, r: { M: 'קורסים ואימון נמכרים דרך תוכן ואמון, ומטא מאפשרת לבנות את זה בהדרגה' } },
-      { t: 'משהו אחר', s: { G: 2, M: 3, T: 2 } },
-    ] },
-    { id: 'search', q: 'הלקוחות שלכם מחפשים את מה שאתם מוכרים?', a: [
-      { t: 'כן, הם מחפשים באופן פעיל', s: { G: 4 }, r: { G: 'יש ביקוש קיים בחיפוש, ושם הליד הכי חם' } },
-      { t: 'לא, הם מבינים שהם צריכים רק כשהם רואים את זה', s: { G: -2, M: 2, T: 2 }, r: { M: 'צריך ליצור את הביקוש ולא רק לתפוס אותו, ובשביל זה צריך פלטפורמת תוכן' } },
+    { id: 'niche', q: 'מה העסק שלכם?', text: true, ph: 'לדוגמה: קליניקה, עורך דין, חנות', chips: ['עורך דין', 'קליניקה', 'נדל״ן', 'חנות אונליין'] },
+    { id: 'search', q: 'הלקוחות מחפשים את מה שאתם מוכרים?', a: [
+      { t: 'כן, באופן פעיל', s: { G: 4 }, r: { G: 'יש ביקוש קיים בחיפוש, ושם הליד הכי חם' } },
+      { t: 'לא, צריך להראות להם', s: { G: -2, M: 2, T: 2 }, r: { M: 'צריך ליצור את הביקוש ולא רק לתפוס אותו, ובשביל זה צריך פלטפורמת תוכן' } },
       { t: 'גם וגם', s: { G: 2, M: 1 } },
     ] },
     { id: 'age', q: 'מה הגיל של רוב הלקוחות?', a: [
@@ -535,27 +553,24 @@
       { t: '55 ומעלה', s: { G: 2, M: 1, T: -3 }, r: { G: 'קהל מבוגר יותר נוטה לחפש בגוגל, ופחות נמצא בטיקטוק' } },
       { t: 'מגוון', s: { M: 1 } },
     ] },
-    { id: 'budget', q: 'כמה אתם מוכנים להשקיע בפרסום בחודש?', a: [
-      { t: 'עד ₪3,000', v: 1 },
-      { t: '₪3,000–7,000', v: 2 },
-      { t: '₪7,000–15,000', v: 3 },
-      { t: 'מעל ₪15,000', v: 4 },
+    { id: 'budget', q: 'תקציב פרסום חודשי?', a: [
+      { t: 'עד ₪3,000', v: 1 }, { t: '₪3,000–7,000', v: 2 }, { t: '₪7,000–15,000', v: 3 }, { t: 'מעל ₪15,000', v: 4 },
     ] },
-    { id: 'social', q: 'איך נראית הנוכחות שלכם ברשתות היום?', a: [
+    { id: 'social', q: 'הנוכחות שלכם ברשתות היום?', a: [
       { t: 'כמעט אין', s: { T: -1 }, r: { G: 'בלי נוכחות ברשתות, גוגל לא דורש תוכן כדי להתחיל להביא פניות' } },
-      { t: 'יש עמוד, מעלים מדי פעם', s: { M: 1 } },
-      { t: 'מעלים תוכן באופן קבוע', s: { M: 2, T: 1 }, r: { M: 'יש לכם תוכן קיים, אפשר להפוך אותו למודעות ולפרסם מחדש למי שכבר מכיר' } },
-      { t: 'יש לנו קהל גדול ופעיל', s: { M: 2, T: 2 }, r: { M: 'קהל קיים הוא דלק לפרסום חוזר ולקהלים דומים' } },
+      { t: 'יש עמוד, לא פעיל', s: { M: 1 } },
+      { t: 'מעלים באופן קבוע', s: { M: 2, T: 1 }, r: { M: 'יש לכם תוכן קיים, אפשר להפוך אותו למודעות ולפרסם מחדש למי שכבר מכיר' } },
+      { t: 'קהל גדול ופעיל', s: { M: 2, T: 2 }, r: { M: 'קהל קיים הוא דלק לפרסום חוזר ולקהלים דומים' } },
     ] },
-    { id: 'video', q: 'אתם יכולים לצלם סרטונים קצרים (אתם או מישהו בצוות)?', a: [
+    { id: 'video', q: 'אתם יכולים לצלם סרטונים קצרים?', a: [
       { t: 'כן, בקלות', s: { M: 1, T: 3 }, r: { T: 'אתם מוכנים לצלם, וזה התנאי הראשון להצליח בטיקטוק' } },
-      { t: 'קצת, לא באופן קבוע', s: { T: 1 } },
+      { t: 'קצת', s: { T: 1 } },
       { t: 'לא', s: { T: -4 } },
     ] },
     { id: 'goal', q: 'מה הכי חשוב לכם עכשיו?', a: [
-      { t: 'לידים ופניות, כמה שיותר מהר', s: { G: 2, M: 1 }, r: { G: 'המטרה היא פניות מהירות, וגוגל מביא את מי שכבר מוכן לקנות' } },
+      { t: 'לידים, מהר', s: { G: 2, M: 1 }, r: { G: 'המטרה היא פניות מהירות, וגוגל מביא את מי שכבר מוכן לקנות' } },
       { t: 'מכירות אונליין', s: { G: 1, M: 2, T: 1 } },
-      { t: 'להכיר אותנו, לבנות קהל ומותג', s: { G: -1, M: 2, T: 2 }, r: { T: 'בניית קהל ומותג עובדת הכי טוב בפלטפורמות תוכן' } },
+      { t: 'מותג וקהל', s: { G: -1, M: 2, T: 2 }, r: { T: 'בניית קהל ומותג עובדת הכי טוב בפלטפורמות תוכן' } },
     ] },
   ];
   const PLAT = {
@@ -566,9 +581,10 @@
 
   const quizBox = $('[data-quiz]');
   if (quizBox) {
-    const answers = [];
+    const answers = []; // index of the picked answer, or the typed text for a text question
     let step = 0;
     const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+    const next = () => { if (step < QUIZ.length - 1) { step++; renderStep(); } else renderResult(); };
 
     function renderStep() {
       const Q = QUIZ[step];
@@ -579,18 +595,36 @@
       const fs = el('fieldset', 'quiz__q');
       const lg = el('legend', 'quiz__legend', Q.q);
       fs.append(lg);
-      const opts = el('div', 'quiz__opts');
-      Q.a.forEach((A, k) => {
-        const b = el('button', 'quiz__opt', A.t);
-        b.type = 'button';
-        if (answers[step] === k) b.classList.add('is-picked');
-        b.addEventListener('click', () => {
-          answers[step] = k;
-          if (step < QUIZ.length - 1) { step++; renderStep(); } else renderResult();
+      if (Q.text) {
+        const row = el('form', 'quiz__text');
+        const inp = el('input'); inp.type = 'text'; inp.placeholder = Q.ph; inp.value = answers[step] || '';
+        inp.setAttribute('aria-label', Q.q); inp.maxLength = 80; inp.autocomplete = 'off';
+        const go = el('button', 'quiz__go', 'המשך'); go.type = 'submit';
+        row.append(inp, go);
+        row.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const v = inp.value.trim();
+          if (!v) { inp.focus(); inp.setAttribute('aria-invalid', 'true'); return; }
+          answers[step] = v; next();
         });
-        opts.append(b);
-      });
-      fs.append(opts);
+        const chips = el('div', 'quiz__chips');
+        Q.chips.forEach((c) => {
+          const b = el('button', 'quiz__chip', c); b.type = 'button';
+          b.addEventListener('click', () => { answers[step] = c; next(); });
+          chips.append(b);
+        });
+        fs.append(row, chips);
+      } else {
+        const opts = el('div', 'quiz__opts');
+        Q.a.forEach((A, k) => {
+          const b = el('button', 'quiz__opt', A.t);
+          b.type = 'button';
+          if (answers[step] === k) b.classList.add('is-picked');
+          b.addEventListener('click', () => { answers[step] = k; next(); });
+          opts.append(b);
+        });
+        fs.append(opts);
+      }
       wrap.append(bar, meta, fs);
       if (step > 0) {
         const back = el('button', 'quiz__back', 'חזרה לשאלה הקודמת');
@@ -599,21 +633,24 @@
         wrap.append(back);
       }
       quizBox.replaceChildren(wrap);
-      if (quizBox.dataset.started) lg.setAttribute('tabindex', '-1'), lg.focus({ preventScroll: true });
+      if (quizBox.dataset.started) { lg.setAttribute('tabindex', '-1'); lg.focus({ preventScroll: true }); }
+      if (quizBox.dataset.started) track('platform_check_step', { step: step + 1 });
       quizBox.dataset.started = '1';
-      if (step === 0 && answers.length === 0) return;
-      track('platform_check_step', { step: step + 1 });
     }
 
     function compute() {
       const sc = { G: 0, M: 0, T: 0 };
       const reasons = { G: [], M: [], T: [] };
       let budget = 1;
-      QUIZ.forEach((Q, i) => {
-        const A = Q.a[answers[i]];
-        if (Q.id === 'budget') { budget = A.v; return; }
+      const add = (A) => {
         for (const k in A.s || {}) sc[k] += A.s[k];
         for (const k in A.r || {}) reasons[k].push(A.r[k]);
+      };
+      QUIZ.forEach((Q, i) => {
+        if (Q.text) { add(NICHES[nicheOf(answers[i])]); return; }
+        const A = Q.a[answers[i]];
+        if (Q.id === 'budget') { budget = A.v; return; }
+        add(A);
       });
       const order = Object.keys(sc).sort((a, b) => sc[b] - sc[a]);
       const top = sc[order[0]];
@@ -627,14 +664,19 @@
         const sum = keep.reduce((s, k) => s + Math.max(1, sc[k]), 0);
         split = {};
         keep.forEach((k) => { split[k] = Math.max(15, Math.round((Math.max(1, sc[k]) / sum) * 20) * 5); });
-        const diff = 100 - keep.reduce((s, k) => s + split[k], 0);
-        split[keep[0]] += diff;
+        split[keep[0]] += 100 - keep.reduce((s, k) => s + split[k], 0);
       }
       return { keep, split, reasons, budget };
     }
 
+    function summary(res) {
+      return QUIZ.map((Q, i) => `${Q.q} ${Q.text ? answers[i] : Q.a[answers[i]].t}`).join(' | ') +
+        ` || המלצה: ${res.keep.map((k) => `${PLAT[k].name} ${res.split[k]}%`).join(', ')}`;
+    }
+
     function renderResult() {
-      const { keep, split, reasons, budget } = compute();
+      const res = compute();
+      const { keep, split, reasons, budget } = res;
       const P = PLAT[keep[0]];
       const wrap = el('div', 'quiz__result');
       wrap.append(el('p', 'quiz__meta', 'ההמלצה שלנו'));
@@ -642,16 +684,17 @@
       h.append(document.createTextNode('להתחיל ב'), el('span', 'gold', P.name));
       h.setAttribute('tabindex', '-1');
       wrap.append(h);
+      const to = /^[A-Za-z]/.test(P.full) ? 'ל-' : 'ל';
       wrap.append(el('p', 'quiz__lead', keep.length === 1
-        ? (budget === 1 ? `בתקציב הזה עדיף להתרכז בפלטפורמה אחת ולעשות אותה טוב: ${P.full}.` : `כל התקציב ${/^[A-Za-z]/.test(P.full) ? 'ל-' : 'ל'}${P.full}, עד שהיא עובדת ומביאה תוצאות.`)
-        : `ככה הייתי מחלק את התקציב בהתחלה:`));
+        ? (budget === 1 ? `בתקציב הזה עדיף להתרכז בפלטפורמה אחת ולעשות אותה טוב: ${P.full}.` : `כל התקציב ${to}${P.full}, עד שהיא עובדת ומביאה תוצאות.`)
+        : 'ככה הייתי מחלק את התקציב בהתחלה:'));
       if (keep.length > 1) {
         const bars = el('div', 'quiz__split');
         keep.forEach((k) => {
           const row = el('div', 'quiz__row');
           row.append(el('span', 'quiz__pname', PLAT[k].name));
-          const track_ = el('span', 'quiz__track'); const f = el('span'); f.style.width = `${split[k]}%`; track_.append(f);
-          row.append(track_, el('span', 'quiz__pct', `${split[k]}%`));
+          const tr = el('span', 'quiz__track'); const f = el('span'); f.style.width = `${split[k]}%`; tr.append(f);
+          row.append(tr, el('span', 'quiz__pct', `${split[k]}%`));
           bars.append(row);
         });
         wrap.append(bars);
@@ -665,24 +708,63 @@
       }
       wrap.append(el('p', 'quiz__h4', 'הצעד הראשון'));
       wrap.append(el('p', 'quiz__first', P.first));
+
+      // short capture: the full plan in a call, with every answer sent along
+      const cap = el('form', 'quiz__cap'); cap.noValidate = true;
+      cap.append(el('p', 'quiz__h4', 'רוצים תוכנית מלאה לעסק שלכם? נחזור אליכם עם הכל.'));
+      const fields = el('div', 'quiz__fields');
+      const nm = el('input'); nm.type = 'text'; nm.placeholder = 'שם'; nm.autocomplete = 'name'; nm.setAttribute('aria-label', 'שם');
+      const ph = el('input'); ph.type = 'tel'; ph.placeholder = 'טלפון'; ph.autocomplete = 'tel'; ph.inputMode = 'tel'; ph.dir = 'ltr'; ph.setAttribute('aria-label', 'טלפון');
+      fields.append(nm, ph);
+      const ok = el('label', 'check');
+      const cb = el('input'); cb.type = 'checkbox';
+      const okTxt = el('span'); okTxt.append(document.createTextNode('קראתי ואני מאשר/ת את '));
+      const pl = el('a', '', 'מדיניות הפרטיות'); pl.href = 'privacy.html'; okTxt.append(pl);
+      ok.append(cb, okTxt);
+      const send = el('button', 'btn btn--gold', 'שלחו לי תוכנית'); send.type = 'submit';
+      const msg = el('p', 'form__msg'); msg.setAttribute('role', 'status');
+      cap.append(fields, ok, send, msg);
+      cap.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const miss = [];
+        if (!nm.value.trim()) miss.push('שם');
+        if (!validPhone(ph.value.trim())) miss.push('טלפון תקין');
+        if (!cb.checked) miss.push('אישור מדיניות הפרטיות');
+        if (miss.length) { msg.textContent = `חסר: ${miss.join(', ')}.`; msg.className = 'form__msg is-error'; return; }
+        send.disabled = true; msg.textContent = 'שולחים…'; msg.className = 'form__msg';
+        try {
+          const r = await fetch(FORM_ENDPOINT, {
+            method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              name: nm.value.trim(), phone: ph.value.trim(), business: answers[0],
+              platform_check: summary(res), privacy_consent: 'כן', consent_time: new Date().toISOString(),
+              consent_text: okTxt.textContent.trim(),
+              _subject: `ליד מבדיקת הפלטפורמה: ${nm.value.trim()}`, _template: 'table', _captcha: 'false', page: location.href,
+            }),
+          });
+          const d = await r.json().catch(() => ({}));
+          if (!r.ok || d.success === 'false' || d.success === false) throw new Error(d.message || r.status);
+          track('generate_lead', { method: 'platform_check' });
+          try { sessionStorage.setItem('ay_lead_name', nm.value.trim()); } catch (_) {}
+          location.href = THANKS_URL;
+        } catch (err) {
+          send.disabled = false;
+          msg.textContent = 'משהו השתבש בשליחה. נסו שוב, או כתבו לנו בוואטסאפ.'; msg.className = 'form__msg is-error';
+        }
+      });
+      wrap.append(cap);
       wrap.append(el('p', 'quiz__note', 'זו המלצה ראשונית לפי כללי העבודה שלנו. בשיחת האסטרטגיה נבדוק לעומק את המספרים, המתחרים והקהל שלכם.'));
-      const actions = el('div', 'quiz__actions');
-      const go = el('a', 'btn btn--gold', 'בואו נבנה לי תוכנית');
-      go.href = '#lead';
       const again = el('button', 'quiz__back', 'לעשות את הבדיקה מחדש');
       again.type = 'button';
       again.addEventListener('click', () => { answers.length = 0; step = 0; renderStep(); });
-      actions.append(go, again);
-      wrap.append(actions);
+      wrap.append(again);
       quizBox.replaceChildren(wrap);
       h.focus({ preventScroll: true });
       quizBox.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
 
-      // the lead form carries the answers and the recommendation
-      const summary = QUIZ.map((Q, i) => `${Q.q} ${Q.a[answers[i]].t}`).join(' | ') +
-        ` || המלצה: ${keep.map((k) => `${PLAT[k].name} ${split[k]}%`).join(', ')}`;
-      const hid = $('#f-quiz'); if (hid) hid.value = summary;
-      track('platform_check_done', { platform: keep[0], split: keep.map((k) => `${k}${split[k]}`).join('-') });
+      // the main lead form carries the answers too, if they use it instead
+      const hid = $('#f-quiz'); if (hid) hid.value = summary(res);
+      track('platform_check_done', { platform: keep[0], split: keep.map((k) => `${k}${split[k]}`).join('-'), niche: nicheOf(answers[0]) });
     }
 
     renderStep();
