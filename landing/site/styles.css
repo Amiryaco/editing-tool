@@ -550,7 +550,41 @@ p { margin: 0; }
   background-size: 40px 40px; background-position: center;
   -webkit-mask-image: radial-gradient(60% 55% at 50% 55%, #000 0%, transparent 75%); mask-image: radial-gradient(60% 55% at 50% 55%, #000 0%, transparent 75%);
 }
-.scene__svg { position: relative; display: block; width: 100%; height: 100%; overflow: visible; direction: ltr; transform-origin: 50% 60%; will-change: transform; }
+/* the scene box keeps the SVG's 400×276 frame; --u is one SVG unit in px (set by app.js) */
+.scene__box { position: absolute; left: 50%; top: 50%; width: calc(400 * var(--u, 1px)); height: calc(276 * var(--u, 1px)); transform: translate(-50%, -50%);
+  transform-style: preserve-3d; perspective: calc(1000 * var(--u, 1px)); perspective-origin: 50% 35%; }
+.scene__svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; direction: ltr; transform-origin: 50% 60%; will-change: transform; }
+/* 3D phone */
+.p3d { position: absolute; left: calc(137 * var(--u, 1px)); top: calc(10 * var(--u, 1px)); width: calc(126 * var(--u, 1px)); height: calc(252 * var(--u, 1px));
+  transform-style: preserve-3d; will-change: transform; }
+.p3d__face { position: absolute; inset: 0; border-radius: calc(26 * var(--u, 1px)); -webkit-backface-visibility: hidden; backface-visibility: hidden; overflow: hidden;
+  border: 2px solid #d6b46a; box-shadow: 0 0 calc(22 * var(--u, 1px)) rgba(214, 180, 106, .35), inset 0 0 0 1px rgba(0, 0, 0, .6); }
+.p3d__front { background: #050506; }
+.p3d__svg { display: block; width: 100%; height: 100%; direction: ltr; }
+.p3d__back { transform: rotateY(180deg); display: grid; place-items: center;
+  background: radial-gradient(80% 60% at 30% 20%, rgba(243, 220, 159, .16), transparent 60%), linear-gradient(150deg, #24211c, #0d0c0f 55%, #1d1a15); }
+.p3d__back img { width: 46%; height: auto; opacity: .95; }
+.p3d__cam { position: absolute; top: 5%; left: 8%; width: 36%; height: 17%; border-radius: 26%; background: linear-gradient(145deg, #1a181c, #08080a);
+  box-shadow: inset 0 0 0 1px rgba(214, 180, 106, .35); }
+.p3d__cam::before, .p3d__cam::after { content: ""; position: absolute; width: 36%; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #3b3a44, #050506 60%); box-shadow: 0 0 0 2px #222; }
+.p3d__cam::before { top: 9%; left: 9%; } .p3d__cam::after { bottom: 9%; left: 9%; }
+/* 3D laptop: base, and a lid hinged on its bottom edge */
+.l3d { position: absolute; left: calc(39.8 * var(--u, 1px)); top: calc(32.5 * var(--u, 1px)); width: calc(232.3 * var(--u, 1px)); height: calc(147.8 * var(--u, 1px));
+  transform-style: preserve-3d; transform-origin: 50% 100%; will-change: transform; }
+.l3d__lid { position: absolute; inset: 0; transform-origin: 50% 100%; transform-style: preserve-3d; }
+.l3d__face { position: absolute; inset: 0; border-radius: calc(9 * var(--u, 1px)); -webkit-backface-visibility: hidden; backface-visibility: hidden; overflow: hidden;
+  border: 2px solid #d6b46a; box-shadow: 0 0 calc(22 * var(--u, 1px)) rgba(214, 180, 106, .3); }
+.l3d__front { background: #0b0a0d; }
+.l3d__svg { display: block; width: 100%; height: 100%; direction: ltr; }
+.l3d__back { transform: rotateX(180deg); display: grid; place-items: center;
+  background: radial-gradient(70% 70% at 30% 20%, rgba(243, 220, 159, .18), transparent 60%), linear-gradient(160deg, #2a2620, #0e0d10 55%, #201c16); }
+.l3d__back img { width: 26%; height: auto; }
+.l3d__base { position: absolute; left: -6%; width: 112%; top: 100%; height: 72%; transform-origin: 50% 0; transform: rotateX(86deg);
+  border-radius: 0 0 calc(10 * var(--u, 1px)) calc(10 * var(--u, 1px)); border: 2px solid #b8924a;
+  background: linear-gradient(180deg, #262229, #141216); box-shadow: 0 calc(30 * var(--u, 1px)) calc(40 * var(--u, 1px)) rgba(0, 0, 0, .6); }
+.l3d__keys { position: absolute; left: 8%; right: 8%; top: 8%; height: 52%; border-radius: 4px;
+  background: repeating-linear-gradient(90deg, #0d0c0f 0 7%, transparent 7% 8.4%), repeating-linear-gradient(180deg, #0d0c0f 0 17%, transparent 17% 21%); opacity: .9; }
+.l3d__pad { position: absolute; left: 34%; right: 34%; top: 66%; height: 26%; border-radius: 4px; background: #1d1a20; box-shadow: inset 0 0 0 1px rgba(214, 180, 106, .25); }
 /* a soft gold glow on the floor under the 3D scene */
 .stage--scene .scene::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: 0; height: 18%; pointer-events: none; border-radius: 50%;
   background: radial-gradient(50% 50% at 50% 50%, rgba(214, 180, 106, .18), transparent 70%); filter: blur(6px); }

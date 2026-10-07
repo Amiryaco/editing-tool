@@ -49,6 +49,7 @@
       <!-- Scene mode (app.js STORY_MODE = 'scene'): the platforms in chaos → one phone, ads swapped, budget burning →
            the path from ad to deal → Ads Manager with the real sample totals and client messages arriving. -->
       <div class="scene" aria-hidden="true">
+        <div class="scene__box">
         <svg class="scene__svg" viewBox="0 24 400 276" preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id="sg-gold" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
@@ -101,9 +102,38 @@
             <g data-s="toast" data-at=".95" data-x="70" data-y="74"><rect x="-58" y="-14" width="116" height="28" rx="9"/><circle cx="44" r="4.5" fill="#e0412f"/><text x="34" y="4.5" text-anchor="end">אין לידים היום</text></g>
           </g>
 
-          <!-- 2. one phone: Instagram, then TikTok, then Google; the budget burns, leads barely move -->
-          <g data-s="phone">
-            <rect data-s="phoneBody" pathLength="1" x="137" y="34" width="126" height="252" rx="26" fill="#050506" stroke="url(#sg-gold)" stroke-width="2.5" filter="url(#sg-glow)"/>
+          <!-- side cards: budget and leads -->
+          <g data-s="burnCard" transform="translate(334 96)"><rect class="sc-glass" x="-66" y="-26" width="132" height="52" rx="12"/><text class="sc-k" x="56" y="-8" text-anchor="end">תקציב שיצא</text><rect x="-56" y="4" width="112" height="8" rx="4" fill="#26232b"/><rect data-s="burn" x="-56" y="4" width="0" height="8" rx="4" fill="url(#sg-burn)"/></g>
+          <g data-s="leadCard" transform="translate(74 220)"><rect class="sc-glass" x="-66" y="-26" width="132" height="52" rx="12"/><text class="sc-k" x="56" y="-8" text-anchor="end">לידים שנכנסו</text><rect x="-56" y="4" width="112" height="8" rx="4" fill="#26232b"/><rect data-s="leads" x="-56" y="4" width="0" height="8" rx="4" fill="url(#sg-fill)"/></g>
+
+          <!-- 3. one system: ad → landing page → lead → call → deal -->
+          <g data-s="funnel">
+            <path data-s="flow" d="M340 110 L28 110 L28 222 L280 222" fill="none" stroke="url(#sg-gold)" stroke-width="2.5" stroke-linejoin="round" filter="url(#sg-glow)"/>
+            <g data-s="step" data-at="0" transform="translate(340 110)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
+              <rect x="-36" y="-25" width="44" height="40" rx="4" fill="url(#sg-shot1)"/><use href="#ic-ig" transform="translate(26 -14) scale(.42)"/><use href="#ic-fb" transform="translate(26 4) scale(.42)"/>
+              <rect x="-36" y="20" width="72" height="5" rx="2.5" fill="#3a3640"/><text y="52">מודעה</text></g>
+            <g data-s="step" data-at=".186" transform="translate(215 110)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
+              <rect x="-36" y="-25" width="72" height="9" rx="2" fill="#2a2730"/><rect x="-14" y="-10" width="50" height="6" rx="3" fill="#f0d79a"/><rect x="-2" y="0" width="38" height="4" rx="2" fill="#3a3640"/><rect x="-36" y="12" width="40" height="12" rx="6" fill="url(#sg-fill)"/><text y="52">דף נחיתה</text></g>
+            <g data-s="step" data-at=".372" transform="translate(90 110)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
+              <rect x="-36" y="-24" width="72" height="12" rx="3" fill="#1d1b20" stroke="#3a3640"/><rect x="-36" y="-7" width="72" height="12" rx="3" fill="#1d1b20" stroke="#3a3640"/><rect x="-36" y="10" width="72" height="13" rx="6.5" fill="#25d366"/><path d="M-6 16.5 l4 4 8 -8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><text y="52">ליד</text></g>
+            <g data-s="step" data-at=".807" transform="translate(150 222)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
+              <circle cy="-6" r="13" fill="#25d366"/><path d="M-5 -11 c0 7 4 11 11 11 l2 -3 -4 -3 -2 2 c-2 -1 -4 -3 -5 -5 l2 -2 -3 -4z" fill="#fff"/><rect x="-26" y="14" width="52" height="5" rx="2.5" fill="#3a3640"/><text y="52">שיחה</text></g>
+            <g data-s="step" data-at="1" transform="translate(280 222)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
+              <circle cy="-6" r="14" fill="url(#sg-fill)"/><path d="M-6 -6 l4 4 9 -9" fill="none" stroke="#1a1206" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text class="sc-v2" y="20">עסקה נסגרה</text><text y="52">עסקה</text></g>
+            <circle data-s="spark" r="4.5" fill="#f3dc9f" filter="url(#sg-glow)"/>
+          </g>
+
+          <!-- 4. results: Ads Manager with the real totals of the five sample accounts, and real client messages -->
+          <g data-s="result" transform="translate(200 60) scale(.88) translate(-200 -100)">
+            <g data-s="msg" data-x="330" data-y="80"><rect class="sc-note" x="-64" y="-18" width="128" height="36" rx="11"/><use href="#ic-wa" transform="translate(50 -5) scale(.8)"/><text class="sc-nt" x="38" y="-6" text-anchor="end">WhatsApp · לקוח</text><text class="sc-nm" x="56" y="10" text-anchor="end">סגרתי עסקה!</text></g>
+            <g data-s="msg" data-x="330" data-y="122"><rect class="sc-note" x="-64" y="-18" width="128" height="36" rx="11"/><use href="#ic-wa" transform="translate(50 -5) scale(.8)"/><text class="sc-nt" x="38" y="-6" text-anchor="end">WhatsApp · לקוח</text><text class="sc-nm" x="56" y="10" text-anchor="end">הטלפון שלי מתפוצץ</text></g>
+            <g data-s="msg" data-x="330" data-y="164"><rect class="sc-note" x="-64" y="-18" width="128" height="36" rx="11"/><use href="#ic-wa" transform="translate(50 -5) scale(.8)"/><text class="sc-nt" x="38" y="-6" text-anchor="end">WhatsApp · לקוח</text><text class="sc-nm" x="56" y="10" text-anchor="end">עוד תיק סגרתי היום</text></g>
+          </g>
+        </svg>
+        <!-- 3D phone: a front (the screens) and a back (AY), turned by app.js -->
+        <div class="p3d" data-s="phone">
+          <div class="p3d__face p3d__front">
+            <svg class="p3d__svg" viewBox="137 34 126 252"><rect x="137" y="34" width="126" height="252" rx="26" fill="#050506"/>
             <g data-s="phoneIn">
               <g clip-path="url(#sg-screen)">
                 <rect x="145" y="44" width="110" height="232" fill="#000"/>
@@ -147,33 +177,17 @@
                 <text data-s="clock" class="sc-st" x="158" y="59">9:41</text>
               </g>
             </g>
-          </g>
-          <!-- side cards: budget and leads -->
-          <g data-s="burnCard" transform="translate(334 96)"><rect class="sc-glass" x="-66" y="-26" width="132" height="52" rx="12"/><text class="sc-k" x="56" y="-8" text-anchor="end">תקציב שיצא</text><rect x="-56" y="4" width="112" height="8" rx="4" fill="#26232b"/><rect data-s="burn" x="-56" y="4" width="0" height="8" rx="4" fill="url(#sg-burn)"/></g>
-          <g data-s="leadCard" transform="translate(74 220)"><rect class="sc-glass" x="-66" y="-26" width="132" height="52" rx="12"/><text class="sc-k" x="56" y="-8" text-anchor="end">לידים שנכנסו</text><rect x="-56" y="4" width="112" height="8" rx="4" fill="#26232b"/><rect data-s="leads" x="-56" y="4" width="0" height="8" rx="4" fill="url(#sg-fill)"/></g>
-
-          <!-- 3. one system: ad → landing page → lead → call → deal -->
-          <g data-s="funnel">
-            <path data-s="flow" d="M340 110 L28 110 L28 222 L280 222" fill="none" stroke="url(#sg-gold)" stroke-width="2.5" stroke-linejoin="round" filter="url(#sg-glow)"/>
-            <g data-s="step" data-at="0" transform="translate(340 110)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
-              <rect x="-36" y="-25" width="44" height="40" rx="4" fill="url(#sg-shot1)"/><use href="#ic-ig" transform="translate(26 -14) scale(.42)"/><use href="#ic-fb" transform="translate(26 4) scale(.42)"/>
-              <rect x="-36" y="20" width="72" height="5" rx="2.5" fill="#3a3640"/><text y="52">מודעה</text></g>
-            <g data-s="step" data-at=".186" transform="translate(215 110)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
-              <rect x="-36" y="-25" width="72" height="9" rx="2" fill="#2a2730"/><rect x="-14" y="-10" width="50" height="6" rx="3" fill="#f0d79a"/><rect x="-2" y="0" width="38" height="4" rx="2" fill="#3a3640"/><rect x="-36" y="12" width="40" height="12" rx="6" fill="url(#sg-fill)"/><text y="52">דף נחיתה</text></g>
-            <g data-s="step" data-at=".372" transform="translate(90 110)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
-              <rect x="-36" y="-24" width="72" height="12" rx="3" fill="#1d1b20" stroke="#3a3640"/><rect x="-36" y="-7" width="72" height="12" rx="3" fill="#1d1b20" stroke="#3a3640"/><rect x="-36" y="10" width="72" height="13" rx="6.5" fill="#25d366"/><path d="M-6 16.5 l4 4 8 -8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"/><text y="52">ליד</text></g>
-            <g data-s="step" data-at=".807" transform="translate(150 222)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
-              <circle cy="-6" r="13" fill="#25d366"/><path d="M-5 -11 c0 7 4 11 11 11 l2 -3 -4 -3 -2 2 c-2 -1 -4 -3 -5 -5 l2 -2 -3 -4z" fill="#fff"/><rect x="-26" y="14" width="52" height="5" rx="2.5" fill="#3a3640"/><text y="52">שיחה</text></g>
-            <g data-s="step" data-at="1" transform="translate(280 222)"><rect class="sc-card" x="-46" y="-34" width="92" height="68" rx="10"/>
-              <circle cy="-6" r="14" fill="url(#sg-fill)"/><path d="M-6 -6 l4 4 9 -9" fill="none" stroke="#1a1206" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text class="sc-v2" y="20">עסקה נסגרה</text><text y="52">עסקה</text></g>
-            <circle data-s="spark" r="4.5" fill="#f3dc9f" filter="url(#sg-glow)"/>
-          </g>
-
-          <!-- 4. results: Ads Manager with the real totals of the five sample accounts, and real client messages -->
-          <g data-s="result" transform="translate(200 60) scale(.88) translate(-200 -100)">
-            <rect data-s="lapScreen" pathLength="1" x="18" y="96" width="264" height="168" rx="10" fill="#0b0a0d" stroke="url(#sg-gold)" stroke-width="2.5" filter="url(#sg-glow)"/>
-            <path data-s="lapBase" d="M2 268 H298 L312 282 H-12 Z" fill="#1a181d" stroke="url(#sg-gold)" stroke-width="1.5"/>
-            <g data-s="lapIn" clip-path="url(#sg-lap)">
+            </svg>
+          </div>
+          <div class="p3d__face p3d__back"><span class="p3d__cam"></span><img src="img/logo.webp" alt="" width="96" height="75"></div>
+        </div>
+        <!-- 3D laptop: the lid (screen in front, AY on the back) opens over a keyboard base -->
+        <div class="l3d" data-s="laptop">
+          <div class="l3d__base"><span class="l3d__keys"></span><span class="l3d__pad"></span></div>
+          <div class="l3d__lid" data-s="lid">
+            <div class="l3d__face l3d__front">
+              <svg class="l3d__svg" viewBox="18 96 264 168"><rect x="18" y="96" width="264" height="168" rx="10" fill="#0b0a0d"/>
+              <g data-s="lapIn" clip-path="url(#sg-lap)">
               <rect x="26" y="104" width="248" height="152" fill="#f5f6f8"/>
               <rect x="26" y="104" width="248" height="18" fill="#fff"/><rect x="26" y="121.5" width="248" height=".8" fill="#e3e5e8"/>
               <use href="#ic-fb" transform="translate(37 113) scale(.32)"/>
@@ -184,11 +198,12 @@
               <text class="sc-amv" data-s="vCpl" x="150" y="158">₪0.00</text>
               <g data-s="bars"></g>
             </g>
-            <g data-s="msg" data-x="330" data-y="80"><rect class="sc-note" x="-64" y="-18" width="128" height="36" rx="11"/><use href="#ic-wa" transform="translate(50 -5) scale(.8)"/><text class="sc-nt" x="38" y="-6" text-anchor="end">WhatsApp · לקוח</text><text class="sc-nm" x="56" y="10" text-anchor="end">סגרתי עסקה!</text></g>
-            <g data-s="msg" data-x="330" data-y="122"><rect class="sc-note" x="-64" y="-18" width="128" height="36" rx="11"/><use href="#ic-wa" transform="translate(50 -5) scale(.8)"/><text class="sc-nt" x="38" y="-6" text-anchor="end">WhatsApp · לקוח</text><text class="sc-nm" x="56" y="10" text-anchor="end">הטלפון שלי מתפוצץ</text></g>
-            <g data-s="msg" data-x="330" data-y="164"><rect class="sc-note" x="-64" y="-18" width="128" height="36" rx="11"/><use href="#ic-wa" transform="translate(50 -5) scale(.8)"/><text class="sc-nt" x="38" y="-6" text-anchor="end">WhatsApp · לקוח</text><text class="sc-nm" x="56" y="10" text-anchor="end">עוד תיק סגרתי היום</text></g>
-          </g>
-        </svg>
+              </svg>
+            </div>
+            <div class="l3d__face l3d__back"><img src="img/logo.webp" alt="" width="96" height="75"></div>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
 

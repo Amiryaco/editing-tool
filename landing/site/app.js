@@ -167,10 +167,10 @@
     const qa = (k) => $$(`[data-s="${k}"]`, root);
     const S = {
       chaos: q('chaos'), chaosLine: q('chaosLine'), apps: qa('app'), toasts: qa('toast'),
-      phone: q('phone'), phoneBody: q('phoneBody'), phoneIn: q('phoneIn'), scr: qa('scr'),
+      phone: q('phone'), phoneIn: q('phoneIn'), scr: qa('scr'),
       burnCard: q('burnCard'), leadCard: q('leadCard'), burn: q('burn'), leads: q('leads'),
       funnel: q('funnel'), flow: q('flow'), spark: q('spark'), steps: qa('step'),
-      result: q('result'), lapScreen: q('lapScreen'), lapBase: q('lapBase'), lapIn: q('lapIn'),
+      result: q('result'), laptop: q('laptop'), lid: q('lid'), lapIn: q('lapIn'),
       vLeads: q('vLeads'), vCpl: q('vCpl'), bars: q('bars'), msgs: qa('msg'),
     };
     const NS = 'http://www.w3.org/2000/svg';
@@ -188,7 +188,19 @@
       return { r, val, v, h: 66 * (v / maxV) };
     });
     const pos = (el) => [parseFloat(el.dataset.x), parseFloat(el.dataset.y)];
-    [S.chaosLine, S.phoneBody, S.lapScreen].forEach((p) => p.setAttribute('stroke-dasharray', '1 1'));
+    S.chaosLine.setAttribute('stroke-dasharray', '1 1');
+    // the box keeps the SVG's 400×276 frame, so the 3D phone and laptop line up with the drawing; --u = px per unit
+    const box = $('.scene__box', root);
+    let U = 1, lw = -1, lh = -1;
+    function layout() {
+      const w = root.clientWidth, h = root.clientHeight;
+      if (w === lw && h === lh) return;
+      lw = w; lh = h;
+      U = Math.max(0.1, Math.min(w / 400, h / 276));
+      box.style.setProperty('--u', `${U}px`);
+    }
+    layout();
+    window.addEventListener('resize', () => { layout(); render(x < 0 ? 0 : x); });
     const flowLen = S.flow.getTotalLength();
     S.flow.setAttribute('stroke-dasharray', `${flowLen} ${flowLen}`);
 
@@ -198,12 +210,11 @@
     const pop = (t) => { const c = 1.7; return t <= 0 ? 0 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); }; // a soft overshoot
     const show = (el, on) => { el.style.display = on ? '' : 'none'; };
     const fmt = new Intl.NumberFormat('en-US');
-    // 3D camera: [story vh, rotateX°, rotateY°, translateZ px], eased between keys. The scene starts as a tilted
-    // floor, the phone turns while its screens change, the path lies like a board that stands up as the line
-    // runs, and the laptop opens like a lid.
+    // 3D camera for the drawing: [story vh, rotateX°, rotateY°, translateZ px, rotateZ°], eased between keys.
+    // The opening lies like a floor turned sideways and rises up; the path to a deal lies flat like a table,
+    // turns and stands up while the ball runs. The phone and the laptop are real 3D objects with their own moves.
     const CAM = [
-      [0, 26, -12, -40], [55, 8, 10, 0], [78, 4, -30, 0], [100, 6, -24, 10], [150, 6, 24, 10], [170, 8, 0, 0],
-      [184, 44, 0, -30], [240, 14, -6, 0], [264, 4, 0, 0], [286, 4, 0, 0], [300, 48, -12, -40], [342, 8, -8, 0], [400, 2, 0, 0],
+      [0, 62, 0, -60, -24], [58, 0, 0, 0, 0], [166, 0, 0, 0, 0], [180, 72, 0, -40, 32], [254, 6, 0, 0, 0], [272, 0, 0, 0, 0], [400, 0, 0, 0, 0],
     ];
     const svgEl = $('.scene__svg', root);
     function camera(x) {
@@ -212,10 +223,11 @@
       const [x0, ...a] = CAM[i], [x1, ...b] = CAM[i + 1];
       const t = io(clamp((x - x0) / (x1 - x0), 0, 1));
       const v = a.map((n, k) => n + (b[k] - n) * t);
-      svgEl.style.transform = `translateZ(${v[2].toFixed(1)}px) rotateX(${v[0].toFixed(2)}deg) rotateY(${v[1].toFixed(2)}deg)`;
+      svgEl.style.transform = `translateZ(${(v[2] * U).toFixed(1)}px) rotateX(${v[0].toFixed(2)}deg) rotateY(${v[1].toFixed(2)}deg) rotateZ(${v[3].toFixed(2)}deg)`;
     }
 
     function render(x) {
+      layout(); // cheap unless the scene was resized (or just became visible)
       camera(x);
       // 1. chaos, then the apps fly into the phone
       const draw = 0.42 + 0.58 * out(seg(x, 0, 58));
@@ -238,27 +250,27 @@
         t.setAttribute('transform', `translate(${tx} ${ty + (1 - o) * 8}) scale(${0.8 + 0.2 * o})`);
       });
 
-      // 2. phone
-      const pd = io(seg(x, 62, 96));
-      const ex = io(seg(x, 152, 186));
-      show(S.phone, x > 58 && x < 192);
-      S.phoneBody.style.strokeDashoffset = 1 - pd;
-      S.phoneBody.style.fillOpacity = seg(x, 84, 98);
-      S.phoneIn.style.opacity = seg(x, 88, 102);
-      const f = seg(x, 94, 150);
-      S.scr.forEach((s, i) => {
-        const d = f - (0.15 + i * 0.35);
-        s.style.opacity = clamp(1.8 - Math.abs(d) * 7, 0, 1);
-        s.setAttribute('transform', `translate(${clamp(-d * 40, -10, 10).toFixed(1)} 0)`);
-      });
+      // 2. phone: flies in from depth spinning almost a full turn, flips twice (its back shows AY, and each
+      // flip lands on the next screen), then lies down flat and flies to the first step of the path
+      const enter = out(seg(x, 58, 102));
+      const f1 = io(seg(x, 108, 124)), f2 = io(seg(x, 128, 144));
+      const ex = io(seg(x, 152, 188));
+      show(S.phone, x > 56 && x < 192);
+      const sway = Math.sin(x * 0.07) * 10 * enter * (1 - ex);
+      const pry = -330 * (1 - enter) + 360 * (f1 + f2) + sway;
+      const prx = 38 * (1 - enter) + 76 * ex;
+      const pz = (-280 * (1 - enter) - 60 * ex) * U;
+      const psc = (0.55 + 0.45 * enter) * (1 - 0.66 * ex);
+      const pdx = (340 - 200) * ex * U, pdy = (112 - 160) * ex * U;
+      S.phone.style.transform = `translate(${pdx.toFixed(1)}px, ${pdy.toFixed(1)}px) translateZ(${pz.toFixed(1)}px) rotateX(${prx.toFixed(2)}deg) rotateY(${pry.toFixed(2)}deg) scale(${psc.toFixed(3)})`;
+      S.phone.style.opacity = seg(x, 58, 68) * (1 - seg(x, 180, 190));
+      const shown = (f1 >= 0.5 ? 1 : 0) + (f2 >= 0.5 ? 1 : 0); // switch while the back faces us
+      S.scr.forEach((s, i) => { s.style.opacity = i === shown ? 1 : 0; });
       const cardsOn = seg(x, 98, 110) * (1 - seg(x, 150, 164));
       show(S.burnCard, cardsOn > 0); show(S.leadCard, cardsOn > 0);
       S.burnCard.style.opacity = cardsOn; S.leadCard.style.opacity = cardsOn;
       S.burn.setAttribute('width', (112 * io(seg(x, 100, 150))).toFixed(1));
       S.leads.setAttribute('width', (112 * (0.03 + 0.05 * seg(x, 100, 150))).toFixed(1));
-      const cx = 200 + (340 - 200) * ex, cy = 160 + (110 - 160) * ex, sc = 1 - 0.72 * ex;
-      S.phone.setAttribute('transform', `translate(${cx} ${cy}) scale(${sc}) translate(-200 -160)`);
-      S.phone.style.opacity = 1 - seg(x, 178, 190);
 
       // 3. the path to a deal
       const fa = io(seg(x, 170, 190));
@@ -283,12 +295,15 @@
       S.spark.style.opacity = l > 0.01 ? 1 - seg(x, 262, 272) : 0;
 
       // 4. results
-      const rs = io(seg(x, 296, 328));
-      show(S.result, x > 290);
-      S.lapScreen.style.strokeDashoffset = 1 - rs;
-      S.lapScreen.style.fillOpacity = seg(x, 312, 328);
-      S.lapBase.style.opacity = seg(x, 316, 330);
-      S.lapIn.style.opacity = seg(x, 320, 336);
+      // the laptop tumbles in from almost upside down (~130°), swings around, and the lid opens from closed
+      const L = io(seg(x, 292, 336));
+      const lidT = io(seg(x, 314, 350));
+      show(S.result, x > 290); show(S.laptop, x > 288);
+      const lrx = 128 * (1 - L) + 4, lry = -48 * (1 - L) - 6 + Math.sin(x * 0.05) * 3 * L, lz = -320 * (1 - L) * U;
+      S.laptop.style.transform = `translateZ(${lz.toFixed(1)}px) rotateX(${lrx.toFixed(2)}deg) rotateY(${lry.toFixed(2)}deg)`;
+      S.laptop.style.opacity = seg(x, 288, 298);
+      S.lid.style.transform = `rotateX(${(-94 * (1 - lidT)).toFixed(2)}deg)`;
+      S.lapIn.style.opacity = seg(x, 300, 318); // the screen is already lit while the laptop turns
       const c = out(seg(x, 326, 372));
       S.vLeads.textContent = fmt.format(Math.round(9811 * c));
       S.vCpl.textContent = `₪${(28.38 * c).toFixed(2)}`;
