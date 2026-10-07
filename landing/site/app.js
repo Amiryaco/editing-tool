@@ -198,8 +198,25 @@
     const pop = (t) => { const c = 1.7; return t <= 0 ? 0 : 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); }; // a soft overshoot
     const show = (el, on) => { el.style.display = on ? '' : 'none'; };
     const fmt = new Intl.NumberFormat('en-US');
+    // 3D camera: [story vh, rotateX°, rotateY°, translateZ px], eased between keys. The scene starts as a tilted
+    // floor, the phone turns while its screens change, the path lies like a board that stands up as the line
+    // runs, and the laptop opens like a lid.
+    const CAM = [
+      [0, 26, -12, -40], [55, 8, 10, 0], [78, 4, -30, 0], [100, 6, -24, 10], [150, 6, 24, 10], [170, 8, 0, 0],
+      [184, 44, 0, -30], [240, 14, -6, 0], [264, 4, 0, 0], [286, 4, 0, 0], [300, 48, -12, -40], [342, 8, -8, 0], [400, 2, 0, 0],
+    ];
+    const svgEl = $('.scene__svg', root);
+    function camera(x) {
+      let i = 0;
+      while (i < CAM.length - 2 && x > CAM[i + 1][0]) i++;
+      const [x0, ...a] = CAM[i], [x1, ...b] = CAM[i + 1];
+      const t = io(clamp((x - x0) / (x1 - x0), 0, 1));
+      const v = a.map((n, k) => n + (b[k] - n) * t);
+      svgEl.style.transform = `translateZ(${v[2].toFixed(1)}px) rotateX(${v[0].toFixed(2)}deg) rotateY(${v[1].toFixed(2)}deg)`;
+    }
 
     function render(x) {
+      camera(x);
       // 1. chaos, then the apps fly into the phone
       const draw = 0.42 + 0.58 * out(seg(x, 0, 58));
       const gather = io(seg(x, 60, 92));
@@ -1014,6 +1031,22 @@
         io.observe(el);
       });
     }
+  }
+
+  // ---------- 3D tilt: cards lean toward the mouse on desktop ----------
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches && !reduceMotion) {
+    $$('.acct__panel, .quiz__box, .chat, .clip, .step, .versus__col, .form').forEach((card) => {
+      card.classList.add('tilt');
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+        const k = r.width > 600 ? 3 : 7; // big panels lean less
+        card.style.transform = `perspective(1000px) rotateX(${(-py * k).toFixed(2)}deg) rotateY(${(px * k).toFixed(2)}deg) translateZ(0)`;
+        card.style.setProperty('--gx', `${((px + 0.5) * 100).toFixed(1)}%`);
+        card.style.setProperty('--gy', `${((py + 0.5) * 100).toFixed(1)}%`);
+      });
+      card.addEventListener('pointerleave', () => { card.style.transform = ''; });
+    });
   }
 
   // ---------- screen readers: the whole story as plain text (only the current chapter is on screen) ----------
