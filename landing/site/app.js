@@ -166,7 +166,7 @@
     const q = (k) => $(`[data-s="${k}"]`, root);
     const qa = (k) => $$(`[data-s="${k}"]`, root);
     const S = {
-      launch: q('launch'), card: q('card'), ripple: q('ripple'), pubBtn: q('pubBtn'), cursor: q('cursor'),
+      launch: q('launch'), halo: q('halo'), orbits: q('orbits'), core: q('core'), mark: q('mark'), ripple: q('ripple'),
       chaos: q('chaos'), chaosLine: q('chaosLine'), apps: qa('app'), toasts: qa('toast'),
       phone: q('phone'), phoneIn: q('phoneIn'), scr: qa('scr'),
       burnCard: q('burnCard'), leadCard: q('leadCard'), burn: q('burn'), leads: q('leads'),
@@ -230,37 +230,37 @@
     function render(x) {
       layout(); // cheap unless the scene was resized (or just became visible)
       camera(x);
-      // 0. a still "new campaign" card. The first scroll moves the cursor onto Publish and clicks it,
-      // the card bursts, and its four platform icons fly out into the chaos.
-      const aim = io(seg(x, 3, 13));
-      const press = seg(x, 13, 17) - seg(x, 17, 21); // down and back up
-      const burst = out(seg(x, 19, 34));
-      show(S.launch, burst < 1);
-      S.cursor.setAttribute('transform', `translate(${258 - 46 * aim} ${196 - 20 * aim}) scale(${1 - 0.12 * press})`);
-      S.cursor.style.opacity = 1 - seg(x, 20, 26);
-      S.pubBtn.setAttribute('transform', `translate(200 176) scale(${(1 - 0.07 * press) * (1 + 0.25 * burst)})`);
-      S.pubBtn.style.opacity = 1 - seg(x, 22, 32);
-      const rip = seg(x, 15, 30);
-      S.ripple.setAttribute('r', (20 + 150 * out(rip)).toFixed(1));
-      S.ripple.style.opacity = rip > 0 && rip < 1 ? (1 - rip) * 0.9 : 0;
-      S.card.style.opacity = 1 - seg(x, 19, 28);
-      S.card.setAttribute('transform', `translate(200 142) scale(${1 + 0.18 * burst}) translate(-200 -142)`);
+      // 0. a still emblem: the AY mark, two orbits, the four platforms resting on them. The first scroll sends a
+      // gold shockwave out, the orbits open and fade, the mark sinks back, and the platforms break loose.
+      const burst = out(seg(x, 5, 24));
+      show(S.launch, x < 30);
+      const around = (s) => `translate(200 132) scale(${s.toFixed(3)}) translate(-200 -132)`;
+      S.orbits.setAttribute('transform', around(1 + 0.7 * burst));
+      S.orbits.style.opacity = 1 - seg(x, 6, 22);
+      S.core.setAttribute('transform', around(1 - 0.45 * burst));
+      S.mark.setAttribute('transform', around(1 - 0.45 * burst));
+      S.core.style.opacity = S.mark.style.opacity = 1 - seg(x, 12, 26);
+      S.halo.setAttribute('transform', around(1 + 1.6 * burst));
+      S.halo.style.opacity = 1 - seg(x, 8, 26);
+      const rip = seg(x, 4, 24);
+      S.ripple.setAttribute('r', (40 + 200 * out(rip)).toFixed(1));
+      S.ripple.style.opacity = rip > 0 && rip < 1 ? (1 - rip) : 0;
 
       // 1. chaos: the line shoots across, alerts pop; then the apps fly into the phone
-      const draw = out(seg(x, 20, 56));
+      const draw = out(seg(x, 12, 54));
       const gather = io(seg(x, 60, 92));
       show(S.chaos, gather < 1);
       S.chaosLine.style.strokeDashoffset = 1 - draw;
-      S.chaosLine.style.opacity = (1 - gather) * seg(x, 19, 23);
+      S.chaosLine.style.opacity = (1 - gather) * seg(x, 11, 15);
       S.apps.forEach((a, i) => {
         const [ax, ay] = pos(a);
         const sx = parseFloat(a.dataset.sx), sy = parseFloat(a.dataset.sy);
-        const fly = out(seg(x, 19 + i * 2, 36 + i * 2)); // out of the card, one after another
+        const fly = out(seg(x, 7 + i * 2, 28 + i * 2)); // off the orbit, one after another
         const j = Math.sin(x * 0.17 + i * 1.9) * 5 * (1 - gather) * fly;
         const bx = sx + (ax - sx) * fly, by = sy + (ay - sy) * fly - Math.sin(Math.PI * fly) * 26; // a little arc
         const tx = bx + (200 - bx) * gather, ty = by + j + (150 - by) * gather;
         a.style.opacity = 1 - seg(x, 82, 92);
-        a.setAttribute('transform', `translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${((0.5 + 0.5 * pop(fly)) * (1 - 0.55 * gather)).toFixed(3)}) rotate(${(Math.sin(x * 0.11 + i) * 6 * (1 - gather) * fly).toFixed(2)})`);
+        a.setAttribute('transform', `translate(${tx.toFixed(1)} ${ty.toFixed(1)}) scale(${((0.9 + 0.1 * pop(fly)) * (1 - 0.55 * gather)).toFixed(3)}) rotate(${(Math.sin(x * 0.11 + i) * 6 * (1 - gather) * fly).toFixed(2)})`);
       });
       S.toasts.forEach((t) => {
         const [tx, ty] = pos(t);
