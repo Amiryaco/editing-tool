@@ -1,5 +1,5 @@
 # Cloudflare Pages security headers (applies to every page).
-# The CSP allows only this site plus the form service and the three ad platforms (loaded after consent).
+# The CSP allows only this site plus the form service and the three ad platforms (pixels.js).
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
   X-Content-Type-Options: nosniff
@@ -13,3 +13,5 @@
   Cache-Control: public, max-age=31536000, immutable
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+/img/*
+  Cache-Control: public, max-age=86400
