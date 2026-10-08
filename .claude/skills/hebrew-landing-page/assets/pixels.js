@@ -5,7 +5,7 @@
   'use strict';
 
   const IDS = {
-    GOOGLE_TAG: '',        // Google Ads "AW-XXXXXXXXX" or GA4 "G-XXXXXXXXXX"
+    GOOGLE_TAG: '',        // Google Ads "AW-XXXXXXXXX" and/or GA4 "G-XXXXXXXXXX", comma-separated: 'AW-123, G-ABC'
     GOOGLE_ADS_CONVERSION: '', // "AW-XXXXXXXXX/abcDEF123" (the send_to value of the lead conversion)
     META_PIXEL: '',        // Meta (Facebook) Pixel ID, digits only
     TIKTOK_PIXEL: '',      // TikTok Pixel ID
@@ -22,12 +22,13 @@
     if (loaded) return;
     loaded = true;
     // Google tag (Ads / GA4)
-    if (IDS.GOOGLE_TAG) {
+    const gTags = IDS.GOOGLE_TAG.split(',').map((t) => t.trim()).filter(Boolean);
+    if (gTags.length) {
       window.dataLayer = window.dataLayer || [];
       window.gtag = function () { window.dataLayer.push(arguments); };
       window.gtag('js', new Date());
-      window.gtag('config', IDS.GOOGLE_TAG);
-      script('https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(IDS.GOOGLE_TAG));
+      gTags.forEach((t) => window.gtag('config', t));
+      script('https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gTags[0]));
     }
     // Meta Pixel
     if (IDS.META_PIXEL) {
