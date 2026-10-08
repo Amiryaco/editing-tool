@@ -15,6 +15,8 @@
 | Captions/cuts start before the voice after a pause | `analyze.py` snaps word starts to silence ends; always run it before cutting |
 | A word disappears after the cut | `render_cut.py` maps words by overlap; check `words_edited.json` around cuts |
 | A word lands before the pause it follows (e.g. "asked … is" with `is` at the old time), or `e < s` | set `s` to where it's heard (segment start) and `e` > `s` by hand |
+| English video, transcript turns into Hebrew halfway | `transcribe.py` defaults to `--lang he`; rerun with `--lang en` |
+| `half -naked` split into two caption words | merge words starting with `-` into the previous one in `words_captions.json` |
 | `⚠ RETAKE?` on "Never ask him… Never ask him…" | anaphora in a script, not a retake: keep |
 | Same script, another character: card times off | re-time each state from the new `words_edited.json` (we measured drifts of -0.04 to +0.47 s) |
 
@@ -27,6 +29,7 @@
 | Element animates past the card edge | smaller offset (≤ 40 px) or clip it |
 | Cursor wanders over the card between clicks | rest keys off-stage (y beyond the stage height) |
 | "Following" flashes for 0.2 s at the very end | hold the last frame 0.6 s (`grade.sh … 0.6`) and extend the clip's `T` |
+| Waiting for a background `render.js` with `pgrep -f render.js` never ends | the wait loop's own command line contains "render.js": wait on the log line (`grep -q rendered render.log`) instead |
 | Contact sheets of vertical clips are cropped | our `beats.js` reads the stage size (local change, keep it) |
 
 ## Captions

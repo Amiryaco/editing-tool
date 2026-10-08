@@ -19,7 +19,7 @@ This skill is the playbook on top of three tool skills in this repo. Read them w
 | Step | Command | Output |
 |---|---|---|
 | 0. Source | `$BR/scripts/fetch_drive.sh <id> motion/<v>/source.mp4` or copy the upload | `source.mp4` |
-| 1. Words | `python3 $VE/scripts/transcribe.py source.mp4 words.json` | word times |
+| 1. Words | `python3 $VE/scripts/transcribe.py source.mp4 words.json --lang en` (`--lang he` for Hebrew) | word times |
 | 2. Analyse | `python3 $VE/scripts/analyze.py source.mp4 words.json motion/<v>` | `transcript.md`, `video.json` (face), `contact.png` |
 | 3. Cut | `python3 $BR/scripts/auto_cut.py words.json edit.json --source source.mp4 --video-json video.json --push … --snap … --print` | `edit.json` |
 | 4. Render cut | `python3 $VE/scripts/render_cut.py edit.json motion/<v>/out` | `rough.mp4`, `words_edited.json` |
@@ -42,7 +42,7 @@ Card steps 5 and 6-7 are independent: start the `.mov` render in the background 
 
 ## 1-2. Words, transcript, character
 
-- `transcribe.py` picks ivrit-ai for Hebrew, large-v3-turbo for English (needs Hugging Face domains; see CLAUDE.md).
+- `transcribe.py` defaults to Hebrew (`--lang he`, ivrit-ai model). **For English speech always pass `--lang en`** (large-v3-turbo): the Hebrew model translates English into Hebrew, sometimes only from the middle of the video on, so a transcript that starts in English can turn into Hebrew halfway. Needs the Hugging Face domains (see CLAUDE.md).
 - `analyze.py` snaps Whisper's early word starts to silence ends, finds the face (`video.json → focus`) and writes `transcript.md`. **Read the transcript and look at `contact.png`.** It also flags `⚠ RETAKE?`: for scripted AI avatars these are usually anaphora ("Never ask him… Never ask him…"), not retakes. Don't cut them.
 - **Who is it?** Compare a frame with earlier characters (`motion/brands.json`, earlier `motion/v*/source.mp4`). Use that character's colours. Unknown character in the same niche: keep the closest kit, put no name on the Follow card, and ask the user for the name afterwards (then add a `brands.json` entry).
 - **The script:** AI avatars always have one. Write `script.txt` from the transcript with real punctuation (capitals, commas where the speaker pauses, apostrophes, quotes). It drives caption line breaks.
