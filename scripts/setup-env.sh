@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Prepares a fresh container for the video skills (video-edit, motion-broll, hebrew-captions):
+# Prepares a fresh container for the video skills (video-edit, motion-broll, hebrew-captions) and
+# finance-assistant:
 # ffmpeg (with prores_ks and libass), Python libs, Playwright in ./motion/node_modules using the
 # pre-installed Chromium (no browser download), and the generated sound effects.
 set -e
@@ -13,6 +14,11 @@ fc-list 2>/dev/null | grep -q "Liberation Serif" || (apt-get install -y -qq font
 python3 -c "import numpy, cv2, uharfbuzz, fontTools, faster_whisper; assert cv2.__version__[0] == '4'" 2>/dev/null || \
   pip install -q numpy "opencv-python-headless<5" uharfbuzz fonttools faster-whisper 2>/dev/null || \
   pip install -q --break-system-packages numpy "opencv-python-headless<5" uharfbuzz fonttools faster-whisper
+# finance-assistant: Excel/CSV statement readers (.xls via xlrd, HTML-as-.xls via lxml)
+python3 -c "import pandas, openpyxl, xlrd, lxml" 2>/dev/null || \
+  pip install -q pandas openpyxl xlrd lxml 2>/dev/null || \
+  pip install -q --break-system-packages pandas openpyxl xlrd lxml
+mkdir -p finance/{data,out}
 mkdir -p motion/{clips,dist,out,work,inputs}
 if [ ! -d motion/node_modules/playwright ]; then
   [ -f motion/package.json ] || echo '{"private":true}' > motion/package.json

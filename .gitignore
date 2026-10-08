@@ -9,3 +9,6 @@ motion/out/
 motion/package.json
 # per-video work folders (source video, transcripts, analysis)
 motion/v*/
+# finance-assistant: the user's statements, config and reports never go to git
+finance/
+__pycache__/

@@ -1,0 +1,15 @@
+{
+  "cards": {
+    "8765": {"scope": "business", "label": "מקס עסקי"},
+    "4321": {"scope": "personal", "label": "מקס פרטי"},
+    "bank": {"scope": "personal", "label": "עו\"ש פרטי"}
+  },
+  "merchant_rules": [
+    {"match": "WIX", "category": "אחסון, דומיינים ואתרים", "scope": "business"},
+    {"match": "סטודיו לוטוס", "category": "הכנסות", "scope": "business"}
+  ],
+  "ignore": ["העברה לחשבון חיסכון שלי"],
+  "budgets": {},
+  "income": {"personal_net_monthly": null, "business_revenue_monthly": null},
+  "business": {"status": "osek_murshe", "field": "", "fixed_costs_known": []}
+}
