@@ -1,0 +1,23 @@
+{
+  "skill_name": "hebrew-landing-page",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "יש לי קליניקה לטיפולי פנים ברמת גן ואני מריץ קמפיינים במטא. אני צריך דף נחיתה ממיר בעברית עם טופס שמגיע למייל, הנה הלוגו והצבעים: שחור ורוז גולד. תבנה לי גרסה ראשונה",
+      "expected_output": "Interview round (skips answered items), section plan for approval, then a static RTL site with self-hosted fonts, form via FormSubmit, thanks page, pixels.js, legal templates filled, a11y toolbar, preview link and zip.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I already have the landing page in landing/site. Add a short quiz that tells a lawyer's potential client whether they have a case and what the next step is, and send all the answers with the lead.",
+      "expected_output": "Quiz following references/quiz.md: free-text first question with chips, one question per screen, rule-based result with reasons, inline capture posting every answer, hidden field in the main form, accessible fieldsets.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "תכין לי מדיניות פרטיות, תנאי שימוש והצהרת נגישות לדף הנחיתה שלי. העסק: סטודיו כושר בע״מ, ח.פ. 515555555, הרצל 10 חיפה, studio@example.co.il, 04-1234567. יש לי פיקסל של מטא וגוגל אנליטיקס",
+      "expected_output": "The three templates filled with the details, the recipients list limited to Meta and Google plus the hosting and form service, the jurisdiction set, a draft notice, and an honest note on the marketing-consent trade-off.",
+      "files": []
+    }
+  ]
+}

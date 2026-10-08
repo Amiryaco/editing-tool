@@ -6,6 +6,7 @@ A workspace for editing videos with motion-graphic B-roll and animations.
 
 - `.claude/skills/video-edit/`: **the main workflow.** Raw footage → transcription, topic and structure analysis, cutting pauses, fillers and retakes, punch-in zooms, transitions, B-roll, captions, sound effects, music and loudness → a finished video. Orchestrates the other two.
 - `.claude/skills/motion-broll/`: imported from [Barty-Bart/motion-graphics](https://github.com/Barty-Bart/motion-graphics) (MIT, commit `e8d610a`). Motion-graphic B-roll timed to the speaker's words. **Read its `SKILL.md` and `reference/engine-api.md` before writing clips.**
+- `.claude/skills/hebrew-landing-page/`: a premium Hebrew RTL lead-generation landing page, from interview to Cloudflare: conversion copy, scroll story (vector + CSS 3D), proof sections, quiz, form, pixels, Israeli legal pages, accessibility toolbar, preview and deploy. The worked example is `landing/site/`.
 - `.claude/skills/hebrew-captions/`: burned-in Hebrew captions (RTL) with the spoken word highlighted, plus an `.srt`. Fonts Heebo and Rubik (OFL) in `fonts/`.
 
 When the user uploads a video and asks for editing, use `/video-edit` and follow its full workflow: interview → transcribe and analyse → plan table and **wait for approval** → cut → B-roll (motion-broll) → captions → finish → check stills and loudness → deliver. For B-roll only, use `/motion-broll`; for captions only, use `/hebrew-captions`.
