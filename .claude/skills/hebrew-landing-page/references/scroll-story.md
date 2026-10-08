@@ -103,4 +103,5 @@ Use this when the story is footage (e.g. liquid gold generated with Higgsfield /
 - **Laptop cut off / too low:** it was positioned for a tall screen. Check the 3D objects at 375×667 and at 1440×900.
 - **Spark looped 3 times:** its progress was taken modulo 1. Fix: map it once over the segment and fade it out at the end.
 - **The hero emblem was hidden by the cursor and the mobile buttons:** the buttons now share one row. Keep a few px of breathing room on iPhone SE.
+- **Headline lines out of order on iPhone** (line 2 before line 1) with CSS `transition-delay` staggering: Safari building the blur layer of the first line can stall it. Fix: stagger in JS (`revealLines` in the worked example adds `.in` to one line at a time, the next only after two frames + 110ms), and `will-change` on the lines. Chromium never shows the bug, so test on a real iPhone.
 - **Text over footage on wide screens:** the footage has to be scaled to the room below the tallest chapter, not to the stage.

@@ -381,6 +381,7 @@
         el.classList.toggle('is-on', on);
         el.classList.toggle('is-past', !on && posVh > c.to);
         el.inert = !on; // hidden chapters stay out of the tab order
+        if (c.beat !== 'open') revealLines(el, on);
       }
     }
 
@@ -389,6 +390,27 @@
 
     const pastStory = posPx > (totalVh / 100) * vh - vh * 0.2;
     document.body.classList.toggle('after-story', pastStory);
+  }
+
+  // Headline lines of chapters 2–4 come in strictly in reading order. Each line starts only after the previous
+  // one has actually been painted mid-animation (two frames later, plus a short beat): CSS delays alone let a
+  // slow phone (Safari building the blur layer for the first line) show line 2 before line 1.
+  function revealLines(beat, on) {
+    const lines = $$('.line', beat);
+    const gen = (beat._gen = (beat._gen || 0) + 1);
+    clearTimeout(beat._t);
+    if (!on) { lines.forEach((l) => l.classList.remove('in')); return; }
+    let i = 0;
+    const step = () => {
+      if (beat._gen !== gen || i >= lines.length) return;
+      lines[i++].classList.add('in');
+      const at = performance.now();
+      // keep a 110ms rhythm on fast phones; on slow ones the two frames already took that long, so don't add more
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (beat._gen === gen) beat._t = setTimeout(step, reduceMotion ? 0 : Math.max(0, 110 - (performance.now() - at)));
+      }));
+    };
+    step();
   }
 
   // The shown frame glides toward the scroll position instead of jumping, so fast flicks stay smooth.
