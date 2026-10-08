@@ -4,11 +4,12 @@ A workspace for editing videos with motion-graphic B-roll and animations.
 
 ## Skills
 
+- `.claude/skills/brand-reels/`: **the house style for branded short-form edits** (Reels/TikTok/Shorts) of our AI characters: video from upload or Google Drive, tight cut, few gentle zooms, warm grade, one continuous brand card that changes on the spoken words (hook, list, numbered tips, quote, compare, checklist, calendar story, send/follow), soft captions under the face, sparse sound, -14 LUFS. Its scripts (`auto_cut.py`, `make_tips_card.py`, `grade.sh`, `make_finish.py`, `fetch_drive.sh`, `stills.sh`), pattern library and pitfalls are the condensed result of every edit so far. **Use it for any "edit this branded/clean/creative" request**; it orchestrates the three below.
 - `.claude/skills/video-edit/`: **the main workflow.** Raw footage → transcription, topic and structure analysis, cutting pauses, fillers and retakes, punch-in zooms, transitions, B-roll, captions, sound effects, music and loudness → a finished video. Orchestrates the other two.
 - `.claude/skills/motion-broll/`: imported from [Barty-Bart/motion-graphics](https://github.com/Barty-Bart/motion-graphics) (MIT, commit `e8d610a`). Motion-graphic B-roll timed to the speaker's words. **Read its `SKILL.md` and `reference/engine-api.md` before writing clips.**
 - `.claude/skills/hebrew-captions/`: burned-in Hebrew captions (RTL) with the spoken word highlighted, plus an `.srt`. Fonts Heebo and Rubik (OFL) in `fonts/`.
 
-When the user uploads a video and asks for editing, use `/video-edit` and follow its full workflow: interview → transcribe and analyse → plan table and **wait for approval** → cut → B-roll (motion-broll) → captions → finish → check stills and loudness → deliver. For B-roll only, use `/motion-broll`; for captions only, use `/hebrew-captions`.
+When the user uploads a video (or names one in Drive) and asks for a branded edit, use `/brand-reels`. For other editing, use `/video-edit` and follow its full workflow: interview → transcribe and analyse → plan table and **wait for approval** → cut → B-roll (motion-broll) → captions → finish → check stills and loudness → deliver. For B-roll only, use `/motion-broll`; for captions only, use `/hebrew-captions`.
 
 ## Environment (cloud container)
 

@@ -7,6 +7,8 @@ cd "$(dirname "$0")/.."
 if ! command -v ffmpeg >/dev/null; then
   (apt-get install -y -qq ffmpeg || (apt-get update -qq && apt-get install -y -qq ffmpeg)) >/dev/null 2>&1 || echo "ffmpeg install failed"
 fi
+# Liberation Serif (OFL) is the serif italic used on brand-reels cards.
+fc-list 2>/dev/null | grep -q "Liberation Serif" || (apt-get install -y -qq fonts-liberation >/dev/null 2>&1 || true)
 # opencv<5: OpenCV 5 dropped the Haar face detector that analyze.py uses.
 python3 -c "import numpy, cv2, uharfbuzz, fontTools, faster_whisper; assert cv2.__version__[0] == '4'" 2>/dev/null || \
   pip install -q numpy "opencv-python-headless<5" uharfbuzz fonttools faster-whisper 2>/dev/null || \
