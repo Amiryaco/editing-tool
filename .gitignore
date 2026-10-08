@@ -9,3 +9,7 @@ motion/out/
 motion/package.json
 # per-video work folders (source video, transcripts, analysis)
 motion/v*/
+
+# Python bytecode
+__pycache__/
+*.pyc
