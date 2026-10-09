@@ -13,6 +13,7 @@
 | Symptom | Fix |
 |---|---|
 | Captions/cuts start before the voice after a pause | `analyze.py` snaps word starts to silence ends; always run it before cutting |
+| A sentence's first word ("she", "they") hangs before the pause, stretched across it, so the cut drops or misplaces it | `analyze.py` now also moves such short words to the silence end (they are spoken after the pause) |
 | A word disappears after the cut | `render_cut.py` maps words by overlap; check `words_edited.json` around cuts |
 | A word lands before the pause it follows (e.g. "asked … is" with `is` at the old time), or `e < s` | set `s` to where it's heard (segment start) and `e` > `s` by hand |
 | English video, transcript turns into Hebrew halfway | `transcribe.py` defaults to `--lang he`; rerun with `--lang en` |

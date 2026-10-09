@@ -89,6 +89,10 @@ def main():
         for s0, s1 in sil:
             if s0 + 0.05 < w['s'] < s1 - 0.03 and w['e'] > s1:
                 w['s'] = round(s1, 3); snapped += 1; break
+            # A short word that starts just before the pause and is stretched across it ("she … didn't") is
+            # really spoken after the pause: Whisper hangs the next sentence's first word on the old one.
+            if w['s'] <= s0 + 0.05 and s0 - w['s'] < 0.2 and w['e'] > s1 and (s1 - s0) > 0.5 * (w['e'] - w['s']):
+                w['s'] = round(s1, 3); snapped += 1; break
     if snapped:
         save(a.words, words)
     focus, faces = face_focus(a.video, info)
