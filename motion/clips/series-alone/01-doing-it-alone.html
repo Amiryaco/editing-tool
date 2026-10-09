@@ -18,6 +18,7 @@ html.alpha #shape{box-shadow:0 0 0 2px rgba(201,162,77,.9),0 16px 46px rgba(0,0,
 .slot{position:absolute;height:56px;padding:0 24px;border-radius:28px;box-sizing:border-box;border:2px dashed #9C9381;color:#6E685C;font-size:28px;font-weight:600;display:flex;align-items:center;white-space:nowrap}
 .btn{position:absolute;top:29px;height:66px;border-radius:33px;display:flex;align-items:center;justify-content:center;gap:10px;font-size:30px;font-weight:600;box-sizing:border-box}
 .sic{position:absolute;left:-370px;top:26px;width:72px;height:72px;border-radius:36px;display:flex;align-items:center;justify-content:center}
+#La,#Lw,#Lt,#Lr{display:none}
 </style>
 <div data-slot="shape">
   <div class="L" id="Lh"><div class="ab q sf" style="left:-400px;top:26px;font-size:42px">Women don’t divorce to raise kids alone</div>
@@ -57,27 +58,26 @@ const LOAD=[20.34,21.49,22.82,23.71,25.13,25.82];
 const POP={h2:3.74, a0:6.65,a1:8.65,a2:9.25,a3:9.89,a4:10.57, w0:14.75,w1:16.27,w2:17.31,
   l0:LOAD[0],l1:LOAD[1],l2:LOAD[2],l3:LOAD[3],l4:LOAD[4],l5:LOAD[5],l6:27.39,l7:27.39,
   t0:30.84,t1:32.86,t2:33.53,t3:34.96,t4:36.45,t5:39.09, g0:41.22,g1:41.72,g2:42.54,g3:43.08,g4:44.02,g5:47.54,
-  r0:49.84,r1:50.84,r2:52.37,r3:53.58, q0:57.07,q1:60.46,q2:61.90};
+  r0:49.84,r1:50.84,r2:52.37,r3:53.58, q0:60.3,q1:60.46,q2:61.90};
 const snd=M.track(0,[[64.60,1,[20,0.78]]]), fol=M.track(0,[[66.70,1,[20,0.78]]]);
 const load=M.track(0,LOAD.map((t,i)=>[t+0.05,(i+1)/LOAD.length,[12,0.9]]));
+const WIN=[[0.2,5.0],[20.2,28.5],[41.05,48.2],[60.25,67.96]];
+const onScreen=t=>{for(const [a,b] of WIN){if(t>=a-0.01&&t<=b+0.35) return Math.min(M.eio(M.clamp((t-a)/0.3)),1-M.eio(M.clamp((t-b)/0.3)));} return 0;};
 const IV='#F5F1E8', BK='#0B0B0C', GD='#C9A24D';
 M.scene({
   W:1080,H:560,bg:null,T:67.96,intro:0.2,center:[540,250],
   SH:{h:{w:900,h:170,r:44,bg:BK,cam:1}, a:{w:860,h:176,r:40,bg:IV,cam:1}, w:{w:860,h:200,r:44,bg:BK,cam:1}, l:{w:880,h:294,r:40,bg:IV,cam:1},
       t:{w:880,h:310,r:40,bg:IV,cam:1}, g:{w:880,h:222,r:44,bg:BK,cam:1}, r:{w:880,h:180,r:40,bg:IV,cam:1}, q:{w:900,h:204,r:44,bg:BK,cam:1},
       s:{w:820,h:124,r:62,bg:BK,cam:1}},
-  start:'h', SEQ:[[6.54,'a'],[14.14,'w'],[20.34,'l'],[28.70,'t'],[41.13,'g'],[49.70,'r'],[56.97,'q'],[64.38,'s']],
+  start:'h', SEQ:[[19.4,'l'],[40.3,'g'],[59.5,'q'],[64.38,'s']],
   // every state hangs from the same top edge, so the shape grows downward and never jumps
-  geom:(t,g)=>{g.cy=-140+g.h/2; g.fy=0; return g;},
+  // the card shows only in these windows (~40% of the video); in between the frame is just the speaker
+  geom:(t,g)=>{g.cy=-140+g.h/2; g.fy=0; const k=onScreen(t); g.op*=k; g.sc*=0.9+0.1*k; return g;},
   layers:[
-    {el:'Lh',tin:0.2,tout:6.54,anchor:'t'},
-    {el:'La',tin:6.54,tout:14.14,anchor:'t'},
-    {el:'Lw',tin:14.14,tout:20.34,anchor:'t'},
-    {el:'Ll',tin:20.34,tout:28.70,anchor:'t',update:(t)=>{$('lb').style.width=(100*M.clamp(load(t))).toFixed(1)+'%';}},
-    {el:'Lt',tin:28.70,tout:41.13,anchor:'t'},
-    {el:'Lg',tin:41.13,tout:49.70,anchor:'t'},
-    {el:'Lr',tin:49.70,tout:56.97,anchor:'t'},
-    {el:'Lq',tin:56.97,tout:64.38,anchor:'t'},
+    {el:'Lh',tin:0.2,tout:19.4,anchor:'t'},
+    {el:'Ll',tin:19.4,tout:40.3,anchor:'t',update:(t)=>{$('lb').style.width=(100*M.clamp(load(t))).toFixed(1)+'%';}},
+    {el:'Lg',tin:40.3,tout:59.5,anchor:'t'},
+    {el:'Lq',tin:59.5,tout:64.38,anchor:'t'},
     {el:'Ls',tin:64.38,tout:null,anchor:'t',update:(t)=>{const k=M.clamp(snd(t)), s=$('sic').style; s.background=`rgba(201,162,77,${k.toFixed(3)})`;
       s.boxShadow=`inset 0 0 0 2px rgba(201,162,77,${(1-k).toFixed(3)})`; $('sic').innerHTML=M.icon('send',36,k>0.5?BK:GD,2.6);
       const f=M.clamp(fol(t)), o=$('fo').style; o.background=f>0.5?GD:IV; o.color=BK; M.setText($('fol'),t<66.73?'Follow':'Following');

@@ -39,6 +39,17 @@ const k=M.clamp((t-ti)/0.35); e.style.transform=`translateY(${((1-v.a)*10).toFix
 | **Send** | "send this to…" | ink pill, gold-outline send icon fills gold on a cursor click, "Send this" + muted subline | click on "send" | all |
 | **Zodiac coin** (Robin Carter) | names zodiac signs | 3D gold coin flipping to each sign's glyph, on the chest | each flip on the sign's word | zodiac-coin-3d |
 
+## Windows: the card only on the meaningful lines (30-40% of the runtime)
+```js
+const WIN=[[0.2,5.0],[20.2,28.5],[41.05,48.2],[60.25,67.96]];        // hook, the load list, the contrast, quote + CTA
+const onScreen=t=>{for(const [a,b] of WIN){if(t>=a-0.01&&t<=b+0.35)
+  return Math.min(M.eio(M.clamp((t-a)/0.3)),1-M.eio(M.clamp((t-b)/0.3)));} return 0;};
+// in M.scene:
+geom:(t,g)=>{g.cy=TOP+g.h/2; g.fy=0; const k=onScreen(t); g.op*=k; g.sc*=0.9+0.1*k; return g;},
+SEQ:[[19.4,'l'],[40.3,'g'],[59.5,'q'],[64.38,'s']],                   // switch states while hidden, ~0.7 s before each window
+```
+Layers of states you dropped: hide them with CSS (`#La,#Lw{display:none}`), since a layer not listed in `layers` stays visible. Working example: `motion/clips/series-alone/01-doing-it-alone.html`.
+
 ## Icons
 `M.IC` has arrow, check, x, plus, folder, terminal, file, pencil, coin, clock, chip, sparkle, castle, search. The templates add (Lucide, ISC): `send`, `eye`, `heart`, `lock`. Copy their path arrays when needed.
 

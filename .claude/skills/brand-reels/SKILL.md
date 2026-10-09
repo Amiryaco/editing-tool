@@ -1,6 +1,6 @@
 ---
 name: brand-reels
-description: Branded, clean short-form edits (Reels/TikTok/Shorts, 1080x1920) of talking-head videos, especially AI-avatar characters with a brand kit. Pulls the video from an upload or Google Drive, cuts it tight, adds a few gentle emphasis zooms, a warm grade, one continuous branded motion-graphic card that changes on the spoken words (hook, lists, numbered tips, quotes, comparisons, checklists, calendar stories, send/follow ending), soft white captions under the face, sparse sound design and -14 LUFS loudness. Use when someone asks to "edit this video branded / clean / creative / beautiful", to edit a character's video, to add a number and title for each tip, or to make "the same edit" for another video. Orchestrates video-edit, motion-broll and hebrew-captions.
+description: Branded, clean short-form edits (Reels/TikTok/Shorts, 1080x1920) of talking-head videos, especially AI-avatar characters with a brand kit. Pulls the video from an upload or Google Drive, cuts it tight, adds a few gentle emphasis zooms, a warm grade, one branded motion-graphic card that appears only on the meaningful lines (~30-40% of the runtime) and changes on the spoken words (hook, lists, numbered tips, quotes, comparisons, checklists, calendar stories, send/follow ending), soft white captions under the face, sparse sound design and -14 LUFS loudness. Use when someone asks to "edit this video branded / clean / creative / beautiful", to edit a character's video, to add a number and title for each tip, or to make "the same edit" for another video. Orchestrates video-edit, motion-broll and hebrew-captions.
 ---
 
 # Brand reels
@@ -63,8 +63,10 @@ Then `render_cut.py edit.json motion/<v>/out`. Check `words_edited.json`. A word
 
 Read `reference/card-patterns.md` for the pattern library and `templates/` for working sources. The essentials:
 
-- **One continuous clip for the whole video**, transparent (`bg:null`), stage `1080 x 420-560`, overlaid at `y ≈ 1060-1120` on the 1920 frame: the lap/table area, under the captions, above the bottom UI zone. Clip time = rough-cut time (overlay `at: 0`), so card times are just word times from `words_edited.json`.
+- **Less is more: the card is on screen only 30-40% of the video.** The user's rule: 60-70% of the runtime is the speaker alone (face + captions); the card appears on the meaningful lines only. Pick 3-5 moments: the hook, the strongest list or contrast, the key quote/payoff, the CTA. Skip the rest even if a pattern would fit. Measure it: `sum(window lengths) / video length` must be 0.30-0.40.
+- **One clip for the whole video, shown in windows**, transparent (`bg:null`), stage `1080 x 420-560`, overlaid at `y ≈ 1060-1120` on the 1920 frame: the lap/table area, under the captions, above the bottom UI zone. Clip time = rough-cut time (overlay `at: 0`), so card times are just word times from `words_edited.json`.
 - **States** = sections of the video: hook → (list / quote / compare / checklist / calendar / numbered tips) → send → follow. All states hang from one top edge (`geom: g.cy = TOP + g.h/2`) so the card grows downward and never jumps.
+- **Windows:** `const WIN=[[a,b],…]` (rough-cut times) and in `geom` multiply `g.op` and `g.sc` by an eased on/off value (see `reference/card-patterns.md`, "Windows"). Change the SEQ state **while the card is hidden** (0.6-0.8 s before the window opens) so it enters already in its new shape; keep the last item of a window on screen ≥ 1 s after it appears. Sound only inside windows: one whoosh as each window opens, pops on that window's items.
 - **Every change sits on its word:** the state change on the word that opens the section (or the spoken number), each chip/row on the word it names. A strike-through on the word that rejects it.
 - **Brand colours from `motion/brands.json`.** Ivory cards with ink text for content, ink (black) cards with ivory/gold text for hook, quotes and CTA. A **2 px gold hairline** around the shape (`html.alpha #shape{box-shadow:0 0 0 2px <gold>e6, 0 16px 46px rgba(0,0,0,.35)}`) keeps black cards visible on dark shirts and makes everything look finished.
 - **Type:** Geist (the engine's sans) bold for titles and chips; `Liberation Serif` italic (`.sf`) for quotes, the big hook number and tip numbers: an editorial, premium accent. Gold (`gold_light`) for the one key word of a quote.
@@ -125,6 +127,7 @@ SendUserFile `final.mp4` and `captions.srt` (status normal). Commit the card sou
 ## Rules that came from the user (keep them)
 
 - Brand-clean, the person is the centre. Graphics in the lower part of the frame, never over the face or mouth.
+- **Pop-ups/cards on only 30-40% of the runtime**, on meaningful words and sentences; 60-70% of the video has no card at all.
 - Captions: `soft` style under the face on the top line of the chest, not on the mouth or chin, only bottom captions (no extra callout pop-ups duplicating the captions).
 - Zooms gentle and few. No slanted/grey 3D caption styles.
 - Each character's brand colours are remembered in `motion/brands.json`. New character or colours → update it.
