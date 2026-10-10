@@ -24,7 +24,7 @@ When the user uploads a video (or names one in Drive) and asks for a branded edi
 Each AI character has a brand kit in `motion/brands.json` (colours, niche, handle, clip folder). **Read it before building clips for a character and use those colours.** When the user names a new character or new colours, add or update its entry.
 
 - Robin Carter: astrology. Ink `#15121B`, gold `#C9A45C`, cream `#F3ECDF`. Zodiac signs get the 3D gold coin (`motion/clips/robin3/01-zodiac-coin.html`: flips to each sign on its word, Scorpio on an ink coin; glyphs from the Noto Sans Symbols subset in `motion-broll/engine/fonts/`), placed on the chest below the captions.
-- Adrian Hale: relationship advice for women. Black `#0B0B0C`, gold `#C9A24D`, ivory `#F5F1E8`.
+- Adrian Hale: relationship advice for women. Black `#0B0B0C`, gold `#C9A24D`, ivory `#F5F1E8`. Today he is the silver-haired, grey-bearded character (luxury hotel lobbies). **In Adrian's videos, the Follow/CTA card shows his name** ("Follow Adrian Hale" / "Adrian Hale" next to the button). Put a name on a card only in that character's own videos: never on another character's video or on the user's own business videos (those get their own brand and name, or none).
 
 ## Our working rules
 

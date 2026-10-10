@@ -141,5 +141,6 @@ SendUserFile `final.mp4` and `captions.srt` (status normal). Commit the card sou
 - Each character's brand colours are remembered in `motion/brands.json`. New character or colours → update it.
 - "Same edit for this character" = reuse the card source, re-time every state to the new voice track (compare word times; the same script can drift ±0.5 s), swap name/colours.
 - Never invent numbers, quotes, results or names.
+- **Names on cards:** the Follow/CTA card shows the character's name (`handle` in `motion/brands.json`, e.g. "Adrian Hale") only when the video is that character's. Other characters' videos get their own name; the user's own business videos get his business brand, never a character's name. Unknown character → no name, and ask.
 
 More detail: `reference/card-patterns.md` (pattern library with code), `reference/lessons.md` (pitfalls and fixes we hit), `templates/` (working cards).

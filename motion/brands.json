@@ -28,6 +28,7 @@
   "source": "user: black and gold",
   "handle": "Adrian Hale",
   "clips": "motion/clips/ (series-*)",
-  "look": "The user calls the silver-haired, grey-bearded AI character 'Adrian' (luxury hotel lobbies, white/linen/black polo shirts; videos 1-7 in Drive folder 'משפיעני ai'). Earlier Adrian videos used a younger dark-haired look. Same black/gold/ivory kit."
+  "look": "The user calls the silver-haired, grey-bearded AI character 'Adrian' (luxury hotel lobbies, white/linen/black polo shirts; videos 1-7 in Drive folder 'משפיעני ai'). Earlier Adrian videos used a younger dark-haired look. Same black/gold/ivory kit.",
+  "cta_name": "Show 'Adrian Hale' on the Follow/CTA card in his videos only (not other characters, not the user's own videos)."
  }
 }
