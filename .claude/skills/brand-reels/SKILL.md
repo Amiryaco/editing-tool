@@ -26,6 +26,7 @@ This skill is the playbook on top of three tool skills in this repo. Read them w
 | 5. Card | write `motion/clips/<series>/01-<name>.html` (or `make_tips_card.py`), build, preview with `beats.js`, render `.mov` | `card_0m00s00.mov` |
 | 6. Grade | `$BR/scripts/grade.sh rough.mp4 rough_graded.mp4 [hold]` | warm grade + vignette |
 | 7. Captions | `align_script.py` → `make_captions.py --style soft --below-face rough.mp4 [--strong-shadow]` | `captions.ass`, `captions.srt` |
+| 8b. Deliver | `$BR/scripts/deliver.sh final_master.mp4 final.mp4` | one two-pass encode that fits ~29 MB |
 | 8. Finish | `python3 $BR/scripts/make_finish.py …` → `python3 $VE/scripts/finish.py finish.json` | `final.mp4` at -14 LUFS |
 | 9. QA | `$BR/scripts/stills.sh final.mp4 sheet.png t1 t2 …` + `ebur128` | look at every still |
 | 10. Deliver | SendUserFile `final.mp4` + `captions.srt`; commit the card source | |
@@ -51,7 +52,7 @@ Card steps 5 and 6-7 are independent: start the `.mov` render in the background 
 
 `auto_cut.py` turns every pause longer than 0.45 s into a cut, pads 0.10 s before / 0.24 s after the words (a breath, not a gasp), and keeps the spoken list numbers ("1.", "2.") in. They are where the card changes. Typical result: 60-72 s raw → 50-56 s.
 
-**Framing:** one base framing for the whole video, `1.08` (slightly tighter than the avatar's wide shot) with `focus` a bit below the face centre so the chest stays in frame for captions. Emphasis is opt-in by phrase:
+**Framing:** the base framing is the source framing, `1.0`. **Every zoom above 1.0 upscales the picture and costs detail** (a constant 1.08 base cut face sharpness by ~30%), so only the emphasis lines zoom. `focus` a bit below the face centre. Emphasis is opt-in by phrase:
 - `--push "phrase"`: slow push-in across that segment (+0.07): the hook, the key lesson, the payoff line.
 - `--punch "phrase"`: the segment one step tighter (+0.06), back to base after: a punchline, the CTA.
 - `--snap "phrase"`: fast punch-in (+0.08 in 0.3 s): **once per video**, the strongest line.
@@ -82,9 +83,16 @@ NODE_PATH=./motion/node_modules node $MB/engine/render.js motion/dist/01-<name>.
 ```
 **Look at `beats.png` before rendering.** Typical fixes: text overflowing the card (widen the state or shorten the text), a quote mark on top of the text (position it with `left:`, since layers have no width and `right:` does not work), an element sliding past the card edge.
 
+## Quality: keep every generation near-lossless
+The user noticed quality loss. Measured on video 6 (face-area detail, source = 370): old pipeline 146, new pipeline 312. What changed:
+- base zoom 1.0 (no constant upscale), lanczos scaling in `render_cut.py`;
+- intermediates near-lossless: segments crf 8, rough crf 10, graded crf 10 (`yuv420p`);
+- no vignette in the grade (it darkened the face ~20% and read as "lower quality");
+- `finish.py` writes a master at crf 14 / preset slow (`make_finish.py` defaults), and `deliver.sh` makes the chat copy in **one** two-pass encode at the highest bitrate that fits ~29 MB (never re-encode a delivered file with a lower CRF).
+
 ## 6. Grade
 
-`$BR/scripts/grade.sh rough.mp4 rough_graded.mp4 [hold]`: contrast +5%, saturation +6%, a little warmth in the highlights, soft vignette. It makes AI-avatar footage feel filmed, not rendered. Keep it subtle, skin must stay natural. The captions' face detection still runs on `rough.mp4`.
+`$BR/scripts/grade.sh rough.mp4 rough_graded.mp4 [hold]`: contrast +4%, saturation +6%, a little warmth in the highlights, no vignette, near-lossless. It makes AI-avatar footage feel filmed, not rendered. Keep it subtle, skin must stay natural. The captions' face detection still runs on `rough.mp4`.
 
 ## 7. Captions
 
@@ -113,7 +121,7 @@ Sound is sparse: one whoosh as the card enters, a short swoosh on section/tip ch
 
 - `stills.sh final.mp4 sheet.png` at one time inside every card state, plus the hook and the end. **Look at it:** face clear, captions under the chin and not touching the card, card text fits, black cards visible, nothing over the mouth.
 - `ffmpeg -i final.mp4 -af ebur128=peak=true -f null - 2>&1 | grep -E "I:|Peak:" | tail -2` → I ≈ -14 LUFS, peak below -1 dBFS.
-- Size: SendUserFile takes ~30 MB. Above that, re-encode `-crf 22-23`.
+- Size: SendUserFile takes ~30 MB. Use `deliver.sh final_master.mp4 final.mp4` (two-pass to fit); never a second CRF re-encode.
 
 ## 10. Deliver
 

@@ -6,7 +6,8 @@ usage: python3 auto_cut.py <words.json> <edit.json> --source <video> [--video-js
 
 Every pause longer than --gap becomes a cut. Each kept segment starts --pad-in before its first word and ends
 --pad-out after its last (never past the next segment's start), so cuts land on the breath, not mid-word.
-All segments sit on one base framing (--base, slightly tighter than the camera's wide shot). Emphasis is opt-in:
+All segments sit on one base framing (--base, default 1.0 = the source framing: any zoom above 1.0 upscales
+the picture and softens it, so the base stays at 1.0 and only the emphasis lines zoom). Emphasis is opt-in:
   --push  "phrase"  slow push-in across that segment (base -> base+0.07)            hook, key lesson, payoff
   --punch "phrase"  the whole segment one step tighter (base+0.06), back after it   punchline, CTA
   --snap  "phrase"  a fast punch-in on the segment's first word (+0.08 in 0.3 s)    once per video, the strongest line
@@ -22,7 +23,7 @@ def main():
     ap.add_argument('words'); ap.add_argument('edit'); ap.add_argument('--source', required=True)
     ap.add_argument('--video-json'); ap.add_argument('--gap', type=float, default=0.45)
     ap.add_argument('--pad-in', type=float, default=0.10); ap.add_argument('--pad-out', type=float, default=0.24)
-    ap.add_argument('--base', type=float, default=1.08); ap.add_argument('--focus')
+    ap.add_argument('--base', type=float, default=1.0); ap.add_argument('--focus')
     ap.add_argument('--W', type=int, default=1080); ap.add_argument('--H', type=int, default=1920); ap.add_argument('--fps', default='25/1')
     for k in ('push', 'punch', 'snap'): ap.add_argument('--' + k, action='append', default=[])
     ap.add_argument('--print', action='store_true')

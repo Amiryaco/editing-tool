@@ -15,13 +15,13 @@ ap.add_argument('--video', required=True); ap.add_argument('--final', required=T
 ap.add_argument('--card'); ap.add_argument('--card-y', type=int, default=1100); ap.add_argument('--card-at', type=float, default=0)
 ap.add_argument('--captions'); ap.add_argument('--fontsdir', default='.claude/skills/hebrew-captions/fonts')
 for k in ('whoosh', 'swoosh', 'pop', 'click'): ap.add_argument('--' + k, type=float, nargs='*', default=[])
-ap.add_argument('--music'); ap.add_argument('--crf', type=int, default=21)
+ap.add_argument('--music'); ap.add_argument('--crf', type=int, default=14)
 a = ap.parse_args()
 sfx = [{'file': S + 'whoosh.wav', 'at': t, 'gain_db': -18} for t in a.whoosh]
 sfx += [{'file': S + 'swoosh-short.wav', 'at': round(max(0, t - 0.06), 2), 'gain_db': -20} for t in a.swoosh]
 sfx += [{'file': S + 'pop.wav', 'at': t, 'gain_db': -22} for t in a.pop]
 sfx += [{'file': S + 'click.wav', 'at': t, 'gain_db': -15} for t in a.click]
-f = {'video': a.video, 'out': a.final, 'crf': a.crf, 'sfx': sfx, 'loudness': -14}
+f = {'video': a.video, 'out': a.final, 'crf': a.crf, 'preset': 'slow', 'sfx': sfx, 'loudness': -14}
 if a.card: f['broll'] = [{'file': a.card, 'at': a.card_at, 'mode': 'overlay', 'x': 0, 'y': a.card_y, 'fade': 0}]
 if a.captions: f.update(captions=a.captions, fontsdir=a.fontsdir)
 if a.music: f['music'] = {'file': a.music, 'gain_db': -21, 'duck': True, 'fade_in': 1.0, 'fade_out': 2.0}

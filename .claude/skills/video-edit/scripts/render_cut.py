@@ -42,7 +42,7 @@ def seg_cmd(src, info, out, seg, i, dst, fast):
     z0 = float(seg.get('zoom', 1.0)); z1 = float(seg.get('zoom_end', z0))
     Z, anim = zoom_expr(z0, z1, D, seg.get('zoom_dur'), seg.get('ease', 'inout'))
     sw, sh = f'({SW * s0:.4f}*{Z})', f'({SH * s0:.4f}*{Z})'
-    vf = (f"setpts=PTS-STARTPTS,fps={out['fps']}:start_time=0,setpts=PTS-STARTPTS,scale=w='trunc({sw}/2)*2':h='trunc({sh}/2)*2':eval={'frame' if anim else 'init'}:flags=bicubic,"
+    vf = (f"setpts=PTS-STARTPTS,fps={out['fps']}:start_time=0,setpts=PTS-STARTPTS,scale=w='trunc({sw}/2)*2':h='trunc({sh}/2)*2':eval={'frame' if anim else 'init'}:flags=lanczos,"
           f"crop={W}:{H}:x='clip({fx}*{sw}-{W}/2,0,{sw}-{W}-2)':y='clip({fy}*{sh}-{H}/2,0,{sh}-{H}-2)',setsar=1,format=yuv420p")
     fade = 0.012
     af = f'asetpts=PTS-STARTPTS,aresample=48000,afade=t=in:d={fade},atrim=0:{D:.6f},apad=whole_dur={D:.6f},afade=t=out:st={D - fade:.6f}:d={fade}'
@@ -50,7 +50,7 @@ def seg_cmd(src, info, out, seg, i, dst, fast):
     if not info['has_audio']:
         cmd += ['-f', 'lavfi', '-t', f'{D:.4f}', '-i', 'anullsrc=r=48000:cl=stereo']
     cmd += ['-map', '0:v:0', '-map', '0:a:0' if info['has_audio'] else '1:a:0', '-vf', vf, '-af', af,
-            '-frames:v', str(N), '-c:v', 'libx264', '-preset', 'ultrafast' if fast else 'veryfast', '-crf', '22' if fast else '14',
+            '-frames:v', str(N), '-c:v', 'libx264', '-preset', 'ultrafast' if fast else 'veryfast', '-crf', '22' if fast else '8',
             '-c:a', 'pcm_s16le', '-ac', '2', str(dst)]
     return cmd, D
 
@@ -99,7 +99,7 @@ def main():
         gdur = t_out
     rough = outdir / 'rough.mp4'
     run(['ffmpeg', '-v', 'error', '-y', *ins, '-filter_complex', ';'.join(fc), '-map', cur_v, '-map', cur_a,
-         '-c:v', 'libx264', '-preset', 'ultrafast' if a.fast else 'medium', '-crf', '23' if a.fast else '17', '-pix_fmt', 'yuv420p',
+         '-c:v', 'libx264', '-preset', 'ultrafast' if a.fast else 'medium', '-crf', '23' if a.fast else '10', '-pix_fmt', 'yuv420p',
          '-r', out['fps'], '-c:a', 'aac', '-b:a', '256k', '-movflags', '+faststart', str(rough)])
     save(outdir / 'timeline.json', {'source': src, 'W': out['W'], 'H': out['H'], 'fps': out['fps'], 'duration': round(gdur, 4), 'segments': timeline})
 
