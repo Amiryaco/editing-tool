@@ -9,3 +9,5 @@ motion/out/
 motion/package.json
 # per-video work folders (source video, transcripts, analysis)
 motion/v*/
+# reference videos the user sends for style (not ours to publish)
+motion/ref*/
