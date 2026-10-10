@@ -1,15 +1,33 @@
 {
-  "_note": "Brand kit per character. Use these colours in motion-broll clips and captions; update when the user gives new ones.",
-  "robin-carter": {
-    "name": "Robin Carter", "niche": "Astrology", "language": "en",
-    "colors": {"ink": "#15121B", "gold": "#C9A45C", "cream": "#F3ECDF", "muted": "#A59C8E"},
-    "source": "chosen by Claude from her set (candles, zodiac poster); approved by the user",
-    "handle": "Robin Carter", "clips": "motion/clips/robin/"
+ "_note": "Brand kit per character. Use these colours in motion-broll clips and captions; update when the user gives new ones.",
+ "robin-carter": {
+  "name": "Robin Carter",
+  "niche": "Astrology",
+  "language": "en",
+  "colors": {
+   "ink": "#15121B",
+   "gold": "#C9A45C",
+   "cream": "#F3ECDF",
+   "muted": "#A59C8E"
   },
-  "adrian-hale": {
-    "name": "Adrian Hale", "niche": "Relationship advice for women", "language": "en",
-    "colors": {"black": "#0B0B0C", "gold": "#C9A24D", "gold_light": "#E2C27A", "ivory": "#F5F1E8", "muted": "#8E8778"},
-    "source": "user: black and gold",
-    "handle": "Adrian Hale", "clips": "motion/clips/adrian/"
-  }
+  "source": "chosen by Claude from her set (candles, zodiac poster); approved by the user",
+  "handle": "Robin Carter",
+  "clips": "motion/clips/robin/"
+ },
+ "adrian-hale": {
+  "name": "Adrian Hale",
+  "niche": "Relationship advice for women",
+  "language": "en",
+  "colors": {
+   "black": "#0B0B0C",
+   "gold": "#C9A24D",
+   "gold_light": "#E2C27A",
+   "ivory": "#F5F1E8",
+   "muted": "#8E8778"
+  },
+  "source": "user: black and gold",
+  "handle": "Adrian Hale",
+  "clips": "motion/clips/ (series-*)",
+  "look": "The user calls the silver-haired, grey-bearded AI character 'Adrian' (luxury hotel lobbies, white/linen/black polo shirts; videos 1-7 in Drive folder 'משפיעני ai'). Earlier Adrian videos used a younger dark-haired look. Same black/gold/ivory kit."
+ }
 }
